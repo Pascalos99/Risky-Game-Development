@@ -8,16 +8,17 @@ import java.util.*;
 
 public class Board {
 
+	public static GameRules SELECTED_GAMERULES = new DefaultGameRules();
+	
     private List<BoardNode> nodes;
-    private GameRules gamerules; // is used to validate moves made by players and to decide when the game ends
     private Player [] players;
     private BoardGraphics graphics; // is used to sync game updates with graphics updates
 
     Board(List<BoardNode> nodes, GameRules gamerules, Player [] players,BoardGraphics graphics) {
         this.nodes = nodes;
-        this.gamerules = gamerules;
         this.players = players;
         this.graphics = graphics;
+        SELECTED_GAMERULES = gamerules;
     }
 
     //TODO implement the method
