@@ -23,3 +23,6 @@
 hs_err_pid*
 /.idea/
 Risky-Game-Development.iml
+/bin/
+.classpath
+.project

@@ -1,40 +1,49 @@
 package gamerules;
 
+import java.util.Collections;
+import java.util.List;
+
 import players.Player;
 
 public class BoardNode {
 
     private int nodeID;
-    private Pawn occupying_Pawn;
-    private BoardNode [] adjacent_node;
-    private Player player_Home;
+    private Pawn occupying_pawn;
+    private List<BoardNode> adjacent_nodes;
+    private Player player_home;
 
-    BoardNode(int nodeID,Pawn occupying_Pawn,BoardNode [] adjacent_node,Player player_Home) {
+    protected BoardNode(int nodeID, Pawn occupying_pawn, BoardNode[] adjacent_nodes, Player player_home) {
         this.nodeID = nodeID;
-        this.occupying_Pawn = occupying_Pawn;
-        this.adjacent_node = adjacent_node;
-        this.player_Home = player_Home;
+        this.occupying_pawn = occupying_pawn;
+        this.adjacent_nodes = List.of(adjacent_nodes);
+        this.player_home = player_home;
     }
 
-    //TODO implement the method
     protected boolean addPawn(Pawn newPawn) {
-        return false;
+        if (occupying_pawn != null) return false;
+        occupying_pawn = newPawn;
+        return true;
     }
 
-    //TODO implement the method
     protected boolean removePawn(){
-        return false;
+        if (occupying_pawn == null) return false;
+        occupying_pawn = null;
+        return true;
     }
 
     public Pawn getCurrentPawn() {
-        return occupying_Pawn;
+        return occupying_pawn;
     }
 
-    public BoardNode[] getNeighbors() {
-        return adjacent_node;
+    public List<BoardNode> getNeighbors() {
+        return Collections.unmodifiableList(adjacent_nodes);
     }
 
     public Player getOwner() {
-        return player_Home;
+        return player_home;
+    }
+    
+    public int getID() {
+    	return nodeID;
     }
 }

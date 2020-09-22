@@ -4,20 +4,11 @@ import players.Player;
 
 import java.util.List;
 
-public class GameRules {
+public interface GameRules {
 
-    //TODO implement the method
-    public static boolean allowMove(Board board,Pawn pawn,BoardNode target){
-        return false;
-    }
+    boolean allowMove(Board board,Pawn pawn,BoardNode target);
 
-    //TODO implement the method
-    public static List<Move> getAllPossibleMove(Board board,Pawn pawn){
-        return null;
-    }
+    List<Move> getAllPossibleMoves(Board board,Pawn pawn);
 
-    //TODO implement the method
-    public static boolean hasWon(Board board, Player Player){
-        return false;
-    }
+    boolean hasWon(Board board, Player Player);
 }
