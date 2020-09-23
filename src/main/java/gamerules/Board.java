@@ -144,7 +144,7 @@ public class Board {
     	for (int i=0; i < nodes.length; i++) {
     		int[] adjacent_nodes = adjacency.get(Integer.valueOf(i));
     		for (int j=0; j < adjacent_nodes.length; j++)
-    			nodes[i].addNeighbor(nodes[adjacent_nodes[j]]);
+    			nodes[i].addNeighbour(nodes[adjacent_nodes[j]]);
     	}
     	return nodes;
     }

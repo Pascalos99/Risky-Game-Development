@@ -3,6 +3,11 @@ package gamerules;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Thank you michal, I copied your code and pasted it here - Pascal
+ * @author Michal
+ *
+ */
 public final class AdjacencyMap {
 	
 	private static Map<Integer, int[]> adjacency_map;

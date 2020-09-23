@@ -21,12 +21,12 @@ public class BoardNode {
         if (occupying_pawn != null) occupying_pawn.setPosition(this);
     }
 
-    protected boolean addNeighbor(BoardNode node) {
+    protected boolean addNeighbour(BoardNode node) {
     	if (adjacent_nodes.contains(node)) return false;
     	return adjacent_nodes.add(node);
     }
     
-    protected boolean removeNeighbor(BoardNode node) {
+    protected boolean removeNeighbour(BoardNode node) {
     	return adjacent_nodes.remove(node);
     }
     
@@ -70,7 +70,7 @@ public class BoardNode {
     	return !isEmpty();
     }
 
-    public List<BoardNode> getNeighbors() {
+    public List<BoardNode> getNeighbours() {
         return Collections.unmodifiableList(adjacent_nodes);
     }
 

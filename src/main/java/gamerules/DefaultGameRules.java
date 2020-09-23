@@ -9,7 +9,7 @@ public class DefaultGameRules implements GameRules {
 
 	@Override
 	public boolean allowMove(Board board, Pawn pawn, BoardNode target) {
-		if (pawn.getPosition().getNeighbors().contains(target)) return true;
+		if (pawn.getPosition().getNeighbours().contains(target)) return true;
 		return (getAllPossibleMoves(board,pawn).contains(new Move(pawn, target)));
 	}
 	
@@ -17,8 +17,8 @@ public class DefaultGameRules implements GameRules {
 	public List<Move> getAllPossibleMoves(Board board, Pawn pawn) {
 		// implement by Arthur brutforce method
 		Set<Move> moves = new HashSet<Move>();
-		for (BoardNode neighbor : pawn.getPosition().getNeighbors()){
-			if(neighbor.isEmpty()) moves.add(new Move(pawn,neighbor));
+		for (BoardNode neighbour : pawn.getPosition().getNeighbours()){
+			if(neighbour.isEmpty()) moves.add(new Move(pawn,neighbour));
 		}
 		recursiveMove(pawn.getPosition(),moves,pawn);
 		return moves.stream().collect(Collectors.toList());
@@ -27,14 +27,14 @@ public class DefaultGameRules implements GameRules {
 	// full field a set with the possiblility
 	private void recursiveMove(BoardNode place, Set<Move> movesfinale, Pawn pawn){
 		List<BoardNode> moves = new ArrayList<BoardNode>();
-		for (BoardNode neighbor : place.getNeighbors()){
-			for (BoardNode neighbor2 : place.getNeighbors()) {
-				if (neighbor2.isOccupied()) moves.add(neighbor2);
+		for (BoardNode neighbour : place.getNeighbours()){
+			for (BoardNode neighbour2 : place.getNeighbours()) {
+				if (neighbour2.isOccupied()) moves.add(neighbour2);
 			}
 		}
-		for(BoardNode nextNode : place.getNeighbors()) {
+		for(BoardNode nextNode : place.getNeighbours()) {
 			if(nextNode.getCurrentPawn() != null) {
-				for(BoardNode nextNode2 : place.getNeighbors()){
+				for(BoardNode nextNode2 : place.getNeighbours()){
 					if(!moves.contains(nextNode2) && !movesfinale.contains(nextNode2)){
 						movesfinale.add(new Move(pawn,nextNode2));
 						recursiveMove(nextNode2,movesfinale,pawn);
