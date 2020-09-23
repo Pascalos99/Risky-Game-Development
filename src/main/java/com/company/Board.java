@@ -1,4 +1,4 @@
-package main.javacom.company;
+package main.java.com.company;
 
 import javax.swing.*;
 import java.util.HashMap;
