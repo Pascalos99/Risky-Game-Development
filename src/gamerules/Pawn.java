@@ -23,4 +23,8 @@ public class Pawn {
     public Player getOwner() {
         return owner;
     }
+
+    public BoardNode getPosition() {
+        return position;
+    }
 }

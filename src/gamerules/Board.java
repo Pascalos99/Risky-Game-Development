@@ -14,7 +14,7 @@ public class Board {
     private Player [] players;
     private BoardGraphics graphics; // is used to sync game updates with graphics updates
 
-    Board(List<BoardNode> nodes, GameRules gamerules, Player [] players,BoardGraphics graphics) {
+    public Board(List<BoardNode> nodes, GameRules gamerules, Player[] players, BoardGraphics graphics) {
         this.nodes = nodes;
         this.players = players;
         this.graphics = graphics;

@@ -12,10 +12,9 @@ public class BoardNode {
     private List<BoardNode> adjacent_nodes;
     private Player player_home;
 
-    protected BoardNode(int nodeID, Pawn occupying_pawn, BoardNode[] adjacent_nodes, Player player_home) {
+    public BoardNode(int nodeID, Pawn occupying_pawn, Player player_home) {
         this.nodeID = nodeID;
         this.occupying_pawn = occupying_pawn;
-        this.adjacent_nodes = List.of(adjacent_nodes);
         this.player_home = player_home;
     }
 
@@ -29,6 +28,10 @@ public class BoardNode {
         if (occupying_pawn == null) return false;
         occupying_pawn = null;
         return true;
+    }
+
+    public void setAdjacent_nodes(List<BoardNode> adjacent_nodes) {
+        this.adjacent_nodes = adjacent_nodes;
     }
 
     public Pawn getCurrentPawn() {
