@@ -34,6 +34,9 @@ public class BoardNode {
         this.adjacent_nodes = adjacent_nodes;
     }
 
+    /**
+     * @return returns the pawn currently occupying this tile (node)
+     */
     public Pawn getCurrentPawn() {
         return occupying_pawn;
     }
@@ -42,6 +45,10 @@ public class BoardNode {
         return Collections.unmodifiableList(adjacent_nodes);
     }
 
+    /**
+     * @return the owner of this Node (is the color of the node on the board)
+     * {@code null} if this is a plain tile
+     */
     public Player getOwner() {
         return player_home;
     }

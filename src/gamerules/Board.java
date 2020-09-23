@@ -6,9 +6,22 @@ import players.Player;
 import java.awt.geom.Point2D;
 import java.util.*;
 
+/**
+ * Keeps track of player turns, the current board state and the state of the game (has it ended? did anyone win?)
+ */
 public class Board {
 
 	public static GameRules SELECTED_GAMERULES = new DefaultGameRules();
+	
+	/**
+     * player[0] is paired against player[1]
+     * player[2] is paired against player[3]
+     * player[4] is paired against player[5]
+     */
+	private static final int[] player_pairings = {
+			1, 0,
+			3, 2,
+			5, 4};
 	
     private List<BoardNode> nodes;
     private Player [] players;
@@ -21,6 +34,14 @@ public class Board {
         SELECTED_GAMERULES = gamerules;
     }
 
+    public Player getEnemy(Player player) {
+    	return players[player_pairings[getPlayerIndex(player)]];
+    }
+    
+    public List<BoardNode> getGoal(Player player) {
+    	return getAllNodesOf(getEnemy(player));
+    }
+    
     //TODO implement the method
     public int[] getIntegerRep(){
         return null;
@@ -28,6 +49,13 @@ public class Board {
 
     public List<BoardNode> getAllnodes() {
         return Collections.unmodifiableList(nodes);
+    }
+    
+    public List<BoardNode> getAllNodesOf(Player player) {
+    	ArrayList<BoardNode> result = new ArrayList<BoardNode>();
+    	for (BoardNode node : nodes)
+    		if (node.getOwner().equals(player)) result.add(node);
+    	return result;
     }
     
     public List<Pawn> getAllPawnsOf(Player owner) {
