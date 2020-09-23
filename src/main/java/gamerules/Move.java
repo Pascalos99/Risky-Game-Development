@@ -10,4 +10,10 @@ public class Move {
 	public final Pawn pawn;
 	public final BoardNode target;
 	
+	public boolean equals(Object o) {
+		if (!(o instanceof Move)) return false;
+		Move m = (Move)o;
+		return m.pawn.equals(pawn) && m.target.equals(target);
+	}
+	
 }
