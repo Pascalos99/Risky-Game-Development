@@ -1,4 +1,4 @@
-package main.java.com.company;
+package com.company;
 
 import javax.swing.*;
 import java.awt.*;
