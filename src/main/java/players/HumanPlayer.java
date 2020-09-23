@@ -1,7 +1,7 @@
-package players;
+package main.java.players;
 
-import gamerules.Board;
-import gamerules.Move;
+import main.java.gamerules.Board;
+import main.java.gamerules.Move;
 
 public class HumanPlayer implements Player{
     @Override

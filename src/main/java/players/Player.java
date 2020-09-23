@@ -1,10 +1,10 @@
-package players;
+package main.java.players;
 
 import java.util.List;
 
-import gamerules.Board;
-import gamerules.BoardNode;
-import gamerules.Move;
+import main.java.gamerules.Board;
+import main.java.gamerules.BoardNode;
+import main.java.gamerules.Move;
 
 public interface Player {
      

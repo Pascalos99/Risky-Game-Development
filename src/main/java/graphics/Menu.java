@@ -1,6 +1,6 @@
-package graphics;
+package main.java.graphics;
 
-import gamerules.Board;
+import main.java.gamerules.Board;
 
 public class Menu {
     private BoardGraphics board_graphics;

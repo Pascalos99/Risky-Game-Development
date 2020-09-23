@@ -1,4 +1,4 @@
-package com.company;
+package main.javacom.company;
 
 public class Game {
     public static void main(String[] args){

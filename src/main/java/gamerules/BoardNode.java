@@ -1,9 +1,9 @@
-package gamerules;
+package main.java.gamerules;
 
 import java.util.Collections;
 import java.util.List;
 
-import players.Player;
+import main.java.players.Player;
 
 public class BoardNode {
 

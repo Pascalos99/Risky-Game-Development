@@ -1,8 +1,9 @@
-package gamerules;
+package main.java.gamerules;
 
 import java.util.ArrayList;
 import java.util.List;
-import players.Player;
+
+import main.java.players.Player;
 
 public class DefaultGameRules implements GameRules {
 

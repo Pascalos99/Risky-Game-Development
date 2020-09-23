@@ -1,7 +1,7 @@
-package gamerules;
+package main.java.gamerules;
 
-import graphics.BoardGraphics;
-import players.Player;
+import main.java.graphics.BoardGraphics;
+import main.java.players.Player;
 
 import java.awt.geom.Point2D;
 import java.util.*;
