@@ -25,8 +25,8 @@ public class Pawn {
      * @return {@code true} if the state of this Pawn changed as a result of this call
      */
     protected boolean setPosition(BoardNode target){
-    	if (target.getCurrentPawn() != null) return false;
-    	position.removePawn();
+    	if (target.getCurrentPawn() != this && target.getCurrentPawn() != null) return false;
+    	if (position != null) position.removePawn();
     	position = target;
     	position.addPawn(this);
     	return true;
@@ -38,5 +38,11 @@ public class Pawn {
 
     public BoardNode getPosition() {
         return position;
+    }
+    
+    public String toString() {
+    	String s = "(Pawn of "+owner;
+    	if (position == null) return s + ")";
+    	else return s + " at "+position.getID()+")";
     }
 }

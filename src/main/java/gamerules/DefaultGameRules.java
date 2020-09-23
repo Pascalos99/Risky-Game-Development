@@ -44,6 +44,10 @@ public class DefaultGameRules implements GameRules {
 			}
 		}
 	}
+	
+	public String toString() {
+		return "Default Gamerules";
+	}
 
 	@Override
 	public boolean hasWon(Board board, Player Player) {

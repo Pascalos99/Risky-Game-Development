@@ -1,6 +1,7 @@
 package gamerules;
 
 import graphics.BoardGraphics;
+import players.HumanPlayer;
 import players.Player;
 import java.util.*;
 
@@ -51,6 +52,14 @@ public class Board {
         
         nodes = List.of(constructNodes());
     }
+    
+    /* 
+     * // main method for testing - by Pascal//
+     * // <--- bracket '/' after "*" to be placed or removed to activate method
+    public static void main(String[] args) {
+    	Board board = new Board(null, null, new HumanPlayer(), new HumanPlayer(), new HumanPlayer());
+    	System.out.println("created "+board);
+    } //*/
 
     public Player getEnemy(Player player) {
     	return players[player_pairings[getPlayerIndex(player)]];
@@ -99,8 +108,19 @@ public class Board {
     	return -1;
     }
     
-    public List<Player> getPlayers() {
-        return List.of(players);
+    public Player[] getPlayers() {
+        return Arrays.copyOf(players, players.length);
+    }
+    
+    public String toString() {
+    	StringBuilder sb = new StringBuilder(
+    			String.format(
+    					"Board with parameters: {\n - rules defined by %s\n - players = %s\n - nodes = (\n",
+    					SELECTED_GAMERULES, Arrays.toString(players)));
+    	for (BoardNode node : nodes)
+    		sb.append(String.format("    + %s\n", node));
+    	sb.append("   )\n}\n");
+    	return sb.toString();
     }
     
     /**
@@ -113,7 +133,7 @@ public class Board {
     	Player[] player_per_node = new Player[121];
     	for (int p=0; p < nodes_owned_per_player.length; p++)
     		for (int i=0; i < nodes_owned_per_player[p].length; i++)
-    			player_per_node[i] = players[p];
+    			player_per_node[nodes_owned_per_player[p][i]] = players[p];
     	
     	BoardNode[] nodes = new BoardNode[121];
     	for (int i=0; i < nodes.length; i++) {
@@ -124,7 +144,7 @@ public class Board {
     	for (int i=0; i < nodes.length; i++) {
     		int[] adjacent_nodes = adjacency.get(Integer.valueOf(i));
     		for (int j=0; j < adjacent_nodes.length; j++)
-    			nodes[i].addNeighbor(nodes[j]);
+    			nodes[i].addNeighbor(nodes[adjacent_nodes[j]]);
     	}
     	return nodes;
     }

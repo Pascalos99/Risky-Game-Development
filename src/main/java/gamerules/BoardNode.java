@@ -1,5 +1,6 @@
 package gamerules;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class BoardNode {
         this.nodeID = nodeID;
         this.occupying_pawn = occupying_pawn;
         this.player_home = player_home;
+        adjacent_nodes = new ArrayList<>();
         if (occupying_pawn != null) occupying_pawn.setPosition(this);
     }
 
@@ -82,5 +84,20 @@ public class BoardNode {
     
     public int getID() {
     	return nodeID;
+    }
+    
+    public String toString() {
+    	StringBuilder sb = new StringBuilder("Node["+nodeID+"]:{owner=");
+    	if (player_home == null) sb.append("None");
+    	else sb.append(player_home);
+    	sb.append("; neighbours: ");
+    	sb.append(adjacent_nodes.get(0).nodeID);
+    	for (int i=1; i < adjacent_nodes.size(); i++)
+    		sb.append(", "+adjacent_nodes.get(i).nodeID);
+    	sb.append("; pawn = ");
+    	if (occupying_pawn == null) sb.append("None");
+    	else sb.append(occupying_pawn);
+    	sb.append("}");
+    	return sb.toString();
     }
 }
