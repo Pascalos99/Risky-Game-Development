@@ -1,9 +1,9 @@
-package main.java.gamerules;
+package gamerules;
 
 import java.util.Collections;
 import java.util.List;
 
-import main.java.players.Player;
+import players.Player;
 
 public class BoardNode {
 
@@ -31,7 +31,7 @@ public class BoardNode {
     }
 
     public void setAdjacent_nodes(List<BoardNode> adjacent_nodes) {
-        this.adjacent_nodes = adjacent_nodes;
+        this.adjacent_nodes = List.copyOf(adjacent_nodes);
     }
 
     /**

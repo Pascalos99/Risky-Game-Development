@@ -1,11 +1,11 @@
-package main.java.graphics;
+package graphics;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
 
-import main.java.gamerules.Board;
-import main.java.gamerules.BoardNode;
-import main.java.gamerules.Pawn;
+import gamerules.Board;
+import gamerules.BoardNode;
+import gamerules.Pawn;
 
 public class BoardGraphics {
     private Image board_img;

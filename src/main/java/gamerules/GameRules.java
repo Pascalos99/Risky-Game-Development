@@ -1,8 +1,8 @@
-package main.java.gamerules;
+package gamerules;
 
 import java.util.List;
 
-import main.java.players.Player;
+import players.Player;
 
 public interface GameRules {
 

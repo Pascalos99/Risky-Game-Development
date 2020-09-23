@@ -1,4 +1,4 @@
-package main.java.gamerules;
+package gamerules;
 
 public class Move {
 	

@@ -1,6 +1,6 @@
-package main.java.gamerules;
+package gamerules;
 
-import main.java.players.Player;
+import players.Player;
 
 public class Pawn {
     private Player owner;

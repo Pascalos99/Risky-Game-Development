@@ -1,7 +1,7 @@
-package main.java.players;
+package players;
 
-import main.java.gamerules.Board;
-import main.java.gamerules.Move;
+import gamerules.Board;
+import gamerules.Move;
 
 public class BotPlayer implements Player{
     @Override
