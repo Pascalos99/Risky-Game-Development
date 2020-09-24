@@ -62,6 +62,10 @@ public class BoardGraphics {
     	updateImage();
     }
     
+    public double getScale() {
+    	return scale;
+    }
+    
     private void updateImage() {
     	if (width < 0 || height < 0) {
 	    	width = board_img.getWidth(null);
@@ -122,7 +126,7 @@ public class BoardGraphics {
      */
     public Point getScreenPositionOfNode(BoardNode node) {
     	Point2D coord = getCoordinateOfNode(node);
-    	return new Point((int) (scaled_width * coord.getX()), (int) (scaled_height * coord.getY()));
+    	return new Point((int) Math.round(scaled_width * coord.getX()), (int) Math.round(scaled_height * coord.getY()));
     }
     
     /**
@@ -150,6 +154,7 @@ public class BoardGraphics {
     /**
      * @param screenpos The position on the screen to check (in pixel points)
      * @param node_radius The radius of the nodes (in the scale of pixels, but allowing in between values by double)
+     * @param insets the insets of the screen of which the screenpos is being measured, also includes any offset of drawing the board anywhere else than (0,0)
      * @return {@code null} if the coordinate is not inside any node, a node that contains the given point if its radius is the given radius otherwise
      */
     public BoardNode getNodeAtScreenPosition(Point screenpos, double node_radius, Insets insets) {
@@ -183,14 +188,20 @@ public class BoardGraphics {
     		8 + 2, 7 + 4, 6 + 6, 5 + 8, 4, 3, 2, 1
     };
     
+    public static int default_board_width = 1000;
+    public static int default_board_height = 1000;
+    public static int default_node_diameter = 60;
+    public static int default_node_spacing_x = 10;
+    public static int default_node_spacing_y = -5;
+    
     public static Image createBoardImage(Board board, Color[] player_colors) {
 		int[] num_nodes = BoardGraphics.num_nodes_per_row;
 		
-		int width = 1000;
-		int height = 1000;
-		int circle_d = 60;
-		int space_x = 10;
-		int space_y = -5;
+		int width = default_board_width;
+		int height = default_board_height;
+		int circle_d = default_node_diameter;
+		int space_x = default_node_spacing_x;
+		int space_y = default_node_spacing_y;
 		
 		int tallest = num_nodes.length;
 		int nodes_height = tallest * circle_d + (tallest - 1) * space_y;

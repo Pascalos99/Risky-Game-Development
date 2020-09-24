@@ -25,7 +25,7 @@ public class ExampleGame extends JComponent {
 	private Board game;
 	private JFrame frame;
 	
-	public static int circle_diameter = 40;
+	public static int pawn_diameter = 40;
 	
 	public static void main(String[] args) {
 		Image[] pawns = new Image[6];
@@ -34,10 +34,10 @@ public class ExampleGame extends JComponent {
 							new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
 		
 		for (int i=0; i < pawns.length; i++) {
-			BufferedImage pawn = new BufferedImage(circle_diameter + 10, circle_diameter + 10, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage pawn = new BufferedImage(pawn_diameter + 10, pawn_diameter + 10, BufferedImage.TYPE_INT_ARGB);
 			Graphics g = pawn.getGraphics();
 			g.setColor(colors[i]);
-			g.fillOval(5, 5, circle_diameter, circle_diameter);
+			g.fillOval(5, 5, pawn_diameter, pawn_diameter);
 			pawns[i] = pawn;
 		}
 		
@@ -73,10 +73,8 @@ public class ExampleGame extends JComponent {
 		
 		frame.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {pointer = graphics.getNodeAtScreenPosition(e.getPoint(), circle_diameter/2d, frame.getInsets());
-				if (pointer != null) {
-					Point pos = graphics.getScreenPositionOfNode(pointer);
-				}
+			public void mouseClicked(MouseEvent e) {
+				pointer = graphics.getNodeAtScreenPosition(e.getPoint(), pawn_diameter/2d, frame.getInsets());
 				repaint();
 			}
 		});
@@ -110,8 +108,9 @@ public class ExampleGame extends JComponent {
 		
 		if (pointer != null) {
 			Point pos = graphics.getScreenPositionOfNode(pointer);
-			g.setColor(Color.BLACK);
-			g.fillOval(pos.x - 10, pos.y - 10, 20, 20);
+			g.setColor(new Color(150,150,150,150));
+			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 		}
 	}
 
