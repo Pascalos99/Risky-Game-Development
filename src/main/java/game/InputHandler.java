@@ -64,7 +64,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		selectedNode = graphics.getNodeAtScreenPosition(e.getPoint(), BoardGraphics.default_node_diameter / 2d, frame.getInsets());
+		setSelectedNode(graphics.getNodeAtScreenPosition(e.getPoint(), BoardGraphics.default_node_diameter / 2d, frame.getInsets()));
 	}
 	
 	/**

@@ -34,13 +34,26 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 		Pawn pawn = null;
 		BoardNode endNode = null;
 		boolean hasPlay = false;
+		
+		/*
+		while(!hasPlay){
+			if(Store.activateFromHuman){
+				BoardNode node = Store.node;
+				Store.activateFromHuman = false;
+				if(pawn==null &&
+					node.getCurrentPawn()!=null &&
+					!node.isEmpty()&&
+					node.getOwner().equals(this)){
+					System.out.println("dd");
+					pawn = node.getCurrentPawn();
+		*/
+		
 		while (!hasPlay) {
 			BoardNode select;
 			while ((select = GLOBAL_INPUT.getSelectedNode()) == null);
 			if ((pawn = select.getCurrentPawn()) == null || pawn.getOwner() != this) {
-				if (note == null) {
-					note = new GameEvent.Note("select a node of your color to continue");
-				}
+				GLOBAL_INPUT.setHighlighted(false);
+				if (note == null) note = new GameEvent.Note("select a node of your color to continue");
 			}
 			else {
 				note = null;
@@ -48,16 +61,6 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
 					new MoveEvent(available_moves);
 					calculated_moves_for = pawn;
-		/* while(!hasPlay){
-			if(Store.activateFromHuman){
-				BoardNode node = Store.node;
-				Store.activateFromHuman = false;
-				if(pawn==null &&
-						node.getCurrentPawn()!=null &&
-						!node.isEmpty()&&
-						node.getOwner().equals(this)){
-					System.out.println("dd");
-					pawn = node.getCurrentPawn(); */
 				}
 				GLOBAL_INPUT.setHighlighted(true);
 				while (endNode == null) {

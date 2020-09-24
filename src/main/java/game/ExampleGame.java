@@ -28,7 +28,7 @@ public class ExampleGame extends JComponent {
 	private InputHandler input;
 	
 	public static void main(String[] args) {		
-		Board board = new Board(null, null,new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
+		Board board = new Board(null, null,new HumanPlayer(), new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board);
 		Image[] pawns = BoardGraphics.createPawns(40);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
@@ -100,6 +100,7 @@ public class ExampleGame extends JComponent {
 			g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
 			
 			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+			if (HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()) diameter *= 1.2;
 			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 		}
 		repaint();
