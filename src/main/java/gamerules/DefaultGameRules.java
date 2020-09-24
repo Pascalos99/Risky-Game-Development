@@ -33,6 +33,9 @@ public class DefaultGameRules implements GameRules {
 			if (neighbour.isEmpty()) {
 				if (pawn == previous.getCurrentPawn()) moves.add(new Move(pawn, neighbour));
 			} else {
+				
+				// this part is for jumping; here we are jumping from *previous* over *neighbour* and seek to find a valid node for *jump_to*
+				
 				BoardNode[] jumps = new BoardNode[3]; int i = 0;
 				BoardNode[] common_neighbours = new BoardNode[2]; int cn = 0;
 				for (BoardNode potential_jump : neighbour.getNeighbours()) {
@@ -57,6 +60,9 @@ public class DefaultGameRules implements GameRules {
 					if (jump_to != null) break;
 				}
 				
+				// now *jump_to* is the node that we want to jump to, if it's null, that means we are at the edge of the board and there is
+				//  nowhere to jump to, in that case, we skip *neighbour* and go to the next node.
+				
 				if (jump_to == null) continue;
 				
 				if (jump_to.isEmpty()) {
@@ -72,6 +78,11 @@ public class DefaultGameRules implements GameRules {
 	//@Pascal this is a fix of the method that I write yesterday so if you need a backup for your method
 	//It seem to mee that your method is a bit more complex than mine
 	//-Arthur
+	// 
+	//@Arthur I know yours is less complex, but there were a few typos in it that I could not fix because I didn't completely follow
+	// your logic. But I would be really happy if you can help me with the part for validating the jumps... I had a lot of problems with it
+	// and it's far more complex than it needs to be (I marked it in my code for you to see).
+	// please test anything you change with the ExampleGame first to see if it all still works the same :)
 	/*
 	@Override
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
@@ -91,7 +102,7 @@ public class DefaultGameRules implements GameRules {
 			List<BoardNode> moves = new ArrayList<BoardNode>();
 			maps.put(neighbour, moves);
 			for (BoardNode neighbour2 : place.getNeighbours()) {
-				if (neighbour2.isOccupied()) moves.add(neighbour2);
+				if (neighbour2.isOccupied()) moves.add(neighbour2);  // I'm not sure if this is correct? this confused me mostly
 			}
 		}
 		for(BoardNode nextNode : place.getNeighbours()) {
@@ -114,12 +125,19 @@ public class DefaultGameRules implements GameRules {
 
 	@Override
 	public boolean hasWon(Board board, Player player) {
+		for (Pawn pawn : board.getAllPawnsOf(player))
+			if (pawn.getPosition().getOwner() != player.getEnemy(board)) return false;
+		return true;
+		
+		// used player.getEnemy instead of board.getGoal(player) as it is more efficient
+		
+		/*
 		List<Pawn> allPawns= board.getAllPawnsOf(player);
 		List<BoardNode> possiblePositions = board.getGoal(player);
 		for (Pawn pawn : allPawns) {
 			if(!possiblePositions.contains(pawn.getPosition())) return false;
 		}
-		return true;
+		return true; */
 	}
 
 }
