@@ -35,10 +35,6 @@ public abstract class Player {
     	return gameBoard.getEnemy(this);
     }
     
-    public String toString() {
-    	return player_name + " - "+getName();
-    }
-    
     public static final Player NONE = new Player() {
     	@Override
 		public String getTypeName() {

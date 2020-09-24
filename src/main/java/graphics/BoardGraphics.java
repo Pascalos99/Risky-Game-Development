@@ -194,6 +194,10 @@ public class BoardGraphics {
     public static int default_node_spacing_x = 10;
     public static int default_node_spacing_y = -5;
     
+    public static Image createBoardImage(Board board) {
+    	return createBoardImage(board, DEFAULT_HOME_COLORS);
+    }
+    
     public static Image createBoardImage(Board board, Color[] player_colors) {
 		int[] num_nodes = BoardGraphics.num_nodes_per_row;
 		
@@ -248,4 +252,26 @@ public class BoardGraphics {
 		BoardGraphics.updateCoordsForNodes();
 		return img;
 	}
+    
+    public static Image[] createPawns(int pawn_diameter) {
+    	return createPawns(pawn_diameter, DEFAULT_PAWN_COLORS);
+    }
+    
+    public static Image[] createPawns(int pawn_diameter, Color[] pawn_colors) {
+    	Image[] pawns = new Image[6];
+		
+		for (int i=0; i < pawns.length; i++) {
+			BufferedImage pawn = new BufferedImage(pawn_diameter + 10, pawn_diameter + 10, BufferedImage.TYPE_INT_ARGB);
+			Graphics g = pawn.getGraphics();
+			g.setColor(pawn_colors[i]);
+			g.fillOval(5, 5, pawn_diameter, pawn_diameter);
+			pawns[i] = pawn;
+		}
+		return pawns;
+    }
+    
+    public static Color[] DEFAULT_HOME_COLORS = {new Color(150, 205, 113), new Color(133, 178, 205), new Color(250, 217, 73),
+			new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
+    
+    public static Color[] DEFAULT_PAWN_COLORS = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
 }

@@ -1,4 +1,4 @@
-package graphics;
+package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 
 import gamerules.Board;
 import gamerules.BoardNode;
+import graphics.BoardGraphics;
 import players.HumanPlayer;
 import players.bots.RandomPlayer;
 
@@ -24,27 +25,12 @@ public class ExampleGame extends JComponent {
 	private BoardGraphics graphics;
 	private Board game;
 	private JFrame frame;
+	private InputHandler input;
 	
-	public static int pawn_diameter = 40;
-	
-	public static void main(String[] args) {
-		Image[] pawns = new Image[6];
-		Color[] colors = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
-		Color[] home_colors = {new Color(150, 205, 113), new Color(133, 178, 205), new Color(250, 217, 73),
-							new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
-		
-		for (int i=0; i < pawns.length; i++) {
-			BufferedImage pawn = new BufferedImage(pawn_diameter + 10, pawn_diameter + 10, BufferedImage.TYPE_INT_ARGB);
-			Graphics g = pawn.getGraphics();
-			g.setColor(colors[i]);
-			g.fillOval(5, 5, pawn_diameter, pawn_diameter);
-			pawns[i] = pawn;
-		}
-		
-		Board board = new Board(null, null,new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new HumanPlayer());
-		Image board_image = BoardGraphics.createBoardImage(board, home_colors);
-		
-		
+	public static void main(String[] args) {		
+		Board board = new Board(null, null,new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
+		Image board_image = BoardGraphics.createBoardImage(board);
+		Image[] pawns = BoardGraphics.createPawns(40);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
 		
 		//board.addDebugPawns();
@@ -53,15 +39,18 @@ public class ExampleGame extends JComponent {
 		new ExampleGame(board, graphics);
 	}
 	
-	private Thread timer;
-	private int turn_time = 1000; // in ms
+	private Thread gameLoop;
+	
+	public static int turn_time = 1000; // in ms
+	public static Color selection_color = new Color(150,150,150,150);
+	public static Color highlight_color = new Color(150,150,255,100);
 	
 	public ExampleGame(Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
 		game = board;
 		graphics.setBoard(board);
 		graphics.notifyUpdate();
-		frame = new JFrame();
+		frame = new JFrame("Risky Checkers v.0.003");
 		Dimension size = graphics.getSize();
 		if (size == null)
 			frame.setSize(500, 400);
@@ -71,51 +60,49 @@ public class ExampleGame extends JComponent {
 		frame.add(this);
 		frame.setVisible(true);
 		
-		frame.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				pointer = graphics.getNodeAtScreenPosition(e.getPoint(), pawn_diameter/2d, frame.getInsets());
-				repaint();
-				if (Store.activate){
-					Store.node = graphics.getNodeAtScreenPosition(e.getPoint(), pawn_diameter/2d, frame.getInsets());
-					Store.activateFromHuman = true;
-				}
-			}
-		});
+		input = new InputHandler(frame, board, graphics);
+		frame.addMouseListener(input);
+		frame.addKeyListener(input);
 		
-		timer = new Thread(new Runnable() {
+		// substitute for a gameLoop
+		gameLoop = new Thread(new Runnable() {
 			private long start_time = System.currentTimeMillis();
-			JFrame f = frame;
 			@Override
 			public void run() {
-				while (true)
-					if (System.currentTimeMillis() - start_time > turn_time * 2) break;
 				while (true) {
-					if (f == null || !f.isVisible()) return;
+					// stop-condition:
+					if (frame == null || !frame.isVisible()) return;
+					
+					// gameTick: [we wait 'turn_time' milliseconds between turns]
 					if (System.currentTimeMillis() - start_time > turn_time) {
 						start_time = System.currentTimeMillis();
+						
 						game.forceRequestMoveAndContinue();
+						
 						frame.repaint();
 					}
 				}
 			}
 		});
-		timer.start();
+		gameLoop.start();
 	}
 	
-	private BoardNode pointer;
-	
+	// graphics loop:
 	@Override
 	public void paintComponent(Graphics g) {
 		graphics.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right, frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		g.drawImage(graphics.getImage(), 0, 0, null);
 		
+		BoardNode pointer = HumanPlayer.GLOBAL_INPUT.getSelectedNode();
+		
 		if (pointer != null) {
 			Point pos = graphics.getScreenPositionOfNode(pointer);
-			g.setColor(new Color(150,150,150,150));
+			g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
+			
 			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
 			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 		}
+		repaint();
 	}
 
 }

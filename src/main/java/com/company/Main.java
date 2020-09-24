@@ -1,6 +1,6 @@
 package com.company;
 
-import graphics.ExampleGame;
+import game.ExampleGame;
 
 public class Main {
 
