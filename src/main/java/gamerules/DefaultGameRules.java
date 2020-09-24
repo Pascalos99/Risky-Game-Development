@@ -109,9 +109,13 @@ public class DefaultGameRules implements GameRules {
 	}
 
 	@Override
-	public boolean hasWon(Board board, Player Player) {
-		// TODO implement method
-		return false;
+	public boolean hasWon(Board board, Player player) {
+		List<Pawn> allPawns= board.getAllPawnsOf(player);
+		List<BoardNode> possiblePositions = board.getGoal(player);
+		for (Pawn pawn : allPawns) {
+			if(!possiblePositions.contains(pawn.getPosition())) return false;
+		}
+		return true;
 	}
 
 }
