@@ -40,7 +40,8 @@ public class HumanPlayer extends Player
 				Store.activateFromHuman = false;
 				if(pawn==null &&
 						node.getCurrentPawn()!=null &&
-						!node.isEmpty()){
+						!node.isEmpty()&&
+						node.getOwner().equals(this)){
 					System.out.println("dd");
 					pawn = node.getCurrentPawn();
 				}
@@ -53,7 +54,7 @@ public class HumanPlayer extends Player
 				}
 			}
 			try {
-				Thread.sleep(10);
+				Thread.sleep(100);
 			}catch (InterruptedException e){
 
 			}
