@@ -41,7 +41,7 @@ public class ExampleGame extends JComponent {
 			pawns[i] = pawn;
 		}
 		
-		Board board = new Board(null, null, new RandomPlayer(), new RandomPlayer(), new HumanPlayer());
+		Board board = new Board(null, null,new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new HumanPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board, home_colors);
 		
 		
@@ -76,6 +76,10 @@ public class ExampleGame extends JComponent {
 			public void mouseClicked(MouseEvent e) {
 				pointer = graphics.getNodeAtScreenPosition(e.getPoint(), pawn_diameter/2d, frame.getInsets());
 				repaint();
+				if (Store.activate){
+					Store.node = graphics.getNodeAtScreenPosition(e.getPoint(), pawn_diameter/2d, frame.getInsets());
+					Store.activateFromHuman = true;
+				}
 			}
 		});
 		
