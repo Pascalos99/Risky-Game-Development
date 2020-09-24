@@ -1,7 +1,7 @@
 import org.junit.jupiter.api.Test;
-import players.BotPlayer;
 import players.HumanPlayer;
 import players.Player;
+import players.bots.RandomPlayer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +22,7 @@ public class PlayerTest {
     @Test
     void testPlayerequal3(){
         Player pl = new HumanPlayer();
-        Player pl2 = new BotPlayer();
+        Player pl2 = new RandomPlayer();
         assertEquals(true,pl!=pl2) ;
     }
 
@@ -43,7 +43,7 @@ public class PlayerTest {
     void testPlayerID3(){
         //TODO CORRECT THE BOT CLASS (IMPLEMENT THE TO STRING AND THE ID)
         Player pl = new HumanPlayer();
-        Player pl2 = new BotPlayer();
+        Player pl2 = new RandomPlayer();
         assertEquals(pl2.toString().equals("Bot-2"),true);
     }
 }

@@ -8,7 +8,6 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.Random;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -16,6 +15,7 @@ import javax.swing.JFrame;
 import gamerules.Board;
 import gamerules.BoardNode;
 import players.HumanPlayer;
+import players.bots.RandomPlayer;
 
 public class ExampleGame extends JComponent {
 	
@@ -41,7 +41,7 @@ public class ExampleGame extends JComponent {
 			pawns[i] = pawn;
 		}
 		
-		Board board = new Board(null, null, new HumanPlayer(), new HumanPlayer(), new HumanPlayer(), new HumanPlayer());
+		Board board = new Board(null, null, new RandomPlayer(), new RandomPlayer(), new HumanPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board, home_colors);
 		
 		
@@ -90,7 +90,7 @@ public class ExampleGame extends JComponent {
 					if (f == null || !f.isVisible()) return;
 					if (System.currentTimeMillis() - start_time > turn_time) {
 						start_time = System.currentTimeMillis();
-						game.debugSingleRandomMove();
+						game.forceRequestMoveAndContinue();
 						frame.repaint();
 					}
 				}

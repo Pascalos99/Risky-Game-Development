@@ -2,6 +2,8 @@ package gamerules;
 
 import graphics.BoardGraphics;
 import players.Player;
+import players.bots.DeterministicReturn;
+
 import java.util.*;
 
 import static gamerules.GameRules.SELECTED_GAMERULES;
@@ -125,18 +127,74 @@ public class Board {
     		result.add(all_pawns.get(i));
     	return result;
     }
-
-    public boolean hasTurn(Player player){
-        return player.equals(currentPlayer());
-    }
     
     public Player currentPlayer() {
     	return players[current_player_ID];
     }
     
+    /**
+     * calls the {@link Player#returnMove(Board)} method of the {@link #currentPlayer()} and ends the turn after the move is executed.
+     * If {@link Player#returnMove(Board)} returns an invalid move or {@code null}, the turn will not be ended
+     * @return {@code true} if the turn ended as a result of this call
+     */
+    public boolean requestMoveAndContinue() {
+    	Move move = currentPlayer().returnMove(this);
+    	if (move != null && move.isValid()) {
+    		move.execute();
+    		graphics.notifyUpdate();
+			nextTurn();
+			return true;
+    	}
+    	return false;
+    }
+    
+    /**
+     * Keeps requesting {@link Player#returnMove(Board)} from the {@link #currentPlayer()} until a valid move is returned, then executes the
+     * move and ends this turn.
+     * <br><br>
+     * If the {@link #currentPlayer()} is a {@link players.bots.DeterministicReturn} object, this will only request a move <b>once</b> and execute
+     * {@link #forceEndTurn()} if the given move is {@code null} or invalid.
+     */
+    public void forceRequestMoveAndContinue() {
+    	
+    	if (currentPlayer() instanceof DeterministicReturn) {
+    		if (!requestMoveAndContinue()) forceEndTurn();
+    		return;
+    	}
+    	
+    	Move move = null;
+    	while (move == null || !move.isValid())
+    		move = currentPlayer().returnMove(this);
+    	move.execute();
+		graphics.notifyUpdate();
+		nextTurn();
+    }
+    
+    public boolean hasTurn(Player player){
+        return player.equals(currentPlayer());
+    }
+    
     private void nextTurn() {
     	current_player_ID++;
     	if (current_player_ID >= player_count) current_player_ID = 0;
+    }
+    
+    /**
+     * executes a random move for the {@link #currentPlayer()} if any moves are available. Then ends the turn.
+     */
+    public void forceEndTurn() {
+    	List<Pawn> pawns = getAllPawnsOf(currentPlayer());
+    	Collections.shuffle(pawns);
+    	for (Pawn pawn : pawns) {
+    		List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+    		if (moves.size() > 0) {
+    			Collections.shuffle(moves);
+    			moves.get(0).execute();
+    			break;
+    		}
+    	}
+    	graphics.notifyUpdate();
+		nextTurn();
     }
 
     /**
@@ -239,21 +297,6 @@ public class Board {
     				nodes.get(random_order.get(i)).addPawn(pawn);
     				break;
     			}
-    		}
-    	}
-    }
-    
-    public void debugSingleRandomMove() {
-    	List<Pawn> pawns = getAllPawnsOf(currentPlayer());
-    	Collections.shuffle(pawns);
-    	for (Pawn pawn : pawns) {
-    		List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
-    		if (moves.size() > 0) {
-    			Collections.shuffle(moves);
-    			moves.get(0).execute();
-    			graphics.notifyUpdate();
-    			nextTurn();
-    			return;
     		}
     	}
     }
