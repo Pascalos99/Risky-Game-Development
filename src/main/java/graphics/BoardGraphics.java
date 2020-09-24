@@ -5,7 +5,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
-
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.Pawn;
@@ -58,6 +57,8 @@ public class BoardGraphics {
     private void updateImage() {
     	updateImage(width, height);
     }
+
+    private double scale;
     
     private void updateImage(int width, int height) {
     	if (width < 0 || height < 0) {
@@ -72,7 +73,9 @@ public class BoardGraphics {
     		if (scaleX > scaleY) scaleX = scaleY;
     		else scaleY = scaleX;
     	}
-    	
+
+    	scale = scaleX;
+
     	width = (int) (scaleX * board_img.getWidth(null));
     	height = (int) (scaleY * board_img.getHeight(null));
     	
@@ -105,6 +108,7 @@ public class BoardGraphics {
      * invariant: x and y must lie in the range [0,1]
      */
     public Point2D.Double getCoordinateOfNode(BoardNode node) {
+
     	Point2D.Double coord = coords_per_node[node.getID()];
     	
     	// invariant check function, do not remove
@@ -119,7 +123,7 @@ public class BoardGraphics {
     public static double[][] d_coords_per_node = new double[121][2];
     
     private static Point2D.Double[] coords_per_node;
-    
+
     public static void updateCoordsForNodes() {
     	coords_per_node = new Point2D.Double[d_coords_per_node.length];
     	for (int i=0; i < d_coords_per_node.length; i++)
