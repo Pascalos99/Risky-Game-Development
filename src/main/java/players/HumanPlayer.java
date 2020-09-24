@@ -16,7 +16,7 @@ import static gamerules.GameRules.SELECTED_GAMERULES;
 public class HumanPlayer extends Player implements DeterministicReturn {
 
 	public static InputHandler GLOBAL_INPUT;
-	
+
 	private static int human_count = 0;
 	private int ID;
 
@@ -24,13 +24,13 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 		ID = ++human_count;
 		setName("Human-"+ID);
 	}
-	
+
 	@Override
     public Move returnMove(Board gameBoard){
 		Pawn calculated_moves_for = null;
 		List<Move> available_moves = null;
 		GameEvent note = null;
-		
+
 		Pawn pawn = null;
 		BoardNode endNode = null;
 		boolean hasPlay = false;
@@ -48,6 +48,16 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
 					new MoveEvent(available_moves);
 					calculated_moves_for = pawn;
+		/* while(!hasPlay){
+			if(Store.activateFromHuman){
+				BoardNode node = Store.node;
+				Store.activateFromHuman = false;
+				if(pawn==null &&
+						node.getCurrentPawn()!=null &&
+						!node.isEmpty()&&
+						node.getOwner().equals(this)){
+					System.out.println("dd");
+					pawn = node.getCurrentPawn(); */
 				}
 				GLOBAL_INPUT.setHighlighted(true);
 				while (endNode == null) {
@@ -65,12 +75,17 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 					}
 				}
 			}
+			/* try {
+				Thread.sleep(100);
+			}catch (InterruptedException e){
+
+			} */
 		}
-		
+
 		GLOBAL_INPUT.setSelectedNode(null);
-		
+
 		if (pawn == null || endNode == null) return null;
-		
+
 		return new Move(pawn,endNode);
     }
 
@@ -83,7 +98,7 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 	public String getDescription() {
 		return "Just a normal human being";
 	}
-    
+
     public String toString() {
     	return "Human-"+ ID;
     }
