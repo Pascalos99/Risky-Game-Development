@@ -1,6 +1,7 @@
 package gamerules;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import players.Player;
 
@@ -68,11 +69,11 @@ public class DefaultGameRules implements GameRules {
 		}
 	}
 	
-	// @Arthur, I had problems understanding your code and I saw it didn't work properly while testing, so I tried rewriting your idea from scratch,
-	//  Most of it is still the same, but this version runs 100% accurate (after very rigurous testing), it took A LOT of tests...
-	// - Pascal
-	
-	/*@Override
+	//@Pascal this is a fix of the method that I write yesterday so if you need a backup for your method
+	//It seem to mee that your method is a bit more complex than mine
+	//-Arthur
+	/*
+	@Override
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		// implement by Arthur brutforce method
 		Set<Move> moves = new HashSet<Move>();
@@ -85,14 +86,17 @@ public class DefaultGameRules implements GameRules {
 
 	// full field a set with the possiblility
 	private void recursiveMove(BoardNode place, Set<Move> movesfinale, Pawn pawn){
-		List<BoardNode> moves = new ArrayList<BoardNode>();
+		HashMap<BoardNode, List<BoardNode>> maps = new HashMap<BoardNode, List<BoardNode>>();
 		for (BoardNode neighbour : place.getNeighbours()){
+			List<BoardNode> moves = new ArrayList<BoardNode>();
+			maps.put(neighbour, moves);
 			for (BoardNode neighbour2 : place.getNeighbours()) {
 				if (neighbour2.isOccupied()) moves.add(neighbour2);
 			}
 		}
 		for(BoardNode nextNode : place.getNeighbours()) {
 			if(nextNode.getCurrentPawn() != null) {
+				List<BoardNode> moves = maps.get(nextNode);
 				for(BoardNode nextNode2 : place.getNeighbours()){
 					if(!moves.contains(nextNode2) && !movesfinale.contains(nextNode2)){
 						movesfinale.add(new Move(pawn,nextNode2));
@@ -102,8 +106,8 @@ public class DefaultGameRules implements GameRules {
 				}
 			}
 		}
-	}*/
-	
+	}
+	*/
 	public String toString() {
 		return "Default Gamerules";
 	}

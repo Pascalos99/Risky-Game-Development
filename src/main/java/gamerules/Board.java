@@ -137,6 +137,7 @@ public class Board {
      */
     public int getPlayerIndex(Player player) {
     	for (int i=0; i < players.length; i++)
+    		//TODO method equals don't exist in player
     		if (player.equals(players[i])) return i;
     	return -1;
     }
