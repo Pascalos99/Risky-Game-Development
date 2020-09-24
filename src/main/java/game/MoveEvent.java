@@ -13,18 +13,20 @@ import gamerules.Move;
  */
 public class MoveEvent extends GameEvent {
 
-	private List<Move> moves;
+	private volatile List<Move> moves;
 	
 	public MoveEvent(Collection<Move> moves) {
 		super(Urgency.Note, "display the given moves on the board");
-		this.moves = new ArrayList<>(moves);
-		List<MoveEvent> toRemove = new LinkedList<MoveEvent>();
-		for (GameEvent e : GameEvent.gameEvents)
-			if (e instanceof MoveEvent && e != this) toRemove.add((MoveEvent) e);
-		for (MoveEvent e : toRemove) GameEvent.gameEvents.remove(e);
+		synchronized(this) {
+			this.moves = new ArrayList<>(moves);
+			List<MoveEvent> toRemove = new LinkedList<MoveEvent>();
+			for (GameEvent e : GameEvent.gameEvents)
+				if (e instanceof MoveEvent && e != this) toRemove.add((MoveEvent) e);
+			for (MoveEvent e : toRemove) GameEvent.gameEvents.remove(e);
+		}
 	}
 	
-	public List<Move> getMoves() {
+	public synchronized List<Move> getMoves() {
 		return moves;
 	}
 

@@ -28,4 +28,8 @@ public class Move {
 		return target.addPawn(pawn);
 	}
 	
+	public String toString() {
+		return pawn.getPosition().getID()+"->"+target.getID();
+	}
+	
 }

@@ -17,7 +17,7 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	 * Gets the next event to be declared and declares it
 	 * @return the event with highest priority, or {@code null} if there are no events pending
 	 */
-	public GameEvent getNext() {
+	public static GameEvent getNext() {
 		return gameEvents.poll();
 	}
 	
@@ -52,7 +52,11 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	}
 	
 	public String toString() {
-		return "Event["+urgency.urgencyValue+"]:\""+message+"\"";
+		return urgency+message;
+	}
+	
+	public String getMessage() {
+		return message;
 	}
 	
 	/**

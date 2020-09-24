@@ -5,15 +5,14 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import gamerules.Board;
 import gamerules.BoardNode;
+import gamerules.Move;
 import graphics.BoardGraphics;
 import players.HumanPlayer;
 import players.bots.RandomPlayer;
@@ -40,6 +39,7 @@ public class ExampleGame extends JComponent {
 	}
 	
 	private Thread gameLoop;
+	private Thread eventLoop;
 	
 	public static int turn_time = 1000; // in ms
 	public static Color selection_color = new Color(150,150,150,150);
@@ -84,7 +84,34 @@ public class ExampleGame extends JComponent {
 				}
 			}
 		});
+		// loop seperate of gameLoop to handle all GameEvents
+		eventLoop = new Thread(new Runnable() {
+			@Override
+			public synchronized void run() {
+				while(true) {
+					// stop-condition:
+					if (frame == null || !frame.isVisible()) return;
+					
+					// eventTick: no waits here, we want to respond as quickly as possible (if necessary)
+					while (GameEvent.hasPending()) {
+						GameEvent e = GameEvent.getNext();
+						if (e instanceof TurnEvent)
+							System.out.format("----Turn Ended----\n\n=~=~ Now it's %s [%s]'s turn! ~=~=\n", ((TurnEvent) e).player, ((TurnEvent) e).player_ID);
+						else if (e instanceof MoveEvent) {
+							// yet to be implemented
+							// TODO display all moves on screen
+							MoveEvent m = (MoveEvent) e;
+							System.out.println("Possible Moves: "+m.getMoves());
+						}
+						else {
+							System.out.println(e);
+						}
+					}
+				}
+			}
+		});
 		gameLoop.start();
+		eventLoop.start();
 	}
 	
 	// graphics loop:

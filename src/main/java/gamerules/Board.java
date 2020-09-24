@@ -6,6 +6,8 @@ import players.bots.DeterministicReturn;
 
 import java.util.*;
 
+import game.TurnEvent;
+
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
 /**
@@ -177,6 +179,7 @@ public class Board {
     private void nextTurn() {
     	current_player_ID++;
     	if (current_player_ID >= player_count) current_player_ID = 0;
+    	new TurnEvent(currentPlayer(), current_player_ID);
     }
     
     /**
