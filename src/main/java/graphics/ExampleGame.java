@@ -73,16 +73,10 @@ public class ExampleGame extends JComponent {
 		
 		frame.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				System.out.println("click at "+e.getPoint());
-				
-				pointer = graphics.getNodeAtScreenPosition(e.getPoint(), circle_diameter/2d);
-				//System.out.println("node came out "+pointer);
+			public void mouseClicked(MouseEvent e) {pointer = graphics.getNodeAtScreenPosition(e.getPoint(), circle_diameter/2d, frame.getInsets());
 				if (pointer != null) {
 					Point pos = graphics.getScreenPositionOfNode(pointer);
-					//System.out.println("actual-pos = "+e.getPoint()+", node-pos = "+pos+", radius = "+circle_diameter/2d);
 				}
-				System.out.println("screen size = "+graphics.getSize().width+", "+graphics.getSize().height);
 				repaint();
 			}
 		});

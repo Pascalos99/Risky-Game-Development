@@ -134,7 +134,6 @@ public class BoardGraphics {
      * @return {@code null} if the coordinate is not inside any node, a node that contains the given point if its radius is the given radius otherwise
      */
     public BoardNode getNodeAtCoordinate(Point2D coord, double node_radius) {
-    	System.out.println("coord = "+coord+", r = "+node_radius);
     	int best_ID = -1;
     	double best_distance = Double.POSITIVE_INFINITY;
     	for (int ID=0; ID < coords_per_node.length; ID++) {
@@ -153,15 +152,11 @@ public class BoardGraphics {
      * @param node_radius The radius of the nodes (in the scale of pixels, but allowing in between values by double)
      * @return {@code null} if the coordinate is not inside any node, a node that contains the given point if its radius is the given radius otherwise
      */
-    public BoardNode getNodeAtScreenPosition(Point screenpos, double node_radius) {
-    	
-    	System.out.println("checking at "+screenpos+" with r="+node_radius);
-    	
-    	Point2D coord = new Point2D(((double)screenpos.x) / scaled_width, ((double)screenpos.y) / scaled_height);
+    public BoardNode getNodeAtScreenPosition(Point screenpos, double node_radius, Insets insets) {
+    	Point2D coord = new Point2D(((double) (screenpos.x - insets.left)) / scaled_width, ((double) (screenpos.y - insets.top)) / scaled_height);
     	double scaled_side = scaled_by_x? scaled_width : scaled_height;
     	double scaled_radius = node_radius / scaled_side;
     	BoardNode result = getNodeAtCoordinate(coord, scaled_radius);
-    	System.out.println("found "+((result != null)? (result.getID() +" at "+getScreenPositionOfNode(result)) : "nothing"));
     	return result;
     }
     
