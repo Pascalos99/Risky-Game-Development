@@ -4,11 +4,13 @@ import java.util.List;
 
 import players.Player;
 
-public interface GameRules {
+public abstract class GameRules {
 
-    boolean allowMove(Pawn pawn,BoardNode target);
+	public static GameRules SELECTED_GAMERULES = new DefaultGameRules();
+	
+    public abstract boolean allowMove(Pawn pawn,BoardNode target);
 
-    List<Move> getAllPossibleMoves(Pawn pawn);
+    public abstract List<Move> getAllPossibleMoves(Pawn pawn);
 
-    boolean hasWon(Board board, Player Player);
+    public abstract boolean hasWon(Board board, Player Player);
 }

@@ -1,7 +1,7 @@
 package graphics;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +19,9 @@ public class BoardGraphics {
     
     private int width = -1;
     private int height = -1;
+    private int scaled_width, scaled_height;
+    private double scale;
+    private boolean scaled_by_x;
     
     private boolean request_update;
     
@@ -42,9 +45,14 @@ public class BoardGraphics {
     	if (board != null && board.getGraphics() != this) board.setGraphics(this);
     }
     
-    public Dimension getSize() {
+    public Dimension getOriginalSize() {
     	if (board_img == null) return null;
     	return new Dimension(board_img.getWidth(null), board_img.getHeight(null));
+    }
+    
+    public Dimension getSize() {
+    	if (main_img == null) return null;
+    	return new Dimension(scaled_width, scaled_height);
     }
     
     public void setSize(int width, int height) {
@@ -55,12 +63,6 @@ public class BoardGraphics {
     }
     
     private void updateImage() {
-    	updateImage(width, height);
-    }
-
-    private double scale;
-    
-    private void updateImage(int width, int height) {
     	if (width < 0 || height < 0) {
 	    	width = board_img.getWidth(null);
 	    	height = board_img.getHeight(null);
@@ -69,19 +71,16 @@ public class BoardGraphics {
     	double scaleX = ((double)width) / board_img.getWidth(null);
     	double scaleY = ((double)height) / board_img.getHeight(null);
     	
-    	if (scaleX <= scaleY - 0.001 || scaleX >= scaleY + 0.001) {
-    		if (scaleX > scaleY) scaleX = scaleY;
-    		else scaleY = scaleX;
-    	}
-
+    	scaled_by_x = true;
     	scale = scaleX;
+    	if (scale > scaleY) { scale = scaleY; scaled_by_x = false;}
 
-    	width = (int) (scaleX * board_img.getWidth(null));
-    	height = (int) (scaleY * board_img.getHeight(null));
+    	scaled_width = (int) (scale * board_img.getWidth(null));
+    	scaled_height = (int) (scale * board_img.getHeight(null));
     	
-    	main_img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    	main_img = new BufferedImage(scaled_width, scaled_height, BufferedImage.TYPE_INT_ARGB);
     	Graphics mg = main_img.getGraphics();
-    	mg.drawImage(board_img, 0, 0, width, height, null);
+    	mg.drawImage(board_img, 0, 0, scaled_width, scaled_height, null);
     	
         Graphics g = main_img.getGraphics();
         for (BoardNode b : board.getAllnodes()) {
@@ -92,10 +91,10 @@ public class BoardGraphics {
         	Image pawn = pawn_colors[index];
         	Point2D coord = getCoordinateOfNode(b);
         	
-        	double pawn_width = scaleX * pawn.getWidth(null);
-        	double pawn_height = scaleY * pawn.getHeight(null);
+        	double pawn_width = scale * pawn.getWidth(null);
+        	double pawn_height = scale * pawn.getHeight(null);
         	
-        	g.drawImage(pawn, (int) (coord.getX() * ((double) width) - pawn_width / 2d), (int) (coord.getY() * ((double) height) - pawn_height / 2d), 
+        	g.drawImage(pawn, (int) (coord.getX() * ((double) scaled_width) - pawn_width / 2d), (int) (coord.getY() * ((double) scaled_height) - pawn_height / 2d), 
         			(int) pawn_width, (int) pawn_height, null);
         }
     }
@@ -107,13 +106,63 @@ public class BoardGraphics {
      * @return a Point2D object representing the node's coordinate (centre of the node)
      * invariant: x and y must lie in the range [0,1]
      */
-    public Point2D.Double getCoordinateOfNode(BoardNode node) {
+    public Point2D getCoordinateOfNode(BoardNode node) {
 
-    	Point2D.Double coord = coords_per_node[node.getID()];
+    	Point2D coord = coords_per_node[node.getID()];
     	
     	// invariant check function, do not remove
-    	if (coord.x < 0 || coord.x > 1 || coord.y < 0 || coord.y > 1) throw new AssertionError("Coordinate does not fall within [0,1]x[0,1]");
+    	if (coord.getX() < 0 || coord.getX() > 1 || coord.getY() < 0 || coord.getY() > 1) throw new AssertionError("Coordinate does not fall within [0,1]x[0,1]");
     	return coord;
+    }
+    
+    /**
+     * This result may change in real-time if the screen or board is resized
+     * @param node a node
+     * @return a Point storing the x and y screen positions of the *origin* of the given node
+     */
+    public Point getScreenPositionOfNode(BoardNode node) {
+    	Point2D coord = getCoordinateOfNode(node);
+    	return new Point((int) (scaled_width * coord.getX()), (int) (scaled_height * coord.getY()));
+    }
+    
+    /**
+     * Gives the node that the given point is inside of (no guarantees are given when it is inside multiple nodes), based on the radius of the node given
+     *   in board-image percentages (same way as the coord).
+     * @param coord the [0,1]x[0,1] position of the point to be checked, where 0 denotes the most left or most top of the board-image
+     *  and 1 denotes the most right or most bottom of the board-image.
+     * @param node_radius the radius of the nodes in percentages of the board-image (so in [0,1])
+     * @return {@code null} if the coordinate is not inside any node, a node that contains the given point if its radius is the given radius otherwise
+     */
+    public BoardNode getNodeAtCoordinate(Point2D coord, double node_radius) {
+    	System.out.println("coord = "+coord+", r = "+node_radius);
+    	int best_ID = -1;
+    	double best_distance = Double.POSITIVE_INFINITY;
+    	for (int ID=0; ID < coords_per_node.length; ID++) {
+    		double distance = coords_per_node[ID].distance(coord);
+    		if (distance < node_radius && distance < best_distance) {
+    			best_ID = ID;
+    			best_distance = distance;
+    		}
+    	}
+    	if (best_ID == -1) return null;
+    	else return board.getNode(best_ID);
+    }
+    
+    /**
+     * @param screenpos The position on the screen to check (in pixel points)
+     * @param node_radius The radius of the nodes (in the scale of pixels, but allowing in between values by double)
+     * @return {@code null} if the coordinate is not inside any node, a node that contains the given point if its radius is the given radius otherwise
+     */
+    public BoardNode getNodeAtScreenPosition(Point screenpos, double node_radius) {
+    	
+    	System.out.println("checking at "+screenpos+" with r="+node_radius);
+    	
+    	Point2D coord = new Point2D(((double)screenpos.x) / scaled_width, ((double)screenpos.y) / scaled_height);
+    	double scaled_side = scaled_by_x? scaled_width : scaled_height;
+    	double scaled_radius = node_radius / scaled_side;
+    	BoardNode result = getNodeAtCoordinate(coord, scaled_radius);
+    	System.out.println("found "+((result != null)? (result.getID() +" at "+getScreenPositionOfNode(result)) : "nothing"));
+    	return result;
     }
     
     public void notifyUpdate(){
@@ -122,12 +171,12 @@ public class BoardGraphics {
     
     public static double[][] d_coords_per_node = new double[121][2];
     
-    private static Point2D.Double[] coords_per_node;
+    private static Point2D[] coords_per_node;
 
     public static void updateCoordsForNodes() {
-    	coords_per_node = new Point2D.Double[d_coords_per_node.length];
+    	coords_per_node = new Point2D[d_coords_per_node.length];
     	for (int i=0; i < d_coords_per_node.length; i++)
-    		coords_per_node[i] = new Point2D.Double(d_coords_per_node[i][0], d_coords_per_node[i][1]);
+    		coords_per_node[i] = new Point2D(d_coords_per_node[i][0], d_coords_per_node[i][1]);
     }
     
     static {

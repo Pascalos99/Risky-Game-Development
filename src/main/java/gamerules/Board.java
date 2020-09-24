@@ -4,12 +4,12 @@ import graphics.BoardGraphics;
 import players.Player;
 import java.util.*;
 
+import static gamerules.GameRules.SELECTED_GAMERULES;
+
 /**
  * Keeps track of player turns, the current board state and the state of the game (has it ended? did anyone win?)
  */
 public class Board {
-
-	public static GameRules SELECTED_GAMERULES = new DefaultGameRules();
 	
 	/**
      * player[0] is paired against player[1]
@@ -79,6 +79,14 @@ public class Board {
         return null;
     }
 
+    public BoardNode getNode(int ID) {
+    	return nodes.get(ID);
+    }
+    
+    public int getNodeCount() {
+    	return nodes.size();
+    }
+    
     public List<BoardNode> getAllnodes() {
     	if (nodes == null) return null;
         return Collections.unmodifiableList(nodes);

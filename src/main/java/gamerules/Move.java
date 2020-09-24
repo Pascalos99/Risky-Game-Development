@@ -17,7 +17,7 @@ public class Move {
 	}
 	
 	public boolean isValid() {
-		return Board.SELECTED_GAMERULES.allowMove(pawn, target);
+		return GameRules.SELECTED_GAMERULES.allowMove(pawn, target);
 	}
 	
 	/**

@@ -1,11 +1,10 @@
 package gamerules;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import players.Player;
 
-public class DefaultGameRules implements GameRules {
+public class DefaultGameRules extends GameRules {
 
 	@Override
 	public boolean allowMove(Pawn pawn, BoardNode target) {

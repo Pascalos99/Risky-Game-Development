@@ -4,11 +4,17 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Random;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import gamerules.Board;
+import gamerules.BoardNode;
 import players.HumanPlayer;
 
 public class ExampleGame extends JComponent {
@@ -19,6 +25,8 @@ public class ExampleGame extends JComponent {
 	private Board game;
 	private JFrame frame;
 	
+	public static int circle_diameter = 40;
+	
 	public static void main(String[] args) {
 		Image[] pawns = new Image[6];
 		Color[] colors = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
@@ -26,10 +34,10 @@ public class ExampleGame extends JComponent {
 							new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
 		
 		for (int i=0; i < pawns.length; i++) {
-			BufferedImage pawn = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
+			BufferedImage pawn = new BufferedImage(circle_diameter + 10, circle_diameter + 10, BufferedImage.TYPE_INT_ARGB);
 			Graphics g = pawn.getGraphics();
 			g.setColor(colors[i]);
-			g.fillOval(5, 5, 40, 40);
+			g.fillOval(5, 5, circle_diameter, circle_diameter);
 			pawns[i] = pawn;
 		}
 		
@@ -62,6 +70,23 @@ public class ExampleGame extends JComponent {
 		frame.setResizable(true);
 		frame.add(this);
 		frame.setVisible(true);
+		
+		frame.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("click at "+e.getPoint());
+				
+				pointer = graphics.getNodeAtScreenPosition(e.getPoint(), circle_diameter/2d);
+				//System.out.println("node came out "+pointer);
+				if (pointer != null) {
+					Point pos = graphics.getScreenPositionOfNode(pointer);
+					//System.out.println("actual-pos = "+e.getPoint()+", node-pos = "+pos+", radius = "+circle_diameter/2d);
+				}
+				System.out.println("screen size = "+graphics.getSize().width+", "+graphics.getSize().height);
+				repaint();
+			}
+		});
+		
 		timer = new Thread(new Runnable() {
 			private long start_time = System.currentTimeMillis();
 			JFrame f = frame;
@@ -82,10 +107,18 @@ public class ExampleGame extends JComponent {
 		timer.start();
 	}
 	
+	private BoardNode pointer;
+	
 	@Override
 	public void paintComponent(Graphics g) {
-		graphics.setSize(frame.getWidth(), frame.getHeight());
+		graphics.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right, frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		g.drawImage(graphics.getImage(), 0, 0, null);
+		
+		if (pointer != null) {
+			Point pos = graphics.getScreenPositionOfNode(pointer);
+			g.setColor(Color.BLACK);
+			g.fillOval(pos.x - 10, pos.y - 10, 20, 20);
+		}
 	}
 
 }
