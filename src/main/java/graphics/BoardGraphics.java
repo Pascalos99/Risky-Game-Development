@@ -2,6 +2,9 @@ package graphics;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.List;
 
 import gamerules.Board;
 import gamerules.BoardNode;
@@ -15,15 +18,68 @@ public class BoardGraphics {
     private Image main_img;
     private Board board;
     
+    private int width = -1;
+    private int height = -1;
+    
     private boolean request_update;
+    
+    public BoardGraphics(Board board, Image board_image, Image...pawn_images) {
+    	board_img = board_image;
+    	pawn_colors = Arrays.copyOf(pawn_images, 6);
+    	setBoard(board);
+    }
 
     public Image getImage() {
         if (request_update || main_img == null) { updateImage(); request_update = false; }
         return main_img;
     }
     
+    public Board getBoard() {
+    	return board;
+    }
+    
+    public void setBoard(Board board) {
+    	this.board = board;
+    	if (board != null && board.getGraphics() != this) board.setGraphics(this);
+    }
+    
+    public Dimension getSize() {
+    	if (board_img == null) return null;
+    	return new Dimension(board_img.getWidth(null), board_img.getHeight(null));
+    }
+    
+    public void setSize(int width, int height) {
+    	if (width == this.width && height == this.height) return;
+    	this.width = width;
+    	this.height = height;
+    	updateImage();
+    }
+    
     private void updateImage() {
-    	main_img = board_img.getScaledInstance(-1, -1, Image.SCALE_DEFAULT);
+    	updateImage(width, height);
+    }
+    
+    private void updateImage(int width, int height) {
+    	if (width < 0 || height < 0) {
+	    	width = board_img.getWidth(null);
+	    	height = board_img.getHeight(null);
+    	}
+    	
+    	double scaleX = ((double)width) / board_img.getWidth(null);
+    	double scaleY = ((double)height) / board_img.getHeight(null);
+    	
+    	if (scaleX <= scaleY - 0.001 || scaleX >= scaleY + 0.001) {
+    		if (scaleX > scaleY) scaleX = scaleY;
+    		else scaleY = scaleX;
+    	}
+    	
+    	width = (int) (scaleX * board_img.getWidth(null));
+    	height = (int) (scaleY * board_img.getHeight(null));
+    	
+    	main_img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    	Graphics mg = main_img.getGraphics();
+    	mg.drawImage(board_img, 0, 0, width, height, null);
+    	
         Graphics g = main_img.getGraphics();
         for (BoardNode b : board.getAllnodes()) {
         	Pawn p = b.getCurrentPawn();
@@ -32,7 +88,12 @@ public class BoardGraphics {
         	if (index == -1) continue;
         	Image pawn = pawn_colors[index];
         	Point2D coord = getCoordinateOfNode(b);
-        	g.drawImage(pawn, (int) (coord.getX() * board_img.getWidth(null)), (int) (coord.getY() * board_img.getHeight(null)), null);
+        	
+        	double pawn_width = scaleX * pawn.getWidth(null);
+        	double pawn_height = scaleY * pawn.getHeight(null);
+        	
+        	g.drawImage(pawn, (int) (coord.getX() * ((double) width) - pawn_width / 2d), (int) (coord.getY() * ((double) height) - pawn_height / 2d), 
+        			(int) pawn_width, (int) pawn_height, null);
         }
     }
     
@@ -44,9 +105,7 @@ public class BoardGraphics {
      * invariant: x and y must lie in the range [0,1]
      */
     public Point2D.Double getCoordinateOfNode(BoardNode node) {
-    	// not implemented yet
-    	// TODO
-    	Point2D.Double coord = new Point2D.Double();
+    	Point2D.Double coord = coords_per_node[node.getID()];
     	
     	// invariant check function, do not remove
     	if (coord.x < 0 || coord.x > 1 || coord.y < 0 || coord.y > 1) throw new AssertionError("Coordinate does not fall within [0,1]x[0,1]");
@@ -56,4 +115,78 @@ public class BoardGraphics {
     public void notifyUpdate(){
     	request_update = true;
     }
+    
+    public static double[][] d_coords_per_node = new double[121][2];
+    
+    private static Point2D.Double[] coords_per_node;
+    
+    public static void updateCoordsForNodes() {
+    	coords_per_node = new Point2D.Double[d_coords_per_node.length];
+    	for (int i=0; i < d_coords_per_node.length; i++)
+    		coords_per_node[i] = new Point2D.Double(d_coords_per_node[i][0], d_coords_per_node[i][1]);
+    }
+    
+    static {
+    	updateCoordsForNodes();
+    }
+    
+    public static final int[] num_nodes_per_row = {
+    		1, 2, 3, 4, 5 + 8, 6 + 6, 7 + 4, 8 + 2, 9,
+    		8 + 2, 7 + 4, 6 + 6, 5 + 8, 4, 3, 2, 1
+    };
+    
+    public static Image createBoardImage(Board board, Color[] player_colors) {
+		int[] num_nodes = BoardGraphics.num_nodes_per_row;
+		
+		int width = 1000;
+		int height = 1000;
+		int circle_d = 60;
+		int space_x = 10;
+		int space_y = -5;
+		
+		int tallest = num_nodes.length;
+		int nodes_height = tallest * circle_d + (tallest - 1) * space_y;
+		
+		int offset_y = (height - nodes_height) / 2 + circle_d / 2;
+		
+		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D)(img.getGraphics());
+		Color brown = new Color(151, 93, 26);
+		g.setColor(brown);
+		
+		List<BoardNode> nodes = board.getAllnodes();
+		int index = 0;
+		for (int i=0; i < num_nodes.length; i++) {
+			// loop through all rows
+			int y = offset_y + i * (circle_d + space_y); // denotes the y-coordinate of the origin of the circle
+			
+			int length = num_nodes[i];
+			for (int j=0; j < length; j++, index++) {
+				// loop through all nodes in the row
+				BoardNode node = nodes.get(index);
+				Color color = brown;
+				if (node.getOwner() != null) {
+					int player_index = board.getPlayerIndex(node.getOwner());
+					if (player_index == -1) color = player_colors[6];
+					else color = player_colors[player_index];
+				}
+				
+				int x = 0; // denotes the x-coordinate of the origin of the circle
+				int deviation = j - (length - 1) / 2;
+				
+				if (length%2 == 1) // uneven amount of nodes in this row
+					x = width / 2 + deviation * (circle_d + space_x);
+				else // even amount of nodes in this row
+					x = width / 2 - (circle_d + space_x) / 2 + deviation * (circle_d + space_x);
+				
+				g.setColor(color);
+				g.fillOval(x - circle_d / 2, y - circle_d / 2, circle_d, circle_d);
+				BoardGraphics.d_coords_per_node[index][0] = ((double) x) / ((double) width);
+				BoardGraphics.d_coords_per_node[index][1] = ((double) y) / ((double) height);
+			}
+		}
+		
+		BoardGraphics.updateCoordsForNodes();
+		return img;
+	}
 }

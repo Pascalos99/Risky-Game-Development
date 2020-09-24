@@ -1,8 +1,10 @@
 package com.company;
 
+import graphics.ExampleGame;
+
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("x");
+        ExampleGame.main(args);
     }
 }

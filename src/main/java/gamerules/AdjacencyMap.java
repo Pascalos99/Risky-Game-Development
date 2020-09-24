@@ -22,7 +22,7 @@ public final class AdjacencyMap {
         neighbours.put(2, new int[]{0,1,4,5});
         neighbours.put(3, new int[]{1,4,6,7});
         neighbours.put(4, new int[]{1,2,3,5,7,8});
-        neighbours.put(5, new int[]{1,4,6,7});
+        neighbours.put(5, new int[]{2,4,8,9});
         neighbours.put(6, new int[]{3,7,14,15});
         neighbours.put(7, new int[]{3,4,6,8,15,16});
         neighbours.put(8, new int[]{4,5,7,9,16,17});
@@ -55,7 +55,7 @@ public final class AdjacencyMap {
         neighbours.put(46, new int[]{35,36,47,56});
 
         for(int i=47;i<=54;i++)
-            neighbours.put(i, new int[]{i-11,i-10,i-1,i+1,i+10,i+11});
+            neighbours.put(i, new int[]{i-11,i-10,i-1,i+1,i+9,i+10});
 
         neighbours.put(55, new int[]{44,45,54,64});
         neighbours.put(56, new int[]{46,47,57,65,66});
@@ -67,7 +67,7 @@ public final class AdjacencyMap {
         neighbours.put(65, new int[]{56,66,75,76});
 
         for(int i=66;i<=73;i++)
-            neighbours.put(i, new int[]{i,i-10,i-9,i-1,i+1,i+10,i+11});
+            neighbours.put(i, new int[]{i-10,i-9,i-1,i+1,i+10,i+11});
 
         neighbours.put(74, new int[]{64,73,84,85});
         neighbours.put(75, new int[]{65,76,86,87});
@@ -94,7 +94,7 @@ public final class AdjacencyMap {
         neighbours.put(107, new int[]{94,95,106,108});
         neighbours.put(108, new int[]{95,96,107,109});
         neighbours.put(109, new int[]{96,97,108,110});
-        neighbours.put(110, new int[]{96,109});
+        neighbours.put(110, new int[]{97,109});
         neighbours.put(111, new int[]{102,103,112,115});
         neighbours.put(112, new int[]{103,104,111,113,115,116});
         neighbours.put(113, new int[]{104,105,112,114,116,117});

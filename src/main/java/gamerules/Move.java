@@ -16,4 +16,16 @@ public class Move {
 		return m.pawn.equals(pawn) && m.target.equals(target);
 	}
 	
+	public boolean isValid() {
+		return Board.SELECTED_GAMERULES.allowMove(pawn, target);
+	}
+	
+	/**
+	 * This method assumes the move is valid
+	 * @return {@code true} if the move could be executed
+	 */
+	protected boolean execute() {
+		return target.addPawn(pawn);
+	}
+	
 }

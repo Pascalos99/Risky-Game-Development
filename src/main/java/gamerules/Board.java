@@ -1,7 +1,6 @@
 package gamerules;
 
 import graphics.BoardGraphics;
-import players.HumanPlayer;
 import players.Player;
 import java.util.*;
 
@@ -31,6 +30,8 @@ public class Board {
 			{10,11,12,13,23,24,25,35,36,46}
 	};
 	
+	private int current_player_ID;
+	private int player_count;
     private List<BoardNode> nodes;
     private Player [] players;
     /** May be {@code null}; is used to sync game updates with graphics updates*/
@@ -47,10 +48,13 @@ public class Board {
     	
     	if (gamerules != null) SELECTED_GAMERULES = gamerules;
     	
-        this.graphics = graphics;
+        setGraphics(graphics);
+        player_count = players.length;
         this.players = Arrays.copyOf(players, 6);
         
         nodes = List.of(constructNodes());
+        
+        updateGraphics();
     }
     
     /* 
@@ -71,10 +75,12 @@ public class Board {
     
     //TODO implement the method
     public int[] getIntegerRep(){
+    	// I forgot what this is supposed to do... - Pascal
         return null;
     }
 
     public List<BoardNode> getAllnodes() {
+    	if (nodes == null) return null;
         return Collections.unmodifiableList(nodes);
     }
     
@@ -92,10 +98,37 @@ public class Board {
     			pawns.add(node.getCurrentPawn());
     	return pawns;
     }
+    
+    private List<Pawn> all_pawns = null;
+    
+    private void updateAllPawns() {
+    	List<Pawn> pawns = new ArrayList<Pawn>();
+    	for (int i=0; i < players.length; i++) {
+    		if (players[i] == null) continue;
+    		pawns.addAll(getAllPawnsOf(players[i]));
+    	}
+    	all_pawns = pawns;
+    }
+    
+    public List<Pawn> getAllPawns() {
+    	if (all_pawns == null) updateAllPawns();
+    	ArrayList<Pawn> result = new ArrayList<>(all_pawns.size());
+    	for (int i=0; i < all_pawns.size(); i++)
+    		result.add(all_pawns.get(i));
+    	return result;
+    }
 
-    //TODO implement the method
     public boolean hasTurn(Player player){
-        return false;
+        return player.equals(currentPlayer());
+    }
+    
+    public Player currentPlayer() {
+    	return players[current_player_ID];
+    }
+    
+    private void nextTurn() {
+    	current_player_ID++;
+    	if (current_player_ID >= player_count) current_player_ID = 0;
     }
 
     /**
@@ -108,9 +141,29 @@ public class Board {
     	return -1;
     }
     
-    public Player[] getPlayers() {
-        return Arrays.copyOf(players, players.length);
+    public List<Player> getPlayers() {
+        ArrayList<Player> list = new ArrayList<Player>();
+        for (int i=0; i < players.length; i++)
+        	if (players[i] != null) list.add(players[i]);
+        return list;
     }
+    
+    public int getPlayerCount() {
+    	return player_count;
+    }
+    
+    public BoardGraphics getGraphics() {
+		return graphics;
+	}
+
+	public void setGraphics(BoardGraphics graphics) {
+		this.graphics = graphics;
+		if (graphics != null && graphics.getBoard() != this) graphics.setBoard(this);
+	}
+	
+	public void updateGraphics() {
+		if (graphics != null) graphics.notifyUpdate();
+	}
     
     public String toString() {
     	StringBuilder sb = new StringBuilder(
@@ -133,7 +186,7 @@ public class Board {
     	Player[] player_per_node = new Player[121];
     	for (int p=0; p < nodes_owned_per_player.length; p++)
     		for (int i=0; i < nodes_owned_per_player[p].length; i++)
-    			player_per_node[nodes_owned_per_player[p][i]] = players[p];
+    			player_per_node[nodes_owned_per_player[p][i]] = (players[p] == null)? Player.NONE : players[p];
     	
     	BoardNode[] nodes = new BoardNode[121];
     	for (int i=0; i < nodes.length; i++) {
@@ -147,6 +200,53 @@ public class Board {
     			nodes[i].addNeighbour(nodes[adjacent_nodes[j]]);
     	}
     	return nodes;
+    }
+    
+    /**
+     * @param owner player of whom to fill the field with pawns with, {@code null} if it should be randomized
+     */
+    public void debugPawns(Player owner) {
+    	for (BoardNode node : nodes)
+    		if (node.isEmpty()) {
+    			Player my_owner = owner;
+    			if (my_owner == null) my_owner = players[new Random().nextInt(player_count)];
+    			node.addPawn(new Pawn(my_owner, node));
+    		}
+    	graphics.notifyUpdate();
+    }
+    
+    /**
+     * @param portion probability for a single pawn to move to a random position
+     */
+    public void debugPawnShuffle(double shuffle_chance) {
+    	Random rand = new Random();
+    	for (Pawn pawn : getAllPawns()) {
+    		if (rand.nextDouble() > shuffle_chance) continue;
+    		List<Integer> random_order = new ArrayList<Integer>(nodes.size());
+    		for (int i=0; i < nodes.size(); i++) random_order.add(Integer.valueOf(i));
+    		Collections.shuffle(random_order);
+    		for (int i=0; i < random_order.size(); i++) {
+    			if (nodes.get(random_order.get(i)).isEmpty()) {
+    				nodes.get(random_order.get(i)).addPawn(pawn);
+    				break;
+    			}
+    		}
+    	}
+    }
+    
+    public void debugSingleRandomMove() {
+    	List<Pawn> pawns = getAllPawnsOf(currentPlayer());
+    	Collections.shuffle(pawns);
+    	for (Pawn pawn : pawns) {
+    		List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+    		if (moves.size() > 0) {
+    			Collections.shuffle(moves);
+    			moves.get(0).execute();
+    			graphics.notifyUpdate();
+    			nextTurn();
+    			return;
+    		}
+    	}
     }
     
 }

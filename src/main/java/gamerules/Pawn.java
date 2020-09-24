@@ -25,7 +25,7 @@ public class Pawn {
      * @return {@code true} if the state of this Pawn changed as a result of this call
      */
     protected boolean setPosition(BoardNode target){
-    	if (target.getCurrentPawn() != this && target.getCurrentPawn() != null) return false;
+    	if (target.isOccupied() && target.getCurrentPawn() != this) return false;
     	if (position != null) position.removePawn();
     	position = target;
     	position.addPawn(this);

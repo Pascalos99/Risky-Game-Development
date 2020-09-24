@@ -1,8 +1,9 @@
 package gamerules;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import players.Player;
 
@@ -10,14 +11,14 @@ public class BoardNode {
 
     private int nodeID;
     private Pawn occupying_pawn;
-    private List<BoardNode> adjacent_nodes;
+    private Set<BoardNode> adjacent_nodes;
     private Player player_home;
 
     public BoardNode(int nodeID, Pawn occupying_pawn, Player player_home) {
         this.nodeID = nodeID;
         this.occupying_pawn = occupying_pawn;
         this.player_home = player_home;
-        adjacent_nodes = new ArrayList<>();
+        adjacent_nodes = new HashSet<>();
         if (occupying_pawn != null) occupying_pawn.setPosition(this);
     }
 
@@ -29,22 +30,25 @@ public class BoardNode {
     protected boolean removeNeighbour(BoardNode node) {
     	return adjacent_nodes.remove(node);
     }
+    public boolean isNeighbour(BoardNode node) {
+    	return adjacent_nodes.contains(node);
+    }
     
     protected boolean addPawn(Pawn newPawn) {
-        if (occupying_pawn != null) return false;
+        if (isOccupied()) return false;
         occupying_pawn = newPawn;
-        newPawn.setPosition(this);
+        if (newPawn.getPosition() != this) newPawn.setPosition(this);
         return true;
     }
 
     protected boolean removePawn(){
-        if (occupying_pawn == null) return false;
+        if (isEmpty()) return false;
         occupying_pawn = null;
         return true;
     }
 
     public void setAdjacent_nodes(List<BoardNode> adjacent_nodes) {
-        this.adjacent_nodes = List.copyOf(adjacent_nodes);
+        this.adjacent_nodes = Set.copyOf(adjacent_nodes);
     }
 
     /**
@@ -70,8 +74,8 @@ public class BoardNode {
     	return !isEmpty();
     }
 
-    public List<BoardNode> getNeighbours() {
-        return Collections.unmodifiableList(adjacent_nodes);
+    public Set<BoardNode> getNeighbours() {
+        return Collections.unmodifiableSet(adjacent_nodes);
     }
 
     /**
@@ -91,11 +95,14 @@ public class BoardNode {
     	if (player_home == null) sb.append("None");
     	else sb.append(player_home);
     	sb.append("; neighbours: ");
-    	sb.append(adjacent_nodes.get(0).nodeID);
-    	for (int i=1; i < adjacent_nodes.size(); i++)
-    		sb.append(", "+adjacent_nodes.get(i).nodeID);
+    	
+    	for (BoardNode node : adjacent_nodes)
+    		sb.append(node.nodeID+", ");
+    	
+    	sb.delete(sb.length() - 2, sb.length());
+    	
     	sb.append("; pawn = ");
-    	if (occupying_pawn == null) sb.append("None");
+    	if (isEmpty()) sb.append("None");
     	else sb.append(occupying_pawn);
     	sb.append("}");
     	return sb.toString();

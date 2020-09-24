@@ -6,9 +6,9 @@ import players.Player;
 
 public interface GameRules {
 
-    boolean allowMove(Board board,Pawn pawn,BoardNode target);
+    boolean allowMove(Pawn pawn,BoardNode target);
 
-    List<Move> getAllPossibleMoves(Board board,Pawn pawn);
+    List<Move> getAllPossibleMoves(Pawn pawn);
 
     boolean hasWon(Board board, Player Player);
 }
