@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import com.jfoenix.controls.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #C19A6B;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.GameRuleController">
+   <children>
+      <AnchorPane prefHeight="137.0" prefWidth="800.0">
+         <children>
+            <JFXTextField alignment="CENTER" editable="false" focusColor="WHITE" prefHeight="137.0" prefWidth="800.0" text="Game Rules">
+               <font>
+                  <Font size="51.0" />
+               </font>
+               <effect>
+                  <DropShadow color="#2b2b2b" />
+               </effect>
+            </JFXTextField>
+         </children>
+      </AnchorPane>
+      <JFXButton fx:id="ExitBtn" layoutX="666.0" layoutY="531.0" onAction="#Exit" prefHeight="41.0" prefWidth="115.0" text="Exit" textFill="#726262">
+         <font>
+            <Font name="System Bold" size="21.0" />
+         </font>
+      </JFXButton>
+   </children>
+</Pane>
