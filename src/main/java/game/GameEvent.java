@@ -1,24 +1,43 @@
 package game;
 
-import java.util.PriorityQueue;
+import java.util.function.Function;
 
 public abstract class GameEvent implements Comparable<GameEvent> {
 
-	public static volatile PriorityQueue<GameEvent> gameEvents = new PriorityQueue<>();
+	private volatile GameEvent nextEvent = null;
+	private volatile GameEvent prevEvent = null;
+	
+	private volatile boolean isInList = true;
+	
+	private static volatile GameEvent root = new GameEvent(false) {};
+	
+	private static volatile GameEvent head = new GameEvent(false) {};
+	
+	static {
+		root.nextEvent = null;
+		root.prevEvent = head;
+		head.nextEvent = root;
+		head.prevEvent = null;
+	}
 	
 	/**
 	 * @return {@code true} if there are events to be handled
 	 */
-	public static boolean hasPending() {
-		return gameEvents.size() > 0;
+	public synchronized static boolean hasPending() {
+		return head.nextEvent != root;
 	}
 	
 	/**
 	 * Gets the next event to be declared and declares it
 	 * @return the event with highest priority, or {@code null} if there are no events pending
 	 */
-	public static GameEvent getNext() {
-		return gameEvents.poll();
+	public synchronized static GameEvent getNext() {
+		if (!hasPending()) return null;
+		GameEvent next = head.nextEvent;
+		head.nextEvent = next.nextEvent;
+		next.nextEvent.prevEvent = head;
+		next.isInList = false;
+		return next;
 	}
 	
 	private String message;
@@ -26,16 +45,30 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	
 	private long time_of_creation;
 	
+	private GameEvent(boolean isNormal) {
+		if (isNormal) {
+			synchronized(this) {
+				this.nextEvent = root;
+				this.prevEvent = root.prevEvent;
+				root.prevEvent.nextEvent = this;
+				root.prevEvent = this;
+			}
+		} else {
+			urgency = Urgency.Error;
+			message = "this is a service node of GameEvent, if you got this from nextEvent(), something went terribly wrong";
+		}
+	}
+	
 	/**
 	 * creates a new event with the given name and a timestamp. This event is automatically added to the {@link #gameEvents} queue.
 	 * @param urgency the urgency of the event (determines order in the queue and gives extra information to the receiver)
 	 * @param message a message that explains the meaning of this event
 	 */
 	public GameEvent(Urgency urgency, String message) {
+		this(true);
 		this.message = message;
 		this.urgency = urgency;
 		time_of_creation = System.currentTimeMillis();
-		gameEvents.add(this);
 	}
 	
 	public GameEvent(String message) {
@@ -61,11 +94,34 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	}
 	
 	/**
+	 * @param selection a function that returns {@code true} for events to be deleted
+	 */
+	public static synchronized void deleteEvents(Function<GameEvent, Boolean> selection) {
+		GameEvent current = head;
+		while ((current = current.nextEvent) != root) {
+			if (selection.apply(current)) {
+				// we need to delete this event
+				GameEvent previous = current.prevEvent;
+				GameEvent next = current.nextEvent;
+				previous.nextEvent = next;
+				next.prevEvent = previous;
+				current.isInList = false;
+			}
+		}
+	}
+	
+	/**
 	 * This is only necessary if the gameEvent object was not acquired through {@link #getNext()}
 	 * @return {@code false} if this event has already been handled
 	 */
 	public boolean declare() {
-		return gameEvents.remove(this);
+		if (!isInList) return false;
+		GameEvent previous = prevEvent;
+		GameEvent next = nextEvent;
+		previous.nextEvent = next;
+		next.prevEvent = previous;
+		isInList = false;
+		return true;
 	}
 	
 	/**
@@ -73,7 +129,13 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	 * @return {@code false} if the event wasn't declared when this method was called
 	 */
 	public boolean reinstall() {
-		return gameEvents.add(this);
+		if (isInList) return false;
+		this.nextEvent = root;
+		this.prevEvent = root.prevEvent;
+		root.prevEvent.nextEvent = this;
+		root.prevEvent = this;
+		isInList = true;
+		return true;
 	}
 
 	/**
@@ -105,6 +167,5 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 			super(Urgency.Error, message);
 		}
 	}
-	
 	
 }

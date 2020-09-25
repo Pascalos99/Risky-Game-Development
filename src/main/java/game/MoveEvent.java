@@ -19,10 +19,7 @@ public class MoveEvent extends GameEvent {
 		super(Urgency.Note, "display the given moves on the board");
 		synchronized(this) {
 			this.moves = new ArrayList<>(moves);
-			List<MoveEvent> toRemove = new LinkedList<MoveEvent>();
-			for (GameEvent e : GameEvent.gameEvents)
-				if (e instanceof MoveEvent && e != this) toRemove.add((MoveEvent) e);
-			for (MoveEvent e : toRemove) GameEvent.gameEvents.remove(e);
+			GameEvent.deleteEvents(e -> e != this && e instanceof MoveEvent);
 		}
 	}
 	

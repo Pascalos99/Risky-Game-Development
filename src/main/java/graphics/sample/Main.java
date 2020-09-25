@@ -21,7 +21,12 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        try {
+        	launch(args);
+        } catch (Exception e) {
+        	System.out.println(e.getCause());
+        	e.printStackTrace();
+        }
     }
 }
 

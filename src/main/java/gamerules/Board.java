@@ -181,12 +181,10 @@ public class Board {
     }
     
     private void nextTurn() {
-    	synchronized(GameEvent.gameEvents) {
-	    	new TurnEvent(currentPlayer(), false); // end previous turn
-	    	current_player_ID++;
-	    	if (current_player_ID >= player_count) current_player_ID = 0;
-	    	new TurnEvent(currentPlayer(), true); // start new turn
-    	}
+    	new TurnEvent(currentPlayer(), false); // end previous turn
+    	current_player_ID++;
+    	if (current_player_ID >= player_count) current_player_ID = 0;
+    	new TurnEvent(currentPlayer(), true); // start new turn
     }
     
     /**
