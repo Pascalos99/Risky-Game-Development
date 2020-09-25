@@ -6,6 +6,7 @@ import players.bots.DeterministicReturn;
 
 import java.util.*;
 
+import game.GameEvent;
 import game.TurnEvent;
 
 import static gamerules.GameRules.SELECTED_GAMERULES;
@@ -59,6 +60,9 @@ public class Board {
         nodes = List.of(constructNodes());
         
         updateGraphics();
+        
+        // initial new turn
+        new TurnEvent(currentPlayer(), true);
     }
     
     /* 
@@ -177,9 +181,12 @@ public class Board {
     }
     
     private void nextTurn() {
-    	current_player_ID++;
-    	if (current_player_ID >= player_count) current_player_ID = 0;
-    	new TurnEvent(currentPlayer(), current_player_ID);
+    	synchronized(GameEvent.gameEvents) {
+	    	new TurnEvent(currentPlayer(), false); // end previous turn
+	    	current_player_ID++;
+	    	if (current_player_ID >= player_count) current_player_ID = 0;
+	    	new TurnEvent(currentPlayer(), true); // start new turn
+    	}
     }
     
     /**

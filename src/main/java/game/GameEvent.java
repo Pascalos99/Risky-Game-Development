@@ -47,6 +47,7 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	}
 	
 	public int compareTo(GameEvent e) {
+		if (e == null) return -1;
 		if (urgency == e.urgency) return (int) (time_of_creation - e.time_of_creation);
 		return e.urgency.urgencyValue - urgency.urgencyValue;
 	}

@@ -15,6 +15,7 @@ import gamerules.BoardNode;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.HumanPlayer;
+import players.Player;
 import players.bots.RandomPlayer;
 
 public class ExampleGame extends JComponent {
@@ -29,7 +30,7 @@ public class ExampleGame extends JComponent {
 	public static void main(String[] args) {		
 		Board board = new Board(null, null,new HumanPlayer(), new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board);
-		Image[] pawns = BoardGraphics.createPawns(40);
+		Image[] pawns = BoardGraphics.createPawns(board);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
 		
 		//board.addDebugPawns();
@@ -95,16 +96,18 @@ public class ExampleGame extends JComponent {
 					// eventTick: no waits here, we want to respond as quickly as possible (if necessary)
 					while (GameEvent.hasPending()) {
 						GameEvent e = GameEvent.getNext();
-						if (e instanceof TurnEvent)
-							System.out.format("----Turn Ended----\n\n=~=~ Now it's %s [%s]'s turn! ~=~=\n", ((TurnEvent) e).player, ((TurnEvent) e).player_ID);
-						else if (e instanceof MoveEvent) {
+						if (e instanceof TurnEvent) {
+							Player player = ((TurnEvent) e).getPlayer();
+							if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
+							else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
+						} else if (e instanceof MoveEvent) {
 							// yet to be implemented
 							// TODO display all moves on screen
 							MoveEvent m = (MoveEvent) e;
 							System.out.println("Possible Moves: "+m.getMoves());
 						}
 						else {
-							System.out.println(e);
+							//System.out.println(e);
 						}
 					}
 				}

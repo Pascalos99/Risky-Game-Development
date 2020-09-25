@@ -2,6 +2,8 @@ package graphics;
 
 import java.awt.*;
 import javafx.geometry.Point2D;
+import players.Player;
+
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -191,14 +193,18 @@ public class BoardGraphics {
     public static int default_board_width = 1000;
     public static int default_board_height = 1000;
     public static int default_node_diameter = 60;
+    public static int default_pawn_diameter = 40;
     public static int default_node_spacing_x = 10;
     public static int default_node_spacing_y = -5;
+    public static Color[] default_home_colors = {new Color(150, 205, 113), new Color(133, 178, 205), new Color(250, 217, 73),
+							new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
+    public static Color[] default_pawn_colors = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
     
     public static Image createBoardImage(Board board) {
-    	return createBoardImage(board, DEFAULT_HOME_COLORS);
+    	return createBoardImage(board, default_home_colors);
     }
     
-    public static Image createBoardImage(Board board, Color[] player_colors) {
+    public static Image createBoardImage(Board board, Color[] home_colors) {
 		int[] num_nodes = BoardGraphics.num_nodes_per_row;
 		
 		int width = default_board_width;
@@ -230,8 +236,8 @@ public class BoardGraphics {
 				Color color = brown;
 				if (node.getOwner() != null) {
 					int player_index = board.getPlayerIndex(node.getOwner());
-					if (player_index == -1) color = player_colors[6];
-					else color = player_colors[player_index];
+					if (player_index == -1) color = home_colors[6];
+					else color = home_colors[player_index];
 				}
 				
 				int x = 0; // denotes the x-coordinate of the origin of the circle
@@ -253,12 +259,20 @@ public class BoardGraphics {
 		return img;
 	}
     
-    public static Image[] createPawns(int pawn_diameter) {
-    	return createPawns(pawn_diameter, DEFAULT_PAWN_COLORS);
+    public static Image[] createPawns(Board board) {
+    	return createPawns(board, default_pawn_diameter, default_pawn_colors);
     }
-    
-    public static Image[] createPawns(int pawn_diameter, Color[] pawn_colors) {
+    public static Image[] createPawns(Board board, Color[] pawn_colots) {
+    	return createPawns(board, default_pawn_diameter, pawn_colots);
+    }
+    public static Image[] createPawns(Board board, int pawn_diameter) {
+    	return createPawns(board, pawn_diameter, default_pawn_colors);
+    }
+    public static Image[] createPawns(Board board, int pawn_diameter, Color[] pawn_colors) {
     	Image[] pawns = new Image[6];
+    	List<Player> players = board.getPlayers();
+		for (int i=0; i < players.size(); i++)
+			players.get(i).setColor(pawn_colors[i]);
 		
 		for (int i=0; i < pawns.length; i++) {
 			BufferedImage pawn = new BufferedImage(pawn_diameter + 10, pawn_diameter + 10, BufferedImage.TYPE_INT_ARGB);
@@ -269,9 +283,4 @@ public class BoardGraphics {
 		}
 		return pawns;
     }
-    
-    public static Color[] DEFAULT_HOME_COLORS = {new Color(150, 205, 113), new Color(133, 178, 205), new Color(250, 217, 73),
-			new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
-    
-    public static Color[] DEFAULT_PAWN_COLORS = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
 }

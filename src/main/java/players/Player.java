@@ -1,5 +1,6 @@
 package players;
 
+import java.awt.Color;
 import java.util.List;
 
 import gamerules.Board;
@@ -9,6 +10,7 @@ import gamerules.Move;
 public abstract class Player {
 	
 	private String player_name = "";
+	private Color color = Color.GRAY;
 	
 	public abstract Move returnMove(Board gameBoard);
 	
@@ -22,9 +24,23 @@ public abstract class Player {
 	public final String getName() {
 		return player_name;
 	}
-	
 	public final void setName(String name) {
 		player_name = name;
+	}
+	public final Color getColor() {
+		return color;
+	}
+	public final void setColor(Color color) {
+		this.color = color;
+	}
+	public String getColorName() {
+		if (color.equals(Color.green)) 	 return "Green";
+		if (color.equals(Color.blue)) 	 return "Blue";
+		if (color.equals(Color.yellow))  return "Yellow";
+		if (color.equals(Color.magenta)) return "Magenta";
+		if (color.equals(Color.orange))  return "Orange";
+		if (color.equals(Color.red)) 	 return "Red";
+		return "?";
 	}
      
     public final List<BoardNode> getGoalNodes(Board gameBoard) {
