@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import gamerules.Board;
@@ -28,6 +29,8 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 		this.frame = frame;
 		this.board = board;
 		this.graphics = graphics;
+		keys_held_down = new ArrayList<Integer>();
+		keys_just_pressed = new ArrayList<Integer>();
 		HumanPlayer.GLOBAL_INPUT = this;
 	}
 
