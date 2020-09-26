@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,8 +47,6 @@ public class ExampleGame extends JComponent {
 	public static int turn_time = 1000; // in ms
 	public static Color selection_color = new Color(150,150,150,150);
 	public static Color highlight_color = new Color(150,150,255,100);
-
-	private List<BoardNode> nodes = new ArrayList<BoardNode>();
 	
 	public ExampleGame(Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
@@ -88,8 +87,12 @@ public class ExampleGame extends JComponent {
 				}
 			}
 		});
+		
+		JComponent parent = this;
+		
 		// loop seperate of gameLoop to handle all GameEvents
 		eventLoop = new Thread(new Runnable() {
+			
 			@Override
 			public synchronized void run() {
 				while(true) {
@@ -100,16 +103,22 @@ public class ExampleGame extends JComponent {
 					while (GameEvent.hasPending()) {
 						GameEvent e = GameEvent.getNext();
 						if (e instanceof TurnEvent) {
-							nodes.clear();
+							selectedNodes = null;
 							Player player = ((TurnEvent) e).getPlayer();
 							if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
 							else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
 						} else if (e instanceof MoveEvent) {
-							nodes.clear();
 							MoveEvent m = (MoveEvent) e;
 							System.out.println("Possible Moves: "+m.getMoves());
-							for(Move node: m.getMoves()){
-								nodes.add(node.target);
+							
+							selectedNodes = new BufferedImage(parent.getWidth(), parent.getHeight(), BufferedImage.TYPE_INT_ARGB);
+							Graphics g = selectedNodes.getGraphics();
+							for(Move move: m.getMoves()){
+								BoardNode node = move.target;
+								Point pos = graphics.getScreenPositionOfNode(node);
+								g.setColor(highlight_color);
+								int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+								g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 							}
 						}
 						else {
@@ -123,6 +132,8 @@ public class ExampleGame extends JComponent {
 		eventLoop.start();
 	}
 	
+	private Image selectedNodes = null;
+	
 	// graphics loop:
 	@Override
 	public void paintComponent(Graphics g) {
@@ -132,16 +143,14 @@ public class ExampleGame extends JComponent {
 		BoardNode pointer = HumanPlayer.GLOBAL_INPUT.getSelectedNode();
 		
 		if (pointer != null) {
-			nodes.add(pointer);
-			if(nodes.size() >=1){
-				for(BoardNode node : nodes){
-					Point pos = graphics.getScreenPositionOfNode(node);
-					g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
-					int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
-					if (HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()) diameter *= 1.2;
-					g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
-				}
-			}
+			Point pos = graphics.getScreenPositionOfNode(pointer);
+			g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
+			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+			if (HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()) diameter *= 1.2;
+			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
+			// draw the selected nodes:
+			if (selectedNodes != null && pointer.isOccupied() && pointer.getCurrentPawn().getOwner() == game.currentPlayer())
+				g.drawImage(selectedNodes, 0, 0, null);
 		}
 		repaint();
 	}
