@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -45,6 +46,8 @@ public class ExampleGame extends JComponent {
 	public static int turn_time = 1000; // in ms
 	public static Color selection_color = new Color(150,150,150,150);
 	public static Color highlight_color = new Color(150,150,255,100);
+
+	private List<BoardNode> nodes = new ArrayList<BoardNode>();
 	
 	public ExampleGame(Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
@@ -97,14 +100,17 @@ public class ExampleGame extends JComponent {
 					while (GameEvent.hasPending()) {
 						GameEvent e = GameEvent.getNext();
 						if (e instanceof TurnEvent) {
+							nodes.clear();
 							Player player = ((TurnEvent) e).getPlayer();
 							if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
 							else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
 						} else if (e instanceof MoveEvent) {
-							// yet to be implemented
-							// TODO display all moves on screen
+							nodes.clear();
 							MoveEvent m = (MoveEvent) e;
 							System.out.println("Possible Moves: "+m.getMoves());
+							for(Move node: m.getMoves()){
+								nodes.add(node.target);
+							}
 						}
 						else {
 							//System.out.println(e);
@@ -126,12 +132,16 @@ public class ExampleGame extends JComponent {
 		BoardNode pointer = HumanPlayer.GLOBAL_INPUT.getSelectedNode();
 		
 		if (pointer != null) {
-			Point pos = graphics.getScreenPositionOfNode(pointer);
-			g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
-			
-			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
-			if (HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()) diameter *= 1.2;
-			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
+			nodes.add(pointer);
+			if(nodes.size() >=1){
+				for(BoardNode node : nodes){
+					Point pos = graphics.getScreenPositionOfNode(node);
+					g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
+					int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+					if (HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()) diameter *= 1.2;
+					g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
+				}
+			}
 		}
 		repaint();
 	}
