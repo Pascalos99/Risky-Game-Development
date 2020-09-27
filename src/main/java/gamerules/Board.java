@@ -291,7 +291,7 @@ public class Board {
     }
     
     /**
-     * @param portion probability for a single pawn to move to a random position
+     * @param shuffle_chance probability for a single pawn to move to a random position
      */
     public void debugPawnShuffle(double shuffle_chance) {
     	Random rand = new Random();
