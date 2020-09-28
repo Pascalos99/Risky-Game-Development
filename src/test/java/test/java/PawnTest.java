@@ -1,3 +1,5 @@
+package test.java;
+
 import org.junit.jupiter.api.Test;
 import gamerules.*;
 import players.*;
