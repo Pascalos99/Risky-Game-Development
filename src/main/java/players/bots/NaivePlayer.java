@@ -36,7 +36,9 @@ public class NaivePlayer extends Player {
             pawn = pawns.get((int) (Math.random()*pawns.size()));
         }
         List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+        Collections.shuffle(moves);
         for (Move move1 : moves) {
+            if(gameBoard.getGoal(this).contains(move1.target))return move1;
             int distance = distanceTarget(gameBoard, move1.target);
             if (distance <= min) {
                 move = move1;
@@ -56,16 +58,16 @@ public class NaivePlayer extends Player {
 
     @Override
     public String getTypeName() {
-        return "Naive bot";
+        return "NaiveBot";
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "A bot that take randomly a pawn and find the move who will get him closer to the goal";
     }
 
     @Override
     public String toString(){
-        return getTypeName() +ID;
+        return getTypeName()+"-" +ID;
     }
 }
