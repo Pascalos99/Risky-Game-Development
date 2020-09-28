@@ -18,6 +18,7 @@ import gamerules.Move;
 import graphics.BoardGraphics;
 import players.HumanPlayer;
 import players.Player;
+import players.bots.NaivePlayer;
 import players.bots.RandomPlayer;
 
 public class ExampleGame extends JComponent {
@@ -30,7 +31,7 @@ public class ExampleGame extends JComponent {
 	private InputHandler input;
 	
 	public static void main(String[] args) {		
-		Board board = new Board(null, null,new HumanPlayer(), new HumanPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
+		Board board = new Board(null, null,new NaivePlayer(), new NaivePlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board);
 		Image[] pawns = BoardGraphics.createPawns(board);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
