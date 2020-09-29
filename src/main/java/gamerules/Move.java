@@ -9,7 +9,8 @@ public class Move {
 	
 	public final Pawn pawn;
 	public final BoardNode target;
-	
+
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof Move)) return false;
 		Move m = (Move)o;
