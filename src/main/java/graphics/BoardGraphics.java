@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import gamerules.Board;
 import gamerules.BoardNode;
+import gamerules.DirectedAdjacencyMap;
 import gamerules.Pawn;
 
 public class BoardGraphics {
@@ -185,11 +186,6 @@ public class BoardGraphics {
     	updateCoordsForNodes();
     }
     
-    public static final int[] num_nodes_per_row = {
-    		1, 2, 3, 4, 5 + 8, 6 + 6, 7 + 4, 8 + 2, 9,
-    		8 + 2, 7 + 4, 6 + 6, 5 + 8, 4, 3, 2, 1
-    };
-    
     public static int default_board_width = 1000;
     public static int default_board_height = 1000;
     public static int default_node_diameter = 60;
@@ -205,7 +201,7 @@ public class BoardGraphics {
     }
     
     public static Image createBoardImage(Board board, Color[] home_colors) {
-		int[] num_nodes = BoardGraphics.num_nodes_per_row;
+		int[] num_nodes = DirectedAdjacencyMap.num_nodes_per_row;
 		
 		int width = default_board_width;
 		int height = default_board_height;

@@ -6,8 +6,8 @@ import players.bots.DeterministicReturn;
 
 import java.util.*;
 
-import game.GameEvent;
 import game.TurnEvent;
+import game.WinEvent;
 
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
@@ -187,6 +187,8 @@ public class Board {
 			current_player_ID++;
 			if (current_player_ID >= player_count) current_player_ID = 0;
 			new TurnEvent(currentPlayer(), true); // start new turn
+		} else {
+			new WinEvent(currentPlayer());
 		}
 	}
 
@@ -271,11 +273,12 @@ public class Board {
 			Player owner = player_per_node[i];
 			nodes[i] = new BoardNode(i, (owner == null || owner == Player.NONE)? null : new Pawn(owner, null), owner);
 		}
-		Map<Integer, int[]> adjacency = AdjacencyMap.getAdjacencyMap();
+		Map<Integer, int[]> adjacency = DirectedAdjacencyMap.getAdjacencyMap();
 		for (int i=0; i < nodes.length; i++) {
-			int[] adjacent_nodes = adjacency.get(Integer.valueOf(i));
-			for (int j=0; j < adjacent_nodes.length; j++)
-				nodes[i].addNeighbour(nodes[adjacent_nodes[j]]);
+			int[] neighbours = adjacency.get(i);
+			for (int j=0; j < neighbours.length; j++)
+				if (neighbours[j] != DirectedAdjacencyMap.NULL)
+					nodes[i].addNeighbour(nodes[neighbours[j]], j);
 		}
 		return nodes;
 	}

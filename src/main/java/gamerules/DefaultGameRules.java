@@ -11,7 +11,7 @@ public class DefaultGameRules extends GameRules {
 		if (pawn.getPosition().getNeighbours().contains(target)) return true;
 		return (getAllPossibleMoves(pawn).contains(new Move(pawn, target)));
 	}
-	/*
+	
 	@Override
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		//System.out.println("get all moves");
@@ -26,7 +26,7 @@ public class DefaultGameRules extends GameRules {
 
 	
 	public void recurseMoves(Pawn pawn, BoardNode previous, Set<Move> moves, Set<BoardNode> visited) {
-		Set<BoardNode> neighbours = previous.getNeighbours();
+		List<BoardNode> neighbours = previous.getNeighbours();
 		for (BoardNode neighbour : neighbours) {
 			if (visited.contains(neighbour)) continue;
 			visited.add(neighbour);
@@ -34,31 +34,14 @@ public class DefaultGameRules extends GameRules {
 				if (pawn == previous.getCurrentPawn()) moves.add(new Move(pawn, neighbour));
 			} else {
 				
-				// this part is for jumping; here we are jumping from *previous* over *neighbour* and seek to find a valid node for *jump_to*
-				
-				BoardNode[] jumps = new BoardNode[3]; int i = 0;
-				BoardNode[] common_neighbours = new BoardNode[2]; int cn = 0;
-				for (BoardNode potential_jump : neighbour.getNeighbours()) {
-					if (potential_jump == previous) continue;
-					try {
-						if (previous.isNeighbour(potential_jump)) { common_neighbours[cn++] = potential_jump; continue; }
-						jumps[i++] = potential_jump;
-					} catch(java.lang.ArrayIndexOutOfBoundsException e) {
-						e.printStackTrace();
-						System.out.println("error while jumping from "+previous+" over "+neighbour+"\nThis is most likey caused by"
-								+ " incorrect entries in AdjacencyMap.java, if you find any while testing, please correct them");
-					}
-				} // three left over, of which only one is a valid jump
+				List<BoardNode> jumpingNodes = neighbour.getNeighbours();
+				int direction = previous.getDirectionOf(neighbour);
 				BoardNode jump_to = null;
-				
-				for (int a=0; a < i; a++) {
-					if (jumps[a] == null) break;
-					jump_to = jumps[a];
-					for (int b=0; b < cn; b++) {
-						if (common_neighbours[b] != null && jump_to.isNeighbour(common_neighbours[b])) { jump_to = null; break; }
+				for (BoardNode jumpable : jumpingNodes)
+					if (neighbour.getDirectionOf(jumpable) == direction) {
+						jump_to = jumpable;
+						break;
 					}
-					if (jump_to != null) break;
-				}
 				
 				// now *jump_to* is the node that we want to jump to, if it's null, that means we are at the edge of the board and there is
 				//  nowhere to jump to, in that case, we skip *neighbour* and go to the next node.
@@ -74,10 +57,11 @@ public class DefaultGameRules extends GameRules {
 			}
 		}
 	}
-	*/
+	
 
 	//@Pascale I don't have find the mistake inside your methode However I think that my method doesn't contains this bug
 
+	/*
 	@Override
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		List<Move> possibleMoves = new ArrayList<Move>();
@@ -128,7 +112,7 @@ public class DefaultGameRules extends GameRules {
 			}
 		}
 		return total;
-	}
+	}*/
 
 	public String toString() {
 		return "Default Gamerules";

@@ -16,7 +16,6 @@ import gamerules.Move;
 import graphics.BoardGraphics;
 import players.HumanPlayer;
 import players.Player;
-import players.bots.CheatingBot;
 import players.bots.NaivePlayer;
 import players.bots.RandomPlayer;
 
@@ -30,7 +29,7 @@ public class ExampleGame extends JComponent {
 	private InputHandler input;
 	
 	public static void main(String[] args) {		
-		Board board = new Board(null, null,new NaivePlayer(), new NaivePlayer(), new CheatingBot(), new RandomPlayer(), new RandomPlayer(), new RandomPlayer());
+		Board board = new Board(null, null,new HumanPlayer(), new NaivePlayer(), new NaivePlayer(), new RandomPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board);
 		Image[] pawns = BoardGraphics.createPawns(board);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
@@ -38,13 +37,15 @@ public class ExampleGame extends JComponent {
 		//board.addDebugPawns();
 		//board.debugPawnShuffle(0.3);
 		
+		System.out.println(board);
+		
 		new ExampleGame(board, graphics);
 	}
 	
 	private Thread gameLoop;
 	private Thread eventLoop;
 	
-	public static int turn_time = 1000; // in ms
+	public static int turn_time = 10; // in ms
 	public static Color selection_color = new Color(150,150,150,150);
 	public static Color highlight_color = new Color(150,150,255,100);
 	
@@ -120,6 +121,8 @@ public class ExampleGame extends JComponent {
 								int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
 								g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 							}
+						} else if (e instanceof WinEvent) {
+							System.out.println(e.getMessage());
 						}
 						else {
 							//System.out.println(e);
