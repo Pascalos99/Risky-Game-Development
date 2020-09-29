@@ -269,7 +269,7 @@ public class Board {
 		BoardNode[] nodes = new BoardNode[121];
 		for (int i=0; i < nodes.length; i++) {
 			Player owner = player_per_node[i];
-			nodes[i] = new BoardNode(i, (owner == null)? null : new Pawn(owner, null), owner);
+			nodes[i] = new BoardNode(i, (owner == null || owner == Player.NONE)? null : new Pawn(owner, null), owner);
 		}
 		Map<Integer, int[]> adjacency = AdjacencyMap.getAdjacencyMap();
 		for (int i=0; i < nodes.length; i++) {
