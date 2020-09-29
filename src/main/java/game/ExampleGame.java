@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
@@ -29,15 +31,13 @@ public class ExampleGame extends JComponent {
 	private InputHandler input;
 	
 	public static void main(String[] args) {		
-		Board board = new Board(null, null,new HumanPlayer(), new NaivePlayer(), new NaivePlayer(), new RandomPlayer());
+		Board board = new Board(null, null,new RandomPlayer(), new NaivePlayer(), new NaivePlayer(), new RandomPlayer());
 		Image board_image = BoardGraphics.createBoardImage(board);
 		Image[] pawns = BoardGraphics.createPawns(board);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
 		
 		//board.addDebugPawns();
 		//board.debugPawnShuffle(0.3);
-		
-		System.out.println(board);
 		
 		new ExampleGame(board, graphics);
 	}
@@ -46,8 +46,9 @@ public class ExampleGame extends JComponent {
 	private Thread eventLoop;
 	
 	public static int turn_time = 10; // in ms
-	public static Color selection_color = new Color(150,150,150,150);
-	public static Color highlight_color = new Color(150,150,255,100);
+	public static Color selection_color = new Color(150, 150, 150, 150);
+	public static Color highlight_color = new Color(150, 150, 255, 100);
+	public static Color show_move_color = new Color(255, 255, 255, 200);
 	
 	public ExampleGame(Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
@@ -67,13 +68,21 @@ public class ExampleGame extends JComponent {
 		input = new InputHandler(frame, board, graphics);
 		frame.addMouseListener(input);
 		frame.addKeyListener(input);
+		frame.addComponentListener(new ComponentListener() {
+			public void componentResized(ComponentEvent e) {
+				selectedNodes = null;
+			}
+			public void componentMoved(ComponentEvent e) {}
+			public void componentShown(ComponentEvent e) {}
+			public void componentHidden(ComponentEvent e) {}
+		});
 		
 		// substitute for a gameLoop
-		gameLoop = new Thread(new Runnable() {
+		gameLoop = new Thread(){
 			private long start_time = System.currentTimeMillis();
 			@Override
 			public void run() {
-				while (true) {
+				while (true) synchronized(this) {
 					// stop-condition:
 					if (frame == null || !frame.isVisible()) return;
 					
@@ -82,21 +91,22 @@ public class ExampleGame extends JComponent {
 						start_time = System.currentTimeMillis();
 						
 						game.forceRequestMoveAndContinue();
+						System.out.println(eventLoop.isAlive()?"eventloop is alive":"eventloop has died");
 						
 						frame.repaint();
 					}
 				}
 			}
-		});
+		};
 		
 		JComponent parent = this;
 		
 		// loop seperate of gameLoop to handle all GameEvents
-		eventLoop = new Thread(new Runnable() {
+		eventLoop = new Thread() {
 			
 			@Override
 			public synchronized void run() {
-				while(true) {
+				while(true) synchronized(gameLoop) {
 					// stop-condition:
 					if (frame == null || !frame.isVisible()) return;
 					
@@ -110,14 +120,13 @@ public class ExampleGame extends JComponent {
 							else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
 						} else if (e instanceof MoveEvent) {
 							MoveEvent m = (MoveEvent) e;
-							System.out.println("Possible Moves: "+m.getMoves());
 							
 							selectedNodes = new BufferedImage(parent.getWidth(), parent.getHeight(), BufferedImage.TYPE_INT_ARGB);
 							Graphics g = selectedNodes.getGraphics();
 							for(Move move: m.getMoves()){
 								BoardNode node = move.target;
 								Point pos = graphics.getScreenPositionOfNode(node);
-								g.setColor(highlight_color);
+								g.setColor(show_move_color);
 								int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
 								g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 							}
@@ -130,7 +139,7 @@ public class ExampleGame extends JComponent {
 					}
 				}
 			}
-		});
+		};
 		gameLoop.start();
 		eventLoop.start();
 	}
@@ -140,6 +149,8 @@ public class ExampleGame extends JComponent {
 	// graphics loop:
 	@Override
 	public void paintComponent(Graphics g) {
+		g.setColor(Color.black);
+		g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
 		graphics.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right, frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		g.drawImage(graphics.getImage(), 0, 0, null);
 		

@@ -217,7 +217,6 @@ public class BoardGraphics {
 		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D)(img.getGraphics());
 		Color brown = new Color(151, 93, 26);
-		g.setColor(brown);
 		
 		List<BoardNode> nodes = board.getAllnodes();
 		int index = 0;
