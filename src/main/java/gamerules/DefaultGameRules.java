@@ -11,7 +11,7 @@ public class DefaultGameRules extends GameRules {
 		if (pawn.getPosition().getNeighbours().contains(target)) return true;
 		return (getAllPossibleMoves(pawn).contains(new Move(pawn, target)));
 	}
-	
+	/*
 	@Override
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		//System.out.println("get all moves");
@@ -23,6 +23,7 @@ public class DefaultGameRules extends GameRules {
 		for (Move m : moves) result.add(m);
 		return result;
 	}
+
 	
 	public void recurseMoves(Pawn pawn, BoardNode previous, Set<Move> moves, Set<BoardNode> visited) {
 		Set<BoardNode> neighbours = previous.getNeighbours();
@@ -73,51 +74,68 @@ public class DefaultGameRules extends GameRules {
 			}
 		}
 	}
-	
-	//@Pascal this is a fix of the method that I write yesterday so if you need a backup for your method
-	//It seem to mee that your method is a bit more complex than mine
-	//-Arthur
-	// 
-	//@Arthur I know yours is less complex, but there were a few typos in it that I could not fix because I didn't completely follow
-	// your logic. But I would be really happy if you can help me with the part for validating the jumps... I had a lot of problems with it
-	// and it's far more complex than it needs to be (I marked it in my code for you to see).
-	// please test anything you change with the ExampleGame first to see if it all still works the same :)
-	/*
+	*/
+
+	//@Pascale I don't have find the mistake inside your methode However I think that my method doesn't contains this bug
+
 	@Override
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
-		// implement by Arthur brutforce method
-		Set<Move> moves = new HashSet<Move>();
-		for (BoardNode neighbour : pawn.getPosition().getNeighbours()){
-			if(neighbour.isEmpty()) moves.add(new Move(pawn,neighbour));
+		List<Move> possibleMoves = new ArrayList<Move>();
+		for (BoardNode node : pawn.getPosition().getNeighbours()) {
+			if (node.isEmpty()) possibleMoves.add(new Move(pawn, node));
 		}
-		recursiveMove(pawn.getPosition(),moves,pawn);
-		return moves.stream().collect(Collectors.toList());
-	}
+		recursiveMove(pawn.getPosition(), possibleMoves, pawn);
 
+		return possibleMoves;
+	}
 	// full field a set with the possiblility
-	private void recursiveMove(BoardNode place, Set<Move> movesfinale, Pawn pawn){
-		HashMap<BoardNode, List<BoardNode>> maps = new HashMap<BoardNode, List<BoardNode>>();
-		for (BoardNode neighbour : place.getNeighbours()){
-			List<BoardNode> moves = new ArrayList<BoardNode>();
-			maps.put(neighbour, moves);
-			for (BoardNode neighbour2 : place.getNeighbours()) {
-				if (neighbour2.isOccupied()) moves.add(neighbour2);  // I'm not sure if this is correct? this confused me mostly
+	private void recursiveMove(BoardNode place, List<Move> movesfinale, Pawn pawn){
+		BoardNode [] jumps = new BoardNode [place.getNeighbours().size()];
+		List<BoardNode> two = new ArrayList<BoardNode>();
+		int  y = 0;
+		for(BoardNode node : place.getNeighbours()){
+			jumps[y++] = node;
+		}
+		for(BoardNode node : place.getNeighbours()){
+			for(BoardNode node2 : node.getNeighbours()){
+				two.add(node2);
 			}
 		}
-		for(BoardNode nextNode : place.getNeighbours()) {
-			if(nextNode.getCurrentPawn() != null) {
-				List<BoardNode> moves = maps.get(nextNode);
-				for(BoardNode nextNode2 : place.getNeighbours()){
-					if(!moves.contains(nextNode2) && !movesfinale.contains(nextNode2)){
-						movesfinale.add(new Move(pawn,nextNode2));
-						recursiveMove(nextNode2,movesfinale,pawn);
-						break;
+		List<Move> moves = new ArrayList<Move>();
+		for (int i = 0; i <jumps.length; i++){
+			if(jumps[i].isOccupied()){
+				for(BoardNode node : jumps[i].getNeighbours()){
+					if(contains(two,node)==1){
+						//Loop for checking if we don't have done this move allready
+						boolean a = false;
+						for (Move move : movesfinale){
+							if(move.equals(new Move(pawn,node))){
+								a = true;
+								break;
+							}
+						}
+						if(!a){
+							moves.add(new Move(pawn,node));
+							recursiveMove(node,movesfinale,pawn);
+						}
 					}
 				}
 			}
 		}
+		movesfinale.addAll(moves);
 	}
-	*/
+
+	public int contains (List<BoardNode> nodes, BoardNode target){
+		if(target.isOccupied()) return 10;
+		int total = 0;
+		for(BoardNode node : nodes){
+			if(node==target){
+				total++;
+			}
+		}
+		return total;
+	}
+
 	public String toString() {
 		return "Default Gamerules";
 	}
