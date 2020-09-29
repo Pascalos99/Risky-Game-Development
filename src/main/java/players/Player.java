@@ -64,6 +64,9 @@ public abstract class Player {
 		public Move returnMove(Board gameBoard) {
 			throw new RuntimeException("Trying to get move from absent player, please check if player == Player.NONE");
 		}
+		public String toString() {
+			return "None";
+		}
 	};
      
 }
