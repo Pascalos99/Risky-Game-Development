@@ -165,12 +165,10 @@ public class Board {
 	 * {@link #forceEndTurn()} if the given move is {@code null} or invalid.
 	 */
 	public void forceRequestMoveAndContinue() {
-
 		if (currentPlayer() instanceof DeterministicReturn) {
 			if (!requestMoveAndContinue()) forceEndTurn();
 			return;
 		}
-
 		Move move = null;
 		while (move == null || !move.isValid())
 			move = currentPlayer().returnMove(this);
@@ -185,9 +183,11 @@ public class Board {
 
 	private void nextTurn() {
 		new TurnEvent(currentPlayer(), false); // end previous turn
-		current_player_ID++;
-		if (current_player_ID >= player_count) current_player_ID = 0;
-		new TurnEvent(currentPlayer(), true); // start new turn
+		if(!SELECTED_GAMERULES.hasWon(this,currentPlayer())){
+			current_player_ID++;
+			if (current_player_ID >= player_count) current_player_ID = 0;
+			new TurnEvent(currentPlayer(), true); // start new turn
+		}
 	}
 
 	/**
