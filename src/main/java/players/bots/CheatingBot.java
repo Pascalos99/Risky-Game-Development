@@ -12,12 +12,21 @@ import gamerules.Move;
 import gamerules.Pawn;
 import players.Player;
 
+/**
+ * This bot demonstrates a weakness in the game system, that can't easily be fixed without removing the
+ * possibility of adding multiple different gamerule-sets for different game-modes in menu
+ * 
+ * This bot is only ever used to test the win condition of our game and will not be accessible to users, nor
+ * will it be tested along with the other bots (as it is simply unfair)
+ */
 public class CheatingBot extends Player implements DeterministicReturn {
 
+	private static double cheat_chance = 0.3;
+	
 	@Override
 	public Move returnMove(Board gameBoard) {
 		
-		if (new Random().nextDouble() < 0.7) return null;
+		if (new Random().nextDouble() < 1 - cheat_chance) return null;
 		
 		GameRules old_rules = GameRules.SELECTED_GAMERULES;
 		Player me = this;
