@@ -106,23 +106,17 @@ public class DefaultGameRules extends GameRules {
 			if(jumps[i].isOccupied()){
 				for(BoardNode node : jumps[i].getNeighbours()){
 					if(contains(two,node)==1){
-						//Loop for checking if we don't have done this move allready
-						boolean a = false;
-						for (Move move : movesfinale){
-							if(move.equals(new Move(pawn,node))){
-								a = true;
-								break;
-							}
-						}
-						if(!a){
+						if(!movesfinale.contains(new Move(pawn,node))){
 							moves.add(new Move(pawn,node));
-							recursiveMove(node,movesfinale,pawn);
 						}
 					}
 				}
 			}
 		}
 		movesfinale.addAll(moves);
+		for(Move m : moves){
+			recursiveMove(m.target,movesfinale,pawn);
+		}
 	}
 
 	public int contains (List<BoardNode> nodes, BoardNode target){
