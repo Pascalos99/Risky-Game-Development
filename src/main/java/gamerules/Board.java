@@ -50,8 +50,8 @@ public class Board {
 	 * @param players
 	 */
 	public Board(GameRules gamerules, BoardGraphics graphics, Player...players) {
-
-		if (gamerules != null) SELECTED_GAMERULES = gamerules;
+		//modif for bloking the cheaters
+		//if (gamerules != null) SELECTED_GAMERULES = new ;
 
 		setGraphics(graphics);
 		player_count = players.length;

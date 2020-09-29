@@ -6,7 +6,7 @@ import players.Player;
 
 public abstract class GameRules {
 
-	public static GameRules SELECTED_GAMERULES = new DefaultGameRules();
+	public static final GameRules SELECTED_GAMERULES = new DefaultGameRules();
 	
     public abstract boolean allowMove(Pawn pawn,BoardNode target);
 
