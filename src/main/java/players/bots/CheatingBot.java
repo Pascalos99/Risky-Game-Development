@@ -21,7 +21,7 @@ import players.Player;
  */
 public class CheatingBot extends Player implements DeterministicReturn {
 
-	private static double cheat_chance = 0.3;
+	private static double cheat_chance = 1;
 	
 	@Override
 	public Move returnMove(Board gameBoard) {
@@ -84,6 +84,10 @@ public class CheatingBot extends Player implements DeterministicReturn {
 	@Override
 	public String getDescription() {
 		return "This bot likes to cheat";
+	}
+	
+	public String toString() {
+		return "Cheaty Dave";
 	}
 
 }

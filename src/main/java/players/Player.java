@@ -54,8 +54,16 @@ public abstract class Player {
     	 return gameBoard.getGoal(this);
     }
     
+    public final boolean isGoalNode(Board gameBoard, BoardNode node) {
+    	return gameBoard.isGoalNode(this, node);
+    }
+    
     public final Player getEnemy(Board gameBoard) {
     	return gameBoard.getEnemy(this);
+    }
+    
+    public double currentScore(Board board) {
+    	return board.currentScore(this);
     }
     
     public static final Player NONE = new Player() {

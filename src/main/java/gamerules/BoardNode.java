@@ -104,6 +104,10 @@ public class BoardNode {
         return player_home;
     }
     
+    public boolean isGoal(Player player, Board board) {
+    	return board.isGoalNode(player, this);
+    }
+    
     public int getID() {
     	return nodeID;
     }

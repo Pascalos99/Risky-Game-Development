@@ -5,10 +5,10 @@ import gamerules.BoardNode;
 import java.util.HashMap;
 
 public class Dijkstra {
-    private static HashMap<BoardNode,Integer> distances;
-    private static BoardNode target;
-
-    private static void recursive(BoardNode position,Integer distance){
+    private HashMap<BoardNode,Integer> distances;
+    private BoardNode target;
+    
+    private void recursive(BoardNode position,Integer distance){
         if(distance>20) return;
         if(distances.containsKey(position)){
             if(distances.get(position)>distance){
@@ -28,7 +28,7 @@ public class Dijkstra {
         }
     }
 
-    public static int getDistances(BoardNode goal, BoardNode startPoint) {
+    public int getDistances(BoardNode goal, BoardNode startPoint) {
         target = goal;
         distances = new HashMap<BoardNode,Integer>();
         recursive(startPoint,0);

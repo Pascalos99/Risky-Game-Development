@@ -3,6 +3,7 @@ package gamerules;
 import graphics.BoardGraphics;
 import players.Player;
 import players.bots.DeterministicReturn;
+import players.bots.Dijkstra;
 
 import java.util.*;
 
@@ -34,11 +35,14 @@ public class Board {
 			{74,84,85,95,96,97,107,108,109,110},
 			{10,11,12,13,23,24,25,35,36,46}
 	};
+	
+	private static final int[] central_goal_nodes_per_player = {116, 4, 87, 33, 24, 97};
 
 	private int current_player_ID;
 	private int player_count;
 	private List<BoardNode> nodes;
 	private Player [] players;
+	private Player winner = null;
 	/** May be {@code null}; is used to sync game updates with graphics updates*/
 	private BoardGraphics graphics;
 
@@ -79,6 +83,91 @@ public class Board {
 
 	public List<BoardNode> getGoal(Player player) {
 		return getAllNodesOf(getEnemy(player));
+	}
+	
+	public final boolean isGoalNode(Player player, BoardNode node) {
+    	return node.getOwner() == getEnemy(player);
+    }
+	
+	public double currentScore(Player player) {
+		double score = 0;
+		for (Pawn pawn : getAllPawnsOf(player)) {
+			if (pawn.getPosition().getOwner() == player) score -= 13;
+			else if (pawn.getPosition().getOwner() == getEnemy(player)) score += 13;
+			else score -= new Dijkstra().getDistances(nodes.get(central_goal_nodes_per_player[getPlayerIndex(player)]), pawn.getPosition());
+		}
+		return score;
+	}
+	
+	public double moveScore(Move move) {
+		Dijkstra dijk = new Dijkstra();
+		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(move.pawn.getOwner())]);
+		return dijk.getDistances(goal, move.start) - dijk.getDistances(goal, move.target);
+	}
+	
+	/**
+	 * @param pawn a pawn
+	 * @return the dijkstra distance to the central boardnode of the enemy territory (this is not the shortest, nor the longest distance to the territory as a whole)
+	 */
+	public double distanceToEnemy(Pawn pawn) {
+		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(pawn.getOwner())]);
+		return new Dijkstra().getDistances(goal, pawn.getPosition());
+	}
+	
+	/**
+	 * [WARNING] This is a dangerous operation in thread-unsafe environments
+	 * @param pawn the pawns you want to get the possible moves from
+	 * @param moves all the moves executed before calculating the possible moves
+	 * @return {@code null} if any of the subsequent moves are not valid (does not regard turn order)
+	 */
+	public synchronized List<Move> getPossibleMovesAfterMove(List<Pawn> pawns, Move... moves) {
+		ArrayList<Move> result = new ArrayList<>();
+		int moves_done_until = moves.length;
+		for (int i=0; i < moves.length; i++) {
+			if (moves[i].isValid()) moves[i].execute();
+			else {
+				moves_done_until = i;
+				break;
+			}
+		}
+		move_calculation: {
+			if (moves_done_until < moves.length) {
+				result = null;
+				break move_calculation;
+			}
+			for (Pawn pawn : pawns)
+				result.addAll(SELECTED_GAMERULES.getAllPossibleMoves(pawn));
+		}
+		for (int i=0; i < moves_done_until; i++) moves[i].reverse();
+		return result;
+	}
+	
+	/**
+	 * [WARNING] This is a dangerous operation in thread-unsafe environments
+	 * @param player the player for whom to calculate the score
+	 * @param moves all the moves executed before calculating the possible moves
+	 * @return {@code null} if any of the subsequent moves are not valid (does not regard turn order)
+	 */
+	public Double calculateScoreAfterMove(Player player, Move...moves) {
+		Double result = null;
+		int moves_done_until = moves.length;
+		for (int i=0; i < moves.length; i++) {
+			if (moves[i].isValid()) moves[i].execute();
+			else {
+				moves_done_until = i;
+				break;
+			}
+		}
+		score_calculation: {
+			if (moves_done_until < moves.length) {
+				result = null;
+				break score_calculation;
+			}
+			result = currentScore(player);
+			
+		}
+		for (int i=0; i < moves_done_until; i++) moves[i].reverse();
+		return result;
 	}
 
 	//TODO implement the method
@@ -140,6 +229,10 @@ public class Board {
 	public Player currentPlayer() {
 		return players[current_player_ID];
 	}
+	
+	public boolean noWinners() {
+		return winner == null;
+	}
 
 	/**
 	 * calls the {@link Player#returnMove(Board)} method of the {@link #currentPlayer()} and ends the turn after the move is executed.
@@ -188,7 +281,8 @@ public class Board {
 			current_player_ID++;
 			if (current_player_ID >= player_count) current_player_ID = 0;
 			new TurnEvent(currentPlayer(), true); // start new turn
-		} else {
+		} else if (winner == null) {
+			winner = currentPlayer();
 			new WinEvent(currentPlayer(), currentPlayer().turnCounter.count);
 		}
 	}

@@ -8,8 +8,6 @@ import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
-
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -32,14 +30,14 @@ public class GamePanel extends JPanel {
 	private Board game;
 	private InputHandler input;
 	
-	public static int turn_time = 10; // in ms
+	public static int turn_time = 0; // in ms
 	public static Color selection_color = new Color(150, 150, 150, 150);
 	public static Color highlight_color = new Color(150, 150, 255, 100);
 	public static Color show_move_color = new Color(255, 255, 255, 200);
 	public static Color background_color= new Color(0,0,50);
 	
 	public static void main(String[] args) {
-		Board board = new Board(null, null,new NaivePlayer(), new NaivePlayer(), new NaivePlayer(), new NaivePlayer());
+		Board board = new Board(null, null, new EvilPlayer(), new NaivePlayer());
 		Image board_image = BoardGraphics.createBoardImage(board);
 		Image[] pawns = BoardGraphics.createPawns(board);
 		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
@@ -57,7 +55,6 @@ public class GamePanel extends JPanel {
 	}
 	
 	private Thread gameLoop;
-	private Thread eventLoop;
 	
 	public GamePanel(Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
@@ -82,7 +79,7 @@ public class GamePanel extends JPanel {
 			private long start_time = System.currentTimeMillis();
 			@Override
 			public void run() {
-				while (true) synchronized(this) {
+				while (game.noWinners()) synchronized(this) {
 					// gameTick: [we wait 'turn_time' milliseconds between turns]
 					if (System.currentTimeMillis() - start_time > turn_time) {
 						start_time = System.currentTimeMillis();
@@ -94,49 +91,39 @@ public class GamePanel extends JPanel {
 				}
 			}
 		};
-		
-		JComponent parent = this;
-		
-		// loop seperate of gameLoop to handle all GameEvents
-		eventLoop = new Thread() {
-			
-			@Override
-			public synchronized void run() {
-				while(true) synchronized(gameLoop) {// eventTick: no waits here, we want to respond as quickly as possible (if necessary)
-					while (GameEvent.hasPending()) {
-						GameEvent e = GameEvent.getNext();
-						if (e instanceof TurnEvent) {
-							selectedNodes = null;
-							Player player = ((TurnEvent) e).getPlayer();
-							if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
-							else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
-						} else if (e instanceof MoveEvent) {
-							MoveEvent m = (MoveEvent) e;
-							
-							selectedNodes = new BufferedImage(parent.getWidth(), parent.getHeight(), BufferedImage.TYPE_INT_ARGB);
-							Graphics g = selectedNodes.getGraphics();
-							for(Move move: m.getMoves()){
-								BoardNode node = move.target;
-								Point pos = graphics.getScreenPositionOfNode(node);
-								g.setColor(show_move_color);
-								int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
-								g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
-							}
-						} else if (e instanceof WinEvent) {
-							System.out.println(e.getMessage());
-						}
-						else {
-							//System.out.println(e);
-						}
-					}
-				}
-			}
-		};
 		gameLoop.start();
-		eventLoop.start();
 	}
 	
 	private Image selectedNodes = null;
+	
+	private void eventLoop() {
+		while (GameEvent.hasPending()) {
+			GameEvent e = GameEvent.getNext();
+			if (e instanceof TurnEvent) {
+				selectedNodes = null;
+				Player player = ((TurnEvent) e).getPlayer();
+				if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
+				else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
+			} else if (e instanceof MoveEvent) {
+				MoveEvent m = (MoveEvent) e;
+				
+				selectedNodes = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+				Graphics g = selectedNodes.getGraphics();
+				for(Move move: m.getMoves()){
+					BoardNode node = move.target;
+					Point pos = graphics.getScreenPositionOfNode(node);
+					g.setColor(show_move_color);
+					int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+					g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
+				}
+			} else if (e instanceof WinEvent) {
+				System.out.println(e.getMessage());
+			}
+			else {
+				//System.out.println(e);
+			}
+		}
+	}
 	
 	// graphics loop:
 	@Override
@@ -145,6 +132,8 @@ public class GamePanel extends JPanel {
 		g.fillRect(0, 0, getWidth(), getHeight());
 		graphics.setSize(getWidth(), getHeight());
 		g.drawImage(graphics.getImage(), 0, 0, null);
+		
+		eventLoop();
 		
 		BoardNode pointer = HumanPlayer.GLOBAL_INPUT.getSelectedNode();
 		
@@ -158,6 +147,7 @@ public class GamePanel extends JPanel {
 			if (selectedNodes != null && pointer.isOccupied() && pointer.getCurrentPawn().getOwner() == game.currentPlayer())
 				g.drawImage(selectedNodes, 0, 0, null);
 		}
+		
 		repaint();
 	}
 

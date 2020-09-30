@@ -1,12 +1,16 @@
 package gamerules;
 
+import players.bots.Dijkstra;
+
 public class Move {
 	
 	public Move(Pawn pawn, BoardNode target) {
 		this.pawn = pawn;
 		this.target = target;
+		start = pawn.getPosition();
 	}
 	
+	public final BoardNode start;
 	public final Pawn pawn;
 	public final BoardNode target;
 
@@ -27,6 +31,14 @@ public class Move {
 	 */
 	protected boolean execute() {
 		return target.addPawn(pawn);
+	}
+	
+	protected boolean reverse() {
+		return start.addPawn(pawn);
+	}
+	
+	public double calculateScore(Board board) {
+		return board.moveScore(this);
 	}
 	
 	public String toString() {
