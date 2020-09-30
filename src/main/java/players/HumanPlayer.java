@@ -2,9 +2,9 @@ package players;
 
 import java.util.List;
 
-import game.GameEvent;
 import game.InputHandler;
-import game.MoveEvent;
+import game.events.GameEvent;
+import game.events.MoveEvent;
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.Move;

@@ -1,4 +1,4 @@
-package game;
+package game.events;
 
 public enum Urgency {
 	Note(0, "Note"), Warning(1, "Warning"), Error(2, "Error");

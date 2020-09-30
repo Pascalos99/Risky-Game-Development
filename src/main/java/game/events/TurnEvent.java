@@ -1,4 +1,4 @@
-package game;
+package game.events;
 
 import players.Player;
 

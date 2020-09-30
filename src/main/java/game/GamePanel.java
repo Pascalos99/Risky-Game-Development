@@ -11,64 +11,64 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
+import game.events.GameEvent;
+import game.events.MoveEvent;
+import game.events.TurnEvent;
+import game.events.WinEvent;
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.Move;
 import graphics.BoardGraphics;
-import players.HumanPlayer;
-import players.Player;
-import players.bots.NaivePlayer;
-import players.bots.RandomPlayer;
+import players.*;
+import players.bots.*;
 
-public class ExampleGame extends JComponent {
-	
-	private static final long serialVersionUID = -561676103755122717L;
+public class GamePanel extends JPanel {
+
+	private static final long serialVersionUID = -5452925014639836146L;
 	
 	private BoardGraphics graphics;
 	private Board game;
-	private JFrame frame;
 	private InputHandler input;
-	
-	public static void main(String[] args) {		
-		Board board = new Board(null, null,new RandomPlayer(), new NaivePlayer(), new NaivePlayer(), new RandomPlayer());
-		Image board_image = BoardGraphics.createBoardImage(board);
-		Image[] pawns = BoardGraphics.createPawns(board);
-		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
-		
-		//board.addDebugPawns();
-		//board.debugPawnShuffle(0.3);
-		
-		new ExampleGame(board, graphics);
-	}
-	
-	private Thread gameLoop;
-	private Thread eventLoop;
 	
 	public static int turn_time = 10; // in ms
 	public static Color selection_color = new Color(150, 150, 150, 150);
 	public static Color highlight_color = new Color(150, 150, 255, 100);
 	public static Color show_move_color = new Color(255, 255, 255, 200);
+	public static Color background_color= new Color(0,0,50);
 	
-	public ExampleGame(Board board, BoardGraphics graphics) {
+	public static void main(String[] args) {
+		Board board = new Board(null, null,new NaivePlayer(), new NaivePlayer(), new NaivePlayer(), new NaivePlayer());
+		Image board_image = BoardGraphics.createBoardImage(board);
+		Image[] pawns = BoardGraphics.createPawns(board);
+		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
+		
+		JPanel panel = new GamePanel(board, graphics);
+		JFrame frame = new JFrame("Risky Checkers v.0.004");
+		Dimension size = graphics.getSize();
+		if (size == null)
+			frame.setSize(600, 600);
+		else frame.setSize(size);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(true);
+		frame.add(panel);
+		frame.setVisible(true);
+	}
+	
+	private Thread gameLoop;
+	private Thread eventLoop;
+	
+	public GamePanel(Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
 		game = board;
 		graphics.setBoard(board);
 		graphics.notifyUpdate();
-		frame = new JFrame("Risky Checkers v.0.003");
-		Dimension size = graphics.getSize();
-		if (size == null)
-			frame.setSize(500, 400);
-		else frame.setSize(size);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(true);
-		frame.add(this);
-		frame.setVisible(true);
 		
-		input = new InputHandler(frame, board, graphics);
-		frame.addMouseListener(input);
-		frame.addKeyListener(input);
-		frame.addComponentListener(new ComponentListener() {
+		input = new InputHandler(this, board, graphics);
+		addMouseListener(input);
+		addKeyListener(input);
+		addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent e) {
 				selectedNodes = null;
 			}
@@ -83,17 +83,13 @@ public class ExampleGame extends JComponent {
 			@Override
 			public void run() {
 				while (true) synchronized(this) {
-					// stop-condition:
-					if (frame == null || !frame.isVisible()) return;
-					
 					// gameTick: [we wait 'turn_time' milliseconds between turns]
 					if (System.currentTimeMillis() - start_time > turn_time) {
 						start_time = System.currentTimeMillis();
 						
 						game.forceRequestMoveAndContinue();
-						System.out.println(eventLoop.isAlive()?"eventloop is alive":"eventloop has died");
 						
-						frame.repaint();
+						repaint();
 					}
 				}
 			}
@@ -106,11 +102,7 @@ public class ExampleGame extends JComponent {
 			
 			@Override
 			public synchronized void run() {
-				while(true) synchronized(gameLoop) {
-					// stop-condition:
-					if (frame == null || !frame.isVisible()) return;
-					
-					// eventTick: no waits here, we want to respond as quickly as possible (if necessary)
+				while(true) synchronized(gameLoop) {// eventTick: no waits here, we want to respond as quickly as possible (if necessary)
 					while (GameEvent.hasPending()) {
 						GameEvent e = GameEvent.getNext();
 						if (e instanceof TurnEvent) {
@@ -149,9 +141,9 @@ public class ExampleGame extends JComponent {
 	// graphics loop:
 	@Override
 	public void paintComponent(Graphics g) {
-		g.setColor(Color.black);
-		g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
-		graphics.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right, frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
+		g.setColor(background_color);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		graphics.setSize(getWidth(), getHeight());
 		g.drawImage(graphics.getImage(), 0, 0, null);
 		
 		BoardNode pointer = HumanPlayer.GLOBAL_INPUT.getSelectedNode();

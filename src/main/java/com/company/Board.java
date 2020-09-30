@@ -3,6 +3,7 @@ package com.company;
 import javax.swing.*;
 import java.util.HashMap;
 
+@Deprecated
 public class Board extends JFrame {
     public Board(){
         this.setSize(1280,720);

@@ -3,6 +3,7 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 
+@Deprecated
 public class BoardElement extends JComponent {
     public int index;
     public BoardElement(){

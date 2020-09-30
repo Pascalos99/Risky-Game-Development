@@ -1,6 +1,8 @@
 package game;
 
-import java.awt.Frame;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -15,9 +17,9 @@ import players.HumanPlayer;
 
 public class InputHandler extends MouseAdapter implements KeyListener {
 	
-	private Board board;
 	private BoardGraphics graphics;
-	private Frame frame;
+	
+	private Insets insets;
 	
 	private List<Integer> keys_held_down;
 	private List<Integer> keys_just_pressed;
@@ -25,13 +27,13 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 	private volatile BoardNode selectedNode;
 	private volatile boolean nodeIsHighlighted;
 	
-	public InputHandler(Frame frame, Board board, BoardGraphics graphics) {
-		this.frame = frame;
-		this.board = board;
+	public InputHandler(Component component, Board board, BoardGraphics graphics) {
 		this.graphics = graphics;
 		keys_held_down = new ArrayList<Integer>();
 		keys_just_pressed = new ArrayList<Integer>();
 		HumanPlayer.GLOBAL_INPUT = this;
+		if (component instanceof Container) insets = ((Container) component).getInsets();
+		else insets = new Insets(0,0,0,0);
 	}
 
 	@Override
@@ -67,7 +69,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		setSelectedNode(graphics.getNodeAtScreenPosition(e.getPoint(), BoardGraphics.default_node_diameter / 2d, frame.getInsets()));
+		setSelectedNode(graphics.getNodeAtScreenPosition(e.getPoint(), BoardGraphics.default_node_diameter / 2d, insets));
 	}
 	
 	/**

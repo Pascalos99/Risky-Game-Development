@@ -1,10 +1,11 @@
 package com.company;
 
-import game.ExampleGame;
+import game.GamePanel;
 
+@Deprecated
 public class Main {
 
     public static void main(String[] args) {
-        ExampleGame.main(args);
+        GamePanel.main(args);
     }
 }

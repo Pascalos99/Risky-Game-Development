@@ -196,6 +196,10 @@ public class BoardGraphics {
 							new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
     public static Color[] default_pawn_colors = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
     
+    public static Color middle(Color a, Color b) {
+    	return a;
+    }
+    
     public static Image createBoardImage(Board board) {
     	return createBoardImage(board, default_home_colors);
     }

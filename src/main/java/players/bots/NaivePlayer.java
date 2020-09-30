@@ -10,11 +10,11 @@ import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
 public class NaivePlayer extends Player {
-    private static int random_count = 0;
+    private static int naive_count = 0;
     private int ID;
 
     public NaivePlayer() {
-        ID = ++random_count;
+        ID = ++naive_count;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class NaivePlayer extends Player {
         List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
         Collections.shuffle(moves);
         for (Move move1 : moves) {
-            if(gameBoard.getGoal(this).contains(move1.target))return move1;
+            if(move1.target.getOwner() == getEnemy(gameBoard)) return move1;
             int distance = distanceTarget(gameBoard, move1.target,pawn.getPosition());
             if (distance <= min) {
                 move = move1;

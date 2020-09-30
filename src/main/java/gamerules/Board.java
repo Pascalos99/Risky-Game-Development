@@ -6,8 +6,8 @@ import players.bots.DeterministicReturn;
 
 import java.util.*;
 
-import game.TurnEvent;
-import game.WinEvent;
+import game.events.TurnEvent;
+import game.events.WinEvent;
 
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
@@ -182,13 +182,14 @@ public class Board {
 	}
 
 	private void nextTurn() {
+		currentPlayer().turnCounter.count++;
 		new TurnEvent(currentPlayer(), false); // end previous turn
 		if(!SELECTED_GAMERULES.hasWon(this,currentPlayer())){
 			current_player_ID++;
 			if (current_player_ID >= player_count) current_player_ID = 0;
 			new TurnEvent(currentPlayer(), true); // start new turn
 		} else {
-			new WinEvent(currentPlayer());
+			new WinEvent(currentPlayer(), currentPlayer().turnCounter.count);
 		}
 	}
 

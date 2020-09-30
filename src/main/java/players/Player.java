@@ -6,8 +6,15 @@ import java.util.List;
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.Move;
+import gamerules.TurnCounter;
 
 public abstract class Player {
+	
+	public final TurnCounter turnCounter;
+	
+	public Player() {
+		turnCounter = new TurnCounter(this);
+	}
 	
 	private String player_name = "";
 	private Color color = Color.GRAY;

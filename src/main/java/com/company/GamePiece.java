@@ -3,6 +3,7 @@ package com.company;
 import javax.swing.*;
 import java.awt.*;
 
+@Deprecated
 public class GamePiece extends JComponent {
     private Color pieceColor;
     private BoardElement location;
