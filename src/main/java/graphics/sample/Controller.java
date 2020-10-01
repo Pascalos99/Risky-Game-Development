@@ -62,7 +62,7 @@ public class Controller implements Initializable {
     @FXML
     private void Rules(ActionEvent event) throws IOException{
         StageChanger();
-        Main.mainStage.hide();
+//        Main.mainStage.hide();
         newStage.showAndWait();
     }
 
@@ -74,7 +74,7 @@ public class Controller implements Initializable {
             @Override
             public void handle(WindowEvent t) {
                 newStage.close();
-                Main.mainStage.show();
+//                Main.mainStage.show();
             }
         });
     }

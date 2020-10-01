@@ -18,7 +18,7 @@ public class GameRuleController {
     @FXML
     private void Exit(ActionEvent event) throws IOException{
         Controller.newStage.close();
-        Main.mainStage.show();
+//        Main.mainStage.show();
     }
 }
 

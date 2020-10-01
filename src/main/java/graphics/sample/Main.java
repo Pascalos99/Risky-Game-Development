@@ -1,6 +1,6 @@
 package graphics.sample;
 
-
+//exports graphics.sample;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,15 +9,15 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    public static Stage mainStage = new Stage();
+//    public static Stage mainStage = new Stage();
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        mainStage = primaryStage;
+//        mainStage = primaryStage;
         Parent root = FXMLLoader.load(getClass().getResource("Menu.fxml"));
         primaryStage.setTitle("Chinese Checkers");
-        mainStage.setScene(new Scene(root, 802, 602));
-        mainStage.show();
+        primaryStage.setScene(new Scene(root, 802, 602));
+        primaryStage.show();
     }
 
     public static void main(String[] args) {
