@@ -94,7 +94,7 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 
 	@Override
 	public String getTypeName() {
-		return "Human";
+		return "Human Player";
 	}
 
 	@Override

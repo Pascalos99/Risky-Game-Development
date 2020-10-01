@@ -1,7 +1,5 @@
 package gamerules;
 
-import players.bots.Dijkstra;
-
 public class Move {
 	
 	public Move(Pawn pawn, BoardNode target) {

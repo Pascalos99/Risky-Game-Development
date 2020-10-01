@@ -13,7 +13,7 @@ public class NaivePlayer extends Player {
 
     @Override
     public Move returnMove(Board gameBoard) {
-        long t1 = System.currentTimeMillis();
+        //long t1 = System.currentTimeMillis();
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
         Move move = null;
         int min = 14;

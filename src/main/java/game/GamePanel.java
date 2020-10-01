@@ -1,7 +1,6 @@
 package game;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -20,7 +19,6 @@ import gamerules.BoardNode;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.*;
-import players.bots.*;
 
 public class GamePanel extends JPanel {
 
