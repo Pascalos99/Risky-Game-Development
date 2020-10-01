@@ -24,6 +24,9 @@ import javafx.stage.WindowEvent;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javax.swing.JFrame;
+
 import java.io.IOException;
 
 
@@ -120,6 +123,13 @@ public class Controller implements Initializable {
     	
     	@SuppressWarnings("unused")
 		GamePanel result = gs.build();
+    	
+    	JFrame frame = new JFrame("Risky Checkers v0.005");
+    	frame.setSize(500, 500);
+    	frame.add(result);
+    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	frame.setVisible(true);
+    	
     	System.out.println("Created Game");
     	// @Mohammad, I don't know what to do from here
     	
