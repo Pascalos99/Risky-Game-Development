@@ -192,9 +192,15 @@ public class BoardGraphics {
     public static int default_pawn_diameter = 40;
     public static int default_node_spacing_x = 10;
     public static int default_node_spacing_y = -5;
-    public static Color[] default_home_colors = {new Color(150, 205, 113), new Color(133, 178, 205), new Color(250, 217, 73),
-							new Color(205, 105, 164), new Color(237, 163, 6), new Color(209, 58, 34), new Color(181, 126, 63)};
+    public static Color default_node_color = new Color(151, 93, 26);
+    public static Color default_home_color = new Color(181, 126, 63);
     public static Color[] default_pawn_colors = {Color.green, Color.blue, Color.yellow, Color.magenta, Color.orange, Color.red};
+    public static Color[] default_home_colors;
+    static {
+    	default_home_colors = new Color[6];
+    	for (int i=0; i < default_pawn_colors.length; i++)
+    		default_home_colors[i] = default_pawn_colors[i].darker();
+    }
     
     public static Color middle(Color a, Color b) {
     	return a;
@@ -220,7 +226,8 @@ public class BoardGraphics {
 		
 		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D)(img.getGraphics());
-		Color brown = new Color(151, 93, 26);
+		Color brown = default_node_color;
+		Color light_brown = default_home_color;
 		
 		List<BoardNode> nodes = board.getAllnodes();
 		int index = 0;
@@ -235,7 +242,7 @@ public class BoardGraphics {
 				Color color = brown;
 				if (node.getOwner() != null) {
 					int player_index = board.getPlayerIndex(node.getOwner());
-					if (player_index == -1) color = home_colors[6];
+					if (player_index == -1) color = light_brown;
 					else color = home_colors[player_index];
 				}
 				

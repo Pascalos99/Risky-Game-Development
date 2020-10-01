@@ -11,13 +11,6 @@ import gamerules.Pawn;
 import players.Player;
 
 public class RandomPlayer extends Player {
-
-	private static int random_count = 0;
-	private int ID;
-	
-	public RandomPlayer() {
-		ID = ++random_count;
-	}
 	
 	@Override
 	public Move returnMove(Board board) {
@@ -35,16 +28,17 @@ public class RandomPlayer extends Player {
 
 	@Override
 	public String getTypeName() {
-		return "Random Bot";
+		return "Random Player";
 	}
 
 	@Override
 	public String getDescription() {
 		return "A bot that randomly picks a move";
 	}
-	
-	public String toString() {
-		return "RandomBot-"+ID;
+
+	@Override
+	public Player getNewInstance() {
+		return new RandomPlayer();
 	}
 
 }

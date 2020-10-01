@@ -30,24 +30,22 @@ public class GamePanel extends JPanel {
 	private Board game;
 	private InputHandler input;
 	
-	public static int turn_time = 0; // in ms
+	public static int turn_time = 100; // in ms
 	public static Color selection_color = new Color(150, 150, 150, 150);
 	public static Color highlight_color = new Color(150, 150, 255, 100);
-	public static Color show_move_color = new Color(255, 255, 255, 200);
+	public static Color show_move_color = new Color(200, 200, 255, 200);
 	public static Color background_color= new Color(0,0,50);
 	
 	public static void main(String[] args) {
-		Board board = new Board(null, null, new EvilPlayer(), new NaivePlayer());
-		Image board_image = BoardGraphics.createBoardImage(board);
-		Image[] pawns = BoardGraphics.createPawns(board);
-		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
+		GameSetup gs = new GameSetup();
+		gs.addPlayer("Human", "Henry", Color.WHITE);
+		gs.addPlayer("evil player", "Dave", Color.BLACK);
+		gs.addPlayer("evil player", "Joey", new Color(0,100,150));
+		gs.addPlayer("Naive player", "Melissa", new Color(78,0,0));
 		
-		JPanel panel = new GamePanel(board, graphics);
+		JPanel panel = gs.build();
 		JFrame frame = new JFrame("Risky Checkers v.0.004");
-		Dimension size = graphics.getSize();
-		if (size == null)
-			frame.setSize(600, 600);
-		else frame.setSize(size);
+		frame.setSize(600, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(true);
 		frame.add(panel);
@@ -103,7 +101,7 @@ public class GamePanel extends JPanel {
 				selectedNodes = null;
 				Player player = ((TurnEvent) e).getPlayer();
 				if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
-				else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player, player.getColorName());
+				else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player.getName()+" ("+player.getTypeName()+")", player.getColorName());
 			} else if (e instanceof MoveEvent) {
 				MoveEvent m = (MoveEvent) e;
 				

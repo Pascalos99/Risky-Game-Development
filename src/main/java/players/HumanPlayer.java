@@ -21,7 +21,7 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 	private int ID;
 
 	public HumanPlayer() {
-		ID = ++human_count;
+		ID = human_count++;
 		setName("Human-"+ID);
 	}
 
@@ -105,4 +105,9 @@ public class HumanPlayer extends Player implements DeterministicReturn {
     public String toString() {
     	return "Human-"+ ID;
     }
+
+	@Override
+	public Player getNewInstance() {
+		return new HumanPlayer();
+	}
 }
