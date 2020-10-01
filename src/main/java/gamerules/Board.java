@@ -59,6 +59,7 @@ public class Board {
 
 		setGraphics(graphics);
 		player_count = players.length;
+		if(players.length>6) player_count =6;
 		this.players = Arrays.copyOf(players, 6);
 
 		nodes = List.of(constructNodes());
