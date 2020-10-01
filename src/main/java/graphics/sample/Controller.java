@@ -1,6 +1,5 @@
 package graphics.sample;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.collections.FXCollections;
@@ -33,8 +32,6 @@ public class Controller implements Initializable {
     public String Name4;
     public String Name5;
     public String Name6;
-    public JFXButton PlayBtn;
-    public JFXButton GameRulesBtn;
 
     @FXML
     private JFXTextField name1;
