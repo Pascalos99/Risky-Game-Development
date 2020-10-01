@@ -20,7 +20,7 @@
          <children>
             <ImageView fitHeight="325.0" fitWidth="324.0" layoutX="456.0" layoutY="152.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@circle-cropped-2.png" />
+                  <Image url="@graphics/sample/circle-cropped-2.png" />
                </image>
             </ImageView>
             <JFXButton fx:id="PlayBtn" contentDisplay="CENTER" layoutX="618.0" layoutY="530.0" onAction="#Play" prefHeight="48.0" prefWidth="162.0" text="Play" textFill="#726262">
