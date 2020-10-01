@@ -34,7 +34,7 @@ public class Controller implements Initializable {
 		public String type = null;
 		public Color color = null;
 		public boolean isComplete() {
-			return name!= null && type != null && color != null; }
+			return name!= null && name != "" && type != null && color != null; }
 	}
 	
 	private PlayerSelect[] players = {new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect()};
