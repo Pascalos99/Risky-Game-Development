@@ -85,6 +85,11 @@ public class GameSetup {
 		addPlayer(player_type, player_name, player_color);
 	}
 	
+	public boolean hasValidPlayerCount() {
+		if (players.size() == 2 || players.size() == 4 || players.size() >= 6) return true;
+		return false;
+	}
+	
 	private BoardGraphics generateGraphics(Board board, Color[] home_colors, Color[] player_colors) {
 		Image board_image; Image[] pawns;
 		switch(board_graphics_setting) {

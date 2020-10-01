@@ -10,6 +10,8 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.paint.Color?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="graphics.sample.Controller">
    <children>
@@ -28,24 +30,24 @@
                   <Font name="System Bold" size="21.0" />
                </font>
             </JFXButton>
-            <JFXTextField fx:id="name1" layoutX="53.0" layoutY="170.0" promptText="Player1 name" />
-            <JFXComboBox fx:id="combo1" layoutX="220.0" layoutY="170.0" onAction="#comboBoxWasUpdated1" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXComboBox fx:id="combo2" layoutX="220.0" layoutY="220.0" onAction="#comboBoxWasUpdated2" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name2" layoutX="53.0" layoutY="220.0" promptText="Player2 name" />
-            <JFXComboBox fx:id="combo3" layoutX="220.0" layoutY="270.0" onAction="#comboBoxWasUpdated3" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name3" layoutX="53.0" layoutY="270.0" promptText="Player3 name" />
-            <JFXComboBox fx:id="combo4" layoutX="220.0" layoutY="320.0" onAction="#comboBoxWasUpdated4" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name4" layoutX="53.0" layoutY="320.0" promptText="Player4 name" />
-            <JFXComboBox fx:id="combo5" layoutX="220.0" layoutY="370.0" onAction="#comboBoxWasUpdated5" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name5" layoutX="53.0" layoutY="370.0" promptText="Player5 name" />
-            <JFXComboBox fx:id="combo6" layoutX="220.0" layoutY="420.0" onAction="#comboBoxWasUpdated6" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name6" layoutX="53.0" layoutY="420.0" promptText="Player6 name" />
-            <JFXComboBox fx:id="Color1" layoutX="360.0" layoutY="170.0" onAction="#comboBoxWasUpdated7" promptText="Color" />
-            <JFXComboBox fx:id="Color6" layoutX="360.0" layoutY="420.0" onAction="#comboBoxWasUpdated12" promptText="Color" />
-            <JFXComboBox fx:id="Color5" layoutX="360.0" layoutY="370.0" onAction="#comboBoxWasUpdated11" promptText="Color" />
-            <JFXComboBox fx:id="Color4" layoutX="360.0" layoutY="320.0" onAction="#comboBoxWasUpdated10" promptText="Color" />
-            <JFXComboBox fx:id="Color3" layoutX="360.0" layoutY="270.0" onAction="#comboBoxWasUpdated9" promptText="Color" />
-            <JFXComboBox fx:id="Color2" layoutX="360.0" layoutY="220.0" onAction="#comboBoxWasUpdated8" promptText="Color" />
+            <JFXComboBox fx:id="combo1" layoutX="220.0" layoutY="170.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
+            <JFXTextField fx:id="name1" layoutX="53.0" layoutY="170.0" promptText="Player1 name" onAction="#updatePlayers" />
+            <JFXComboBox fx:id="combo2" layoutX="220.0" layoutY="220.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
+            <JFXTextField fx:id="name2" layoutX="53.0" layoutY="220.0" promptText="Player2 name" onAction="#updatePlayers" />
+            <JFXComboBox fx:id="combo3" layoutX="220.0" layoutY="270.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
+            <JFXTextField fx:id="name3" layoutX="53.0" layoutY="270.0" promptText="Player3 name" onAction="#updatePlayers" />
+            <JFXComboBox fx:id="combo4" layoutX="220.0" layoutY="320.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
+            <JFXTextField fx:id="name4" layoutX="53.0" layoutY="320.0" promptText="Player4 name" onAction="#updatePlayers" />
+            <JFXComboBox fx:id="combo5" layoutX="220.0" layoutY="370.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
+            <JFXTextField fx:id="name5" layoutX="53.0" layoutY="370.0" promptText="Player5 name" onAction="#updatePlayers" />
+            <JFXComboBox fx:id="combo6" layoutX="220.0" layoutY="420.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
+            <JFXTextField fx:id="name6" layoutX="53.0" layoutY="420.0" promptText="Player6 name" onAction="#updatePlayers" />
+            <ColorPicker fx:id="color1" layoutX="360.0" layoutY="170.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
+			<ColorPicker fx:id="color2" layoutX="360.0" layoutY="220.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
+			<ColorPicker fx:id="color3" layoutX="360.0" layoutY="270.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
+			<ColorPicker fx:id="color4" layoutX="360.0" layoutY="320.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
+			<ColorPicker fx:id="color5" layoutX="360.0" layoutY="370.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
+			<ColorPicker fx:id="color6" layoutX="360.0" layoutY="420.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
             <AnchorPane layoutX="-2.0" prefHeight="137.0" prefWidth="800.0">
                <children>
                   <JFXTextField alignment="CENTER" editable="false" prefHeight="137.0" prefWidth="800.0" text="Chinese checkers">
