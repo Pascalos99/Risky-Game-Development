@@ -6,4 +6,5 @@ module nl.maastrichtuniversity.dke.RiskyGameDevelopment {
     requires javafx.graphics;
     requires java.desktop;
     requires com.jfoenix;
+    opens graphics.sample;
 }
