@@ -11,8 +11,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -65,7 +67,7 @@ public class Controller implements Initializable {
     }
 
     public void StageChanger() throws IOException {
-        Parent type2view = FXMLLoader.load(AssetFinder.getResource("GameRule.fxml"));
+        Parent type2view = FXMLLoader.load(getClass().getResource("GameRule.fxml"));
         Scene type2ViewScene = new Scene(type2view);
         newStage.setScene(type2ViewScene);
         newStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
