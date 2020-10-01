@@ -4,5 +4,6 @@ module nl.maastrichtuniversity.dke.RiskyGameDevelopment {
     requires javafx.base;
     requires javafx.graphics;
     requires java.desktop;
-    requires com.jfoenix;
+//    requires com.jfoenix;
+    requires jfoenix;
 }
