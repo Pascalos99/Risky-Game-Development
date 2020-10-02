@@ -161,5 +161,9 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 	public Player getNewInstance() {
 		return new EvilPlayer();
 	}
+	
+	public String toString() {
+		return getName()+" ("+getTypeName()+")";
+	}
 
 }

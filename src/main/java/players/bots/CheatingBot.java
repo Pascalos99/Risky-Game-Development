@@ -99,5 +99,9 @@ public class CheatingBot extends Player implements DeterministicReturn {
 	public Player getNewInstance() {
 		return new CheatingBot(cheat_chance);
 	}
+	
+	public String toString() {
+		return getName()+" ("+getTypeName()+")";
+	}
 
 }

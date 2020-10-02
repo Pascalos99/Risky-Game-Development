@@ -17,14 +17,6 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 
 	public static InputHandler GLOBAL_INPUT;
 
-	private static int human_count = 0;
-	private int ID;
-
-	public HumanPlayer() {
-		ID = human_count++;
-		setName("Human-"+ID);
-	}
-
 	@Override
     public Move returnMove(Board gameBoard){
 		Pawn calculated_moves_for = null;
@@ -102,9 +94,9 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 		return "Just a normal human being";
 	}
 
-    public String toString() {
-    	return "Human-"+ ID;
-    }
+	public String toString() {
+		return getName()+" ("+getTypeName()+")";
+	}
 
 	@Override
 	public Player getNewInstance() {

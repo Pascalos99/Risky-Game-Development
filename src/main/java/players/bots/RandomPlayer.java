@@ -40,5 +40,9 @@ public class RandomPlayer extends Player {
 	public Player getNewInstance() {
 		return new RandomPlayer();
 	}
+	
+	public String toString() {
+		return getName()+" ("+getTypeName()+")";
+	}
 
 }

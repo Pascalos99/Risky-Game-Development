@@ -28,7 +28,7 @@ public class GamePanel extends JPanel {
 	private Board game;
 	private InputHandler input;
 	
-	public static int turn_time = 100; // in ms
+	public static int turn_time = 50; // in ms
 	public static Color selection_color = new Color(150, 150, 150, 150);
 	public static Color highlight_color = new Color(150, 150, 255, 100);
 	public static Color show_move_color = new Color(200, 200, 255, 200);
@@ -36,7 +36,7 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer("Human", "Henry", Color.WHITE);
+		gs.addPlayer("Human player", "Henry", Color.WHITE);
 		gs.addPlayer("evil player", "Dave", Color.BLACK);
 		gs.addPlayer("evil player", "Joey", new Color(0,100,150));
 		gs.addPlayer("Naive player", "Melissa", new Color(78,0,0));
@@ -72,17 +72,25 @@ public class GamePanel extends JPanel {
 		
 		// substitute for a gameLoop
 		gameLoop = new Thread(){
-			private long start_time = System.currentTimeMillis();
 			@Override
 			public void run() {
 				while (game.noWinners()) synchronized(this) {
 					// gameTick: [we wait 'turn_time' milliseconds between turns]
-					if (System.currentTimeMillis() - start_time > turn_time) {
-						start_time = System.currentTimeMillis();
-						
-						game.forceRequestMoveAndContinue();
-						
-						repaint();
+					Thread turn = new Thread() {
+						public void run() {
+							gameLoop();
+						}
+					};
+					Player next = game.nextPlayer();
+					try {
+						if (!(next instanceof HumanPlayer)) {
+							turn.start();
+							Thread.sleep(turn_time);
+						} else
+							turn.start();
+						turn.join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -91,6 +99,11 @@ public class GamePanel extends JPanel {
 	}
 	
 	private Image selectedNodes = null;
+	
+	private void gameLoop() {
+		game.forceRequestMoveAndContinue();
+		repaint();
+	}
 	
 	private void eventLoop() {
 		while (GameEvent.hasPending()) {

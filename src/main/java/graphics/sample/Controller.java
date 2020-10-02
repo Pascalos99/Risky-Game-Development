@@ -121,7 +121,6 @@ public class Controller implements Initializable {
     				new java.awt.Color((int)(255 * ps.color.getRed()), (int)(255 * ps.color.getGreen()), (int)(255 * ps.color.getBlue())));
     	if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
     	
-    	@SuppressWarnings("unused")
 		GamePanel result = gs.build();
     	
     	JFrame frame = new JFrame("Risky Checkers v0.005");

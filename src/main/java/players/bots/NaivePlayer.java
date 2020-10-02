@@ -56,4 +56,8 @@ public class NaivePlayer extends Player {
 	public Player getNewInstance() {
 		return new NaivePlayer();
 	}
+	
+	public String toString() {
+		return getName()+" ("+getTypeName()+")";
+	}
 }
