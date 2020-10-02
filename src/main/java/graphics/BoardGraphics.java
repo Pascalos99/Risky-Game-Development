@@ -182,6 +182,12 @@ public class BoardGraphics {
     		coords_per_node[i] = new Point2D(d_coords_per_node[i][0], d_coords_per_node[i][1]);
     }
     
+    public static void setNodeLocationOnScreen(int node_ID, double x, double y) {
+    	if (node_ID < 0 || node_ID >= d_coords_per_node.length) return;
+    	d_coords_per_node[node_ID][0] = x;
+    	d_coords_per_node[node_ID][1] = y;
+    }
+    
     static {
     	updateCoordsForNodes();
     }
@@ -200,10 +206,6 @@ public class BoardGraphics {
     	default_home_colors = new Color[6];
     	for (int i=0; i < default_pawn_colors.length; i++)
     		default_home_colors[i] = default_pawn_colors[i].darker();
-    }
-    
-    public static Color middle(Color a, Color b) {
-    	return a;
     }
     
     public static Image createBoardImage(Board board) {
@@ -256,8 +258,7 @@ public class BoardGraphics {
 				
 				g.setColor(color);
 				g.fillOval(x - circle_d / 2, y - circle_d / 2, circle_d, circle_d);
-				BoardGraphics.d_coords_per_node[index][0] = ((double) x) / ((double) width);
-				BoardGraphics.d_coords_per_node[index][1] = ((double) y) / ((double) height);
+				setNodeLocationOnScreen(index, ((double) x) / ((double) width), ((double) y) / ((double) height));
 			}
 		}
 		

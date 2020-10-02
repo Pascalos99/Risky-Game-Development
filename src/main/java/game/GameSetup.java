@@ -39,6 +39,7 @@ public class GameSetup {
 	public static List<String> gamerule_names = gamerule_types.stream().map(GameRules::getName).collect(Collectors.toUnmodifiableList());
 	
 	public static final int DEFAULT_BOARD_GRAPHICS = 0;
+	public static final int SIMPLE_CIRCLE_GRAPHICS = 1;
 	
 	private int board_graphics_setting = 0;
 	private List<Player> players;
@@ -56,11 +57,19 @@ public class GameSetup {
 	}
 	
 	public GamePanel build() {
-		Board board = new Board(GameRules.SELECTED_GAMERULES, null, players.toArray(new Player[players.size()]));
-		BoardGraphics graphics = generateGraphics(board,
+		Board board = getBoard();
+		BoardGraphics graphics = getGraphics(board);
+		return new GamePanel(board, graphics);
+	}
+	
+	public Board getBoard() {
+		return new Board(GameRules.SELECTED_GAMERULES, null, players.toArray(new Player[players.size()]));
+	}
+	
+	public BoardGraphics getGraphics(Board board) {
+		return generateGraphics(board,
 				getHomeColors().toArray(new Color[6]),
 				getColors().toArray(new Color[6]));
-		return new GamePanel(board, graphics);
 	}
 	
 	public void addPlayer(Player player_type, String player_name, Color player_color) {
@@ -93,6 +102,7 @@ public class GameSetup {
 	private BoardGraphics generateGraphics(Board board, Color[] home_colors, Color[] player_colors) {
 		Image board_image; Image[] pawns;
 		switch(board_graphics_setting) {
+		case(SIMPLE_CIRCLE_GRAPHICS):;
 		default:
 			board_image = BoardGraphics.createBoardImage(board, home_colors);
 			pawns = BoardGraphics.createPawns(board, player_colors);

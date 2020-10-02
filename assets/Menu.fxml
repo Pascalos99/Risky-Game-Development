@@ -12,6 +12,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.paint.Color?>
+<?import javafx.scene.canvas.Canvas?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="graphics.sample.Controller">
    <children>
@@ -20,28 +21,28 @@
             <DropShadow color="#403b3b" spread="0.54" />
          </effect>
          <children>
-            <ImageView fitHeight="325.0" fitWidth="324.0" layoutX="456.0" layoutY="152.0" pickOnBounds="true" preserveRatio="true">
-               <image>
+            <Canvas fx:id="boardPreview" height="325.0" width="324.0" layoutX="456.0" layoutY="152.0" >
+               <!--<image>
                   <Image url="@circle-cropped-2.png" />
-               </image>
-            </ImageView>
+               </image> -->
+            </Canvas>
             <JFXButton fx:id="PlayBtn" contentDisplay="CENTER" layoutX="618.0" layoutY="530.0" onAction="#Play" prefHeight="48.0" prefWidth="162.0" text="Play" textFill="#726262">
                <font>
                   <Font name="System Bold" size="21.0" />
                </font>
             </JFXButton>
             <JFXComboBox fx:id="combo1" layoutX="220.0" layoutY="170.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name1" layoutX="53.0" layoutY="170.0" promptText="Player1 name" onAction="#updatePlayers" />
+            <JFXTextField fx:id="name1" layoutX="53.0" layoutY="170.0" promptText="Player1 name" />
             <JFXComboBox fx:id="combo2" layoutX="220.0" layoutY="220.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name2" layoutX="53.0" layoutY="220.0" promptText="Player2 name" onAction="#updatePlayers" />
+            <JFXTextField fx:id="name2" layoutX="53.0" layoutY="220.0" promptText="Player2 name" />
             <JFXComboBox fx:id="combo3" layoutX="220.0" layoutY="270.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name3" layoutX="53.0" layoutY="270.0" promptText="Player3 name" onAction="#updatePlayers" />
+            <JFXTextField fx:id="name3" layoutX="53.0" layoutY="270.0" promptText="Player3 name" />
             <JFXComboBox fx:id="combo4" layoutX="220.0" layoutY="320.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name4" layoutX="53.0" layoutY="320.0" promptText="Player4 name" onAction="#updatePlayers" />
+            <JFXTextField fx:id="name4" layoutX="53.0" layoutY="320.0" promptText="Player4 name" />
             <JFXComboBox fx:id="combo5" layoutX="220.0" layoutY="370.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name5" layoutX="53.0" layoutY="370.0" promptText="Player5 name" onAction="#updatePlayers" />
+            <JFXTextField fx:id="name5" layoutX="53.0" layoutY="370.0" promptText="Player5 name" />
             <JFXComboBox fx:id="combo6" layoutX="220.0" layoutY="420.0" onAction="#updatePlayers" prefHeight="27.0" prefWidth="110.0" promptText="Select Player" visibleRowCount="3" />
-            <JFXTextField fx:id="name6" layoutX="53.0" layoutY="420.0" promptText="Player6 name" onAction="#updatePlayers" />
+            <JFXTextField fx:id="name6" layoutX="53.0" layoutY="420.0" promptText="Player6 name" />
             <ColorPicker fx:id="color1" layoutX="360.0" layoutY="170.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
 			<ColorPicker fx:id="color2" layoutX="360.0" layoutY="220.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />
 			<ColorPicker fx:id="color3" layoutX="360.0" layoutY="270.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" onAction="#updatePlayers" />

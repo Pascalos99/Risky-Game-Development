@@ -15,7 +15,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.effect.Effect;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -90,7 +95,17 @@ public class Controller implements Initializable {
     private ColorPicker color6;
     
     private List<ColorPicker> colorpickers;
+    
+    @FXML
+    private Canvas boardPreview;
+    private GraphicsContext bp_graphics;
 
+    private void setListener(JFXTextField field, int id) {
+    	field.textProperty().addListener((observable, oldValue, newValue) -> {
+    		players[id].name = field.getText();
+    	});
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     	
@@ -100,9 +115,8 @@ public class Controller implements Initializable {
     	
         ObservableList<String> list = FXCollections.observableArrayList(GameSetup.player_type_names);
         for (JFXComboBox<String> b : comboboxes) b.setItems(list);
-        for (ColorPicker p : colorpickers) {
-        	p.setBackground(Background.EMPTY);
-        }
+        for (ColorPicker p : colorpickers) p.setBackground(Background.EMPTY);
+        for (int i=0; i < namefields.size(); i++) setListener(namefields.get(i), i);
         
         color1.setValue(Color.RED);
         color2.setValue(Color.GREEN);
@@ -110,6 +124,12 @@ public class Controller implements Initializable {
         color4.setValue(Color.WHITE);
         color5.setValue(Color.BLUE);
         color6.setValue(Color.YELLOW);
+        
+        Image image = new Image(AssetFinder.getResource("circle-cropped-2.png").toString());
+        bp_graphics = boardPreview.getGraphicsContext2D();
+        bp_graphics.drawImage(image, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
+        
+        updatePlayers();
     }
     
     @FXML
@@ -153,15 +173,16 @@ public class Controller implements Initializable {
             }
         });
     }
-    
     @FXML
     public void updatePlayers() {
-    	System.out.println("updating players");
     	for (int i=0; i < players.length; i++) {
     		players[i].name = namefields.get(i).getText();
     		players[i].type = comboboxes.get(i).getValue();
     		players[i].color = colorpickers.get(i).getValue();
     	}
+    	javafx.scene.effect.ColorAdjust e = new javafx.scene.effect.ColorAdjust();
+    	e.setHue(new java.util.Random().nextDouble());
+    	bp_graphics.applyEffect(e);
     }
 
 }
