@@ -6,9 +6,10 @@ import java.net.URL;
 
 public class AssetFinder {
 
-    public static String assetsPath = "assets\\";
+    public static String assetsPath = "assets"+File.separator;
 
-    public static URL getResource(String filename) {
+    @SuppressWarnings("deprecation")
+	public static URL getResource(String filename) {
         try {
             return new File(assetsPath+filename).toURL();
         } catch (MalformedURLException e) {

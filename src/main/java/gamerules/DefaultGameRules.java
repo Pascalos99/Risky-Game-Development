@@ -135,4 +135,9 @@ public class DefaultGameRules extends GameRules {
 		return true; */
 	}
 
+	@Override
+	public String getName() {
+		return "default gamerules";
+	}
+
 }

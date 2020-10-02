@@ -21,7 +21,11 @@ import players.Player;
  */
 public class CheatingBot extends Player implements DeterministicReturn {
 
-	private static double cheat_chance = 1;
+	private double cheat_chance = 1;
+	
+	public CheatingBot(double cheat_chance) {
+		this.cheat_chance = cheat_chance;
+	}
 	
 	@Override
 	public Move returnMove(Board gameBoard) {
@@ -49,6 +53,11 @@ public class CheatingBot extends Player implements DeterministicReturn {
 			@Override
 			public boolean hasWon(Board board, Player player) {
 				return old_rules.hasWon(board, player);
+			}
+
+			@Override
+			public String getName() {
+				return "CHEATS ENABLED";
 			}
 			
 		};
@@ -78,16 +87,21 @@ public class CheatingBot extends Player implements DeterministicReturn {
 
 	@Override
 	public String getTypeName() {
-		return "Cheating bot";
+		return "Cheating Bot";
 	}
 
 	@Override
 	public String getDescription() {
 		return "This bot likes to cheat";
 	}
+
+	@Override
+	public Player getNewInstance() {
+		return new CheatingBot(cheat_chance);
+	}
 	
 	public String toString() {
-		return "Cheaty Dave";
+		return getName()+" ("+getTypeName()+")";
 	}
 
 }

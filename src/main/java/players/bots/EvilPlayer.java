@@ -149,16 +149,21 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 
 	@Override
 	public String getTypeName() {
-		return "EvilBot";
+		return "Evil Player";
 	}
 
 	@Override
 	public String getDescription() {
 		return "In each move tries to maximize annoyance for other players";
 	}
+
+	@Override
+	public Player getNewInstance() {
+		return new EvilPlayer();
+	}
 	
 	public String toString() {
-		return "EvilBot";
+		return getName()+" ("+getTypeName()+")";
 	}
 
 }

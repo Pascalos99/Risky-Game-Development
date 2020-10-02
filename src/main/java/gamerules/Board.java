@@ -231,6 +231,15 @@ public class Board {
 		return players[current_player_ID];
 	}
 	
+	/**
+	 * @return the next player in order
+	 */
+	public Player nextPlayer() {
+		int next_ID = current_player_ID + 1;
+		if (next_ID >= player_count) next_ID = 0;
+		return players[next_ID];
+	}
+	
 	public boolean noWinners() {
 		return winner == null;
 	}

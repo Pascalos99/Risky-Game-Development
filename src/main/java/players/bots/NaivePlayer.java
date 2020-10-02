@@ -10,16 +10,10 @@ import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
 public class NaivePlayer extends Player {
-    private static int naive_count = 0;
-    private int ID;
-
-    public NaivePlayer() {
-        ID = ++naive_count;
-    }
 
     @Override
     public Move returnMove(Board gameBoard) {
-        long t1 = System.currentTimeMillis();
+        //long t1 = System.currentTimeMillis();
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
         Move move = null;
         int min = 14;
@@ -50,7 +44,7 @@ public class NaivePlayer extends Player {
 
     @Override
     public String getTypeName() {
-        return "NaiveBot";
+        return "Naive Player";
     }
 
     @Override
@@ -58,8 +52,12 @@ public class NaivePlayer extends Player {
         return "A bot that take randomly a pawn and find the move who will get him closer to the goal";
     }
 
-    @Override
-    public String toString(){
-        return getTypeName()+"-" +ID;
-    }
+	@Override
+	public Player getNewInstance() {
+		return new NaivePlayer();
+	}
+	
+	public String toString() {
+		return getName()+" ("+getTypeName()+")";
+	}
 }

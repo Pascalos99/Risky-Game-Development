@@ -13,7 +13,9 @@ public abstract class GameRules {
 
     public abstract List<Move> getAllPossibleMoves(Pawn pawn);
 
-    public abstract boolean hasWon(Board board, Player Player);    
+    public abstract boolean hasWon(Board board, Player Player);  
+    
+    public abstract String getName();
     
     public final List<Move> getAllPossibleMoves(List<Pawn> pawns) {
 		ArrayList<Move> result = new ArrayList<>();
