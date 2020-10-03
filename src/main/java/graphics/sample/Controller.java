@@ -8,6 +8,7 @@ import game.GamePanel;
 import game.GameSetup;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,15 +23,17 @@ import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import java.io.IOException;
 
@@ -48,6 +51,7 @@ public class Controller implements Initializable {
 	private PlayerSelect[] players = {new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect()};
 	
     public static Stage newStage = new Stage();
+    public static Stage gameStage = new Stage();
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
 
@@ -140,15 +144,26 @@ public class Controller implements Initializable {
     		if (ps.isComplete()) gs.addPlayer(ps.type, ps.name,
     				new java.awt.Color((int)(255 * ps.color.getRed()), (int)(255 * ps.color.getGreen()), (int)(255 * ps.color.getBlue())));
     	if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
-    	
+
 		GamePanel result = gs.build();
-    	
-    	JFrame frame = new JFrame("Risky Checkers v0.005");
-    	frame.setSize(500, 500);
-    	frame.add(result);
-    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	frame.setVisible(true);
-    	
+
+//    	JFrame frame = new JFrame("Risky Checkers v0.005");
+//    	frame.setSize(500, 500);
+//    	frame.add(result);
+//    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    	frame.setVisible(true);
+        JPanel panel = new JPanel();
+        panel.setSize(500,500);
+        panel.add(result);
+        createAndSetSwingContent(GameSceneController.swingnode, panel);
+        GameSceneController.GamePane.getChildren().add(GameSceneController.swingnode);
+
+        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
+        gameStage.setScene(new Scene(root, 1000, 1000));
+//        gameStage.setScene(new Scene(GameSceneCon));
+        Main.mainStage.hide();
+        gameStage.showAndWait();
+
     	System.out.println("Created Game");
     	// @Mohammad, I don't know what to do from here
     	
@@ -157,7 +172,7 @@ public class Controller implements Initializable {
     @FXML
     private void Rules(ActionEvent event) throws IOException{
         StageChanger();
-//        Main.mainStage.hide();
+        Main.mainStage.hide();
         newStage.showAndWait();
     }
 
@@ -169,7 +184,7 @@ public class Controller implements Initializable {
             @Override
             public void handle(WindowEvent t) {
                 newStage.close();
-//                Main.mainStage.show();
+                Main.mainStage.show();
             }
         });
     }
@@ -183,6 +198,15 @@ public class Controller implements Initializable {
     	javafx.scene.effect.ColorAdjust e = new javafx.scene.effect.ColorAdjust();
     	e.setHue(new java.util.Random().nextDouble());
     	bp_graphics.applyEffect(e);
+    }
+
+    private void createAndSetSwingContent(SwingNode swingNode, JPanel panel) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                swingNode.setContent(panel);
+            }
+        });
     }
 
 }

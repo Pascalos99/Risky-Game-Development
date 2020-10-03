@@ -20,7 +20,7 @@
             </JFXTextField>
          </children>
       </AnchorPane>
-      <JFXButton fx:id="ExitBtn" layoutX="666.0" layoutY="531.0" onAction="#Exit" prefHeight="41.0" prefWidth="115.0" text="Exit" textFill="#726262">
+      <JFXButton fx:id="ExitBtn" layoutX="666.0" layoutY="531.0" onAction="#Exit" prefHeight="41.0" prefWidth="115.0" text="Back" textFill="#726262">
          <font>
             <Font name="System Bold" size="21.0" />
          </font>

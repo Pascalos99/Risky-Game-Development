@@ -15,8 +15,8 @@ public class Main extends Application {
         mainStage = primaryStage;
         Parent root = FXMLLoader.load(AssetFinder.getResource("Menu.fxml"));
         primaryStage.setTitle("Chinese Checkers");
-        primaryStage.setScene(new Scene(root, 802, 602));
-        primaryStage.show();
+        mainStage.setScene(new Scene(root, 802, 602));
+        mainStage.show();
     }
 
     public static void main(String[] args) {
