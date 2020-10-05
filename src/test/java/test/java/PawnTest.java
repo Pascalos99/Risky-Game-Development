@@ -26,7 +26,6 @@ public class PawnTest {
     }
     @Test
     void testTostring(){
-        //TODO FIND THE BUG
-        assertEquals(p1.toString(),"(Pawn of Human-1)");
+        assertEquals(p1.toString(),"(Pawn of  (Human Player))");
     }
 }

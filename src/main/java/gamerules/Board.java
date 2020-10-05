@@ -117,7 +117,7 @@ public class Board {
 	
 	/**
 	 * [WARNING] This is a dangerous operation in thread-unsafe environments
-	 * @param pawn the pawns you want to get the possible moves from
+	 * @param pawns the pawns you want to get the possible moves from
 	 * @param moves all the moves executed before calculating the possible moves
 	 * @return {@code null} if any of the subsequent moves are not valid (does not regard turn order)
 	 */
@@ -253,7 +253,7 @@ public class Board {
 		Move move = currentPlayer().returnMove(this);
 		if (move != null && move.isValid()) {
 			move.execute();
-			graphics.notifyUpdate();
+			if(graphics!=null) graphics.notifyUpdate();
 			nextTurn();
 			return true;
 		}
@@ -276,7 +276,7 @@ public class Board {
 		while (move == null || !move.isValid())
 			move = currentPlayer().returnMove(this);
 		move.execute();
-		graphics.notifyUpdate();
+		if(graphics!=null)graphics.notifyUpdate();
 		nextTurn();
 	}
 

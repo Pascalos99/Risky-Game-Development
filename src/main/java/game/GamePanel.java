@@ -36,9 +36,7 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer("Human player", "Henry", Color.WHITE);
-		gs.addPlayer("evil player", "Dave", Color.BLACK);
-		gs.addPlayer("evil player", "Joey", new Color(0,100,150));
+		gs.addPlayer("Naive player", "Henry", Color.WHITE);
 		gs.addPlayer("Naive player", "Melissa", new Color(78,0,0));
 		
 		JPanel panel = gs.build();
