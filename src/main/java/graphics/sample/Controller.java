@@ -109,7 +109,6 @@ public class Controller implements Initializable {
 
     private void setListener(JFXTextField field, int id) {
     	field.textProperty().addListener((observable, oldValue, newValue) -> {
-    		players[id].name = field.getText();
     		updatePlayers();
     	});
     }
@@ -204,12 +203,19 @@ public class Controller implements Initializable {
     }
     @FXML
     public void updatePlayers() {
+    	boolean preview_needs_update = false;
     	for (int i=0; i < players.length; i++) {
+    		Color old_color = players[i].color;
+    		boolean was_valid = players[i].isComplete();
+    		
     		players[i].name = namefields.get(i).getText();
     		players[i].type = comboboxes.get(i).getValue();
     		players[i].color = colorpickers.get(i).getValue();
+    		
+    		if (!players[i].color.equals(old_color)) preview_needs_update = true;
+    		if (was_valid != players[i].isComplete()) preview_needs_update = true;
     	}
-    	updatePreview();
+    	if (preview_needs_update) updatePreview();
     }
     
     public void updatePreview() {
