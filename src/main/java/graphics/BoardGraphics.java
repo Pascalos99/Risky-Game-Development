@@ -5,12 +5,18 @@ import javafx.geometry.Point2D;
 import players.Player;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageProducer;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.DirectedAdjacencyMap;
 import gamerules.Pawn;
+import graphics.sample.AssetFinder;
 
 public class BoardGraphics {
     private Image board_img;
@@ -37,6 +43,20 @@ public class BoardGraphics {
     public BufferedImage getImage() {
         if (request_update || main_img == null) { updateImage(); request_update = false; }
         return main_img;
+    }
+    
+    public BufferedImage createDebugImage() {
+    	BufferedImage img = new BufferedImage(main_img.getWidth(), main_img.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    	Graphics2D g = img.createGraphics();
+    	g.setColor(Color.white);
+    	for (BoardNode b : board.getAllnodes()) {
+    		int id = b.getID();
+    		String str = id+"";
+    		int x = (int)(coords_per_node[id].getX() * img.getWidth());
+    		int y = (int)(coords_per_node[id].getY()  * img.getHeight());
+    		g.drawString(str, x - str.length() * 2, y);
+    	}
+    	return img;
     }
     
     public Board getBoard() {
@@ -192,6 +212,47 @@ public class BoardGraphics {
     	updateCoordsForNodes();
     }
     
+    /**
+     * @param board_image the board image this pixelmap relates to
+     * @param pixelmap an image with the same size of the board image containing pixels of alpha 0 or r+g+b==0 for all pixels but a few. The
+     *        non-empty pixels are the centre positions of the nodes in the board (goes untill the 121st pixel and no further)
+     */
+    public static void updateNodeCoordsFromPixelMap(Image board_image, BufferedImage pixelmap) {
+    	if (board_image == null || pixelmap == null) throw new RuntimeException("either the board image or pixelmap are null where this is not allowed");
+    	int width = board_image.getWidth(null), height = board_image.getHeight(null);
+    	if (width != pixelmap.getWidth(null) || height != pixelmap.getHeight(null))
+    		throw new RuntimeException("board image and pixelmap should have the same size");
+    	
+    	// this is for setting the d_coords_per_node and coords_per_node...
+    	createBoardImage(new Board(null, null, new Player[] {}));
+    	
+    	Point2D[] nodepoints = new Point2D[121];
+    	for (int i = 0, y = 0; y < height && i < d_coords_per_node.length; y++)
+    		for (int x = 0; x < width && i < d_coords_per_node.length; x++) {
+    			int argb = pixelmap.getRGB(x, y); // TYPE_INT_ARGB
+    			if (argb >>> 24 == 0 || (argb & 0x00ffffff) == 0)  continue;
+    			nodepoints[i++] = new Point2D(((double)x) / ((double)width), ((double)y) / ((double)height));
+    		}
+    	
+    	for (int id=0; id < coords_per_node.length; id++) {
+    		double min = Double.POSITIVE_INFINITY;
+    		int min_index = -1;
+    		for (int i=0; i < nodepoints.length; i++) {
+    			if (nodepoints[i] == null) continue;
+    			double distance = coords_per_node[id].distance(nodepoints[i]);
+    			if (distance < min) {
+    				min = distance;
+    				min_index = i;
+    			}
+    		}
+    		d_coords_per_node[id][0] = nodepoints[min_index].getX();
+    		d_coords_per_node[id][1] = nodepoints[min_index].getY();
+    		nodepoints[min_index] = null;
+    	}
+    	
+    	updateCoordsForNodes();
+    }
+    
     public static int default_board_width = 1000;
     public static int default_board_height = 1000;
     public static int default_node_diameter = 60;
@@ -262,15 +323,30 @@ public class BoardGraphics {
 			}
 		}
 		
-		BoardGraphics.updateCoordsForNodes();
+		updateCoordsForNodes();
 		return img;
 	}
+    
+    public static Image createRealisticBoardImage() {
+    	String image = "BoardEmpty.png";
+    	String mapping = "BoardNodeMap.png";
+    	BufferedImage img = null, map;
+    	try {
+			img = ImageIO.read(AssetFinder.getResource(image));
+			map = ImageIO.read(AssetFinder.getResource(mapping));
+			updateNodeCoordsFromPixelMap(img, map);
+		} catch (IOException e) {
+			System.err.println("could not find image "+image);
+			e.printStackTrace();
+		}
+		return img;
+    }
     
     public static Image[] createPawns(Board board) {
     	return createPawns(board, default_pawn_diameter, default_pawn_colors);
     }
-    public static Image[] createPawns(Board board, Color[] pawn_colots) {
-    	return createPawns(board, default_pawn_diameter, pawn_colots);
+    public static Image[] createPawns(Board board, Color[] pawn_colors) {
+    	return createPawns(board, default_pawn_diameter, pawn_colors);
     }
     public static Image[] createPawns(Board board, int pawn_diameter) {
     	return createPawns(board, pawn_diameter, default_pawn_colors);

@@ -59,7 +59,7 @@ public class Board {
 
 		setGraphics(graphics);
 		player_count = players.length;
-		if(players.length>6) player_count =6;
+		if(players.length > 6) player_count = 6;
 		this.players = Arrays.copyOf(players, 6);
 
 		nodes = List.of(constructNodes());
@@ -67,7 +67,7 @@ public class Board {
 		updateGraphics();
 
 		// initial new turn
-		new TurnEvent(currentPlayer(), true);
+		if (player_count > 0) new TurnEvent(currentPlayer(), true);
 	}
     
     /* 
@@ -250,6 +250,7 @@ public class Board {
 	 * @return {@code true} if the turn ended as a result of this call
 	 */
 	public boolean requestMoveAndContinue() {
+		if (player_count <= 0) return true;
 		Move move = currentPlayer().returnMove(this);
 		if (move != null && move.isValid()) {
 			move.execute();
@@ -268,6 +269,7 @@ public class Board {
 	 * {@link #forceEndTurn()} if the given move is {@code null} or invalid.
 	 */
 	public void forceRequestMoveAndContinue() {
+		if (player_count <= 0) return;
 		if (currentPlayer() instanceof DeterministicReturn) {
 			if (!requestMoveAndContinue()) forceEndTurn();
 			return;
@@ -285,6 +287,7 @@ public class Board {
 	}
 
 	private void nextTurn() {
+		if (player_count <= 0) return;
 		currentPlayer().turnCounter.count++;
 		new TurnEvent(currentPlayer(), false); // end previous turn
 		if(!SELECTED_GAMERULES.hasWon(this,currentPlayer())){

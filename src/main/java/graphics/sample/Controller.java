@@ -99,6 +99,8 @@ public class Controller implements Initializable {
     @FXML
     private ColorPicker color6;
     
+    public int selected_graphics = GameSetup.REALISTIC_BOARD_GRAPHICS;
+    
     private List<ColorPicker> colorpickers;
     
     @FXML
@@ -108,6 +110,7 @@ public class Controller implements Initializable {
     private void setListener(JFXTextField field, int id) {
     	field.textProperty().addListener((observable, oldValue, newValue) -> {
     		players[id].name = field.getText();
+    		updatePlayers();
     	});
     }
     
@@ -139,6 +142,7 @@ public class Controller implements Initializable {
     
     private GameSetup getGameSetup() {
     	GameSetup gs = new GameSetup();
+    	gs.setBoardGraphics(selected_graphics);
     	for (PlayerSelect ps : players)
     		if (ps.isComplete()) gs.addPlayer(ps.type, ps.name,
     				new java.awt.Color((int)(255 * ps.color.getRed()), (int)(255 * ps.color.getGreen()), (int)(255 * ps.color.getBlue())));
@@ -149,16 +153,20 @@ public class Controller implements Initializable {
     private void Play() throws IOException{
     	updatePlayers();
     	GameSetup gs = getGameSetup();
-    	if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
+    	if (gs.playerCount() == 0) { System.err.println("Starting graphical debug mode"); }
+    	else if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
 
 		GamePanel result = gs.build();
 
-//    	JFrame frame = new JFrame("Risky Checkers v0.005");
-//    	frame.setSize(500, 500);
-//    	frame.add(result);
-//    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    	frame.setVisible(true);
-        JPanel panel = new JPanel();
+		///*		<-- (un)comment this line to toggle code:
+    	JFrame frame = new JFrame("Risky Checkers v0.005");
+    	frame.setSize(500, 500);
+    	frame.add(result);
+    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	frame.setVisible(true);
+    	//*/
+    	/*			<-- (un)comment this line to toggle code:
+    	JPanel panel = new JPanel();
         panel.setSize(500,500);
         panel.add(result);
         createAndSetSwingContent(GameSceneController.swingnode, panel);
@@ -169,9 +177,9 @@ public class Controller implements Initializable {
 //        gameStage.setScene(new Scene(GameSceneCon));
         Main.mainStage.hide();
         gameStage.showAndWait();
+        //*/
 
     	System.out.println("Created Game");
-    	// @Mohammad, I don't know what to do from here
     	
     }
 
@@ -207,6 +215,7 @@ public class Controller implements Initializable {
     public void updatePreview() {
     	if (bp_graphics == null) return;
     	GraphicsContext g = bp_graphics;
+    	g.clearRect(0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     	GameSetup trial = getGameSetup();
     	Image img = SwingFXUtils.toFXImage(trial.getGraphics(trial.getBoard()).getImage(), null);
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());

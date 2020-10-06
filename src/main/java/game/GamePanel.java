@@ -155,6 +155,10 @@ public class GamePanel extends JPanel {
 				g.drawImage(selectedNodes, 0, 0, null);
 		}
 		
+		if (game.getPlayerCount() <= 0) {
+			g.drawImage(graphics.createDebugImage(), 0, 0, null);
+		}
+		
 		repaint();
 	}
 

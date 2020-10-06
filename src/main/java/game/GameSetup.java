@@ -40,6 +40,7 @@ public class GameSetup {
 	
 	public static final int DEFAULT_BOARD_GRAPHICS = 0;
 	public static final int SIMPLE_CIRCLE_GRAPHICS = 1;
+	public static final int REALISTIC_BOARD_GRAPHICS = 2;
 	
 	private int board_graphics_setting = 0;
 	private List<Player> players;
@@ -99,10 +100,21 @@ public class GameSetup {
 		return false;
 	}
 	
+	public int playerCount() {
+		return players.size();
+	}
+	
 	private BoardGraphics generateGraphics(Board board, Color[] home_colors, Color[] player_colors) {
 		Image board_image; Image[] pawns;
 		switch(board_graphics_setting) {
-		case(SIMPLE_CIRCLE_GRAPHICS):;
+		case(SIMPLE_CIRCLE_GRAPHICS):
+			board_image = BoardGraphics.createBoardImage(board, home_colors);
+			pawns = BoardGraphics.createPawns(board, player_colors);
+			break;
+		case(REALISTIC_BOARD_GRAPHICS):
+			board_image = BoardGraphics.createRealisticBoardImage();
+			pawns = BoardGraphics.createPawns(board, player_colors);
+			break;
 		default:
 			board_image = BoardGraphics.createBoardImage(board, home_colors);
 			pawns = BoardGraphics.createPawns(board, player_colors);
