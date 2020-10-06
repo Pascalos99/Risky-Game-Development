@@ -17,7 +17,7 @@ public class BoardGraphics {
     /** An array of length 2 to 6 for the different textures of pawns 
      *  (centre of the pawn image is going to be placed at the centre of a board position)  */
     private Image[] pawn_colors;
-    private Image main_img;
+    private BufferedImage main_img;
     private Board board;
     
     private int width = -1;
@@ -34,7 +34,7 @@ public class BoardGraphics {
     	setBoard(board);
     }
 
-    public Image getImage() {
+    public BufferedImage getImage() {
         if (request_update || main_img == null) { updateImage(); request_update = false; }
         return main_img;
     }

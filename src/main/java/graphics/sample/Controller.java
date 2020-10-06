@@ -8,6 +8,7 @@ import game.GamePanel;
 import game.GameSetup;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -45,7 +46,7 @@ public class Controller implements Initializable {
 		public String type = null;
 		public Color color = null;
 		public boolean isComplete() {
-			return name!= null && name != "" && type != null && color != null; }
+			return name!= null && !name.matches("[\\s\\v\\h ]*") && type != null && color != null; }
 	}
 	
 	private PlayerSelect[] players = {new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect()};
@@ -55,6 +56,21 @@ public class Controller implements Initializable {
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
 
+    @FXML
+    private JFXTextField button1;
+    @FXML
+    private JFXTextField button2;
+    @FXML
+    private JFXTextField button3;
+    @FXML
+    private JFXTextField button4;
+    @FXML
+    private JFXTextField button5;
+    @FXML
+    private JFXTextField button6;
+    
+    private List<JFXTextField> buttons;
+    
     @FXML
     private JFXTextField name1;
     @FXML
@@ -113,6 +129,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     	
+    	//buttons = List.of(button1, button2, button3, button4, button5, button6);
     	namefields = List.of(name1, name2, name3, name4, name5, name6);
     	comboboxes = List.of(combo1, combo2, combo3, combo4, combo5, combo6);
     	colorpickers = List.of(color1, color2, color3, color4, color5, color6);
@@ -136,13 +153,18 @@ public class Controller implements Initializable {
         updatePlayers();
     }
     
-    @FXML
-    private void Play() throws IOException{
-    	updatePlayers();
+    private GameSetup getGameSetup() {
     	GameSetup gs = new GameSetup();
     	for (PlayerSelect ps : players)
     		if (ps.isComplete()) gs.addPlayer(ps.type, ps.name,
     				new java.awt.Color((int)(255 * ps.color.getRed()), (int)(255 * ps.color.getGreen()), (int)(255 * ps.color.getBlue())));
+    	return gs;
+    }
+    
+    @FXML
+    private void Play() throws IOException{
+    	updatePlayers();
+    	GameSetup gs = getGameSetup();
     	if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
 
 		GamePanel result = gs.build();
@@ -195,9 +217,15 @@ public class Controller implements Initializable {
     		players[i].type = comboboxes.get(i).getValue();
     		players[i].color = colorpickers.get(i).getValue();
     	}
-    	javafx.scene.effect.ColorAdjust e = new javafx.scene.effect.ColorAdjust();
-    	e.setHue(new java.util.Random().nextDouble());
-    	bp_graphics.applyEffect(e);
+    	updatePreview();
+    }
+    
+    public void updatePreview() {
+    	if (bp_graphics == null) return;
+    	GraphicsContext g = bp_graphics;
+    	GameSetup trial = getGameSetup();
+    	Image img = SwingFXUtils.toFXImage(trial.getGraphics(trial.getBoard()).getImage(), null);
+    	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     }
 
     private void createAndSetSwingContent(SwingNode swingNode, JPanel panel) {
