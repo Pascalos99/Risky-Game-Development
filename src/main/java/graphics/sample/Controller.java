@@ -55,21 +55,6 @@ public class Controller implements Initializable {
     public static Stage gameStage = new Stage();
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
-
-    @FXML
-    private JFXTextField button1;
-    @FXML
-    private JFXTextField button2;
-    @FXML
-    private JFXTextField button3;
-    @FXML
-    private JFXTextField button4;
-    @FXML
-    private JFXTextField button5;
-    @FXML
-    private JFXTextField button6;
-    
-    private List<JFXTextField> buttons;
     
     @FXML
     private JFXTextField name1;
@@ -129,7 +114,6 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     	
-    	//buttons = List.of(button1, button2, button3, button4, button5, button6);
     	namefields = List.of(name1, name2, name3, name4, name5, name6);
     	comboboxes = List.of(combo1, combo2, combo3, combo4, combo5, combo6);
     	colorpickers = List.of(color1, color2, color3, color4, color5, color6);
