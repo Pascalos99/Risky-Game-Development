@@ -32,11 +32,10 @@ public class GameSceneController implements Initializable{
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Controller.gamePanel.setSize(500,500);
+        Controller.gamePanel.setSize(300,300);
         JFXPanel panel = new JFXPanel();
-        panel.setSize(500,500);
+        panel.setSize(300,300);
         panel.add(Controller.gamePanel);
         swingNode.setContent(panel);
     }
 }
-
