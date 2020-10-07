@@ -42,7 +42,7 @@ public class GameSceneController implements Initializable{
 //        JFXPanel panel = new JFXPanel();
 //        panel.setSize(500,500);
 //        panel.add(Controller.gamePanel);
-        Controller.gamePanel.setSize(500,500);
+        Controller.gamePanel.setSize(200,200);
         swingNode.setContent(Controller.gamePanel);
     }
 }
