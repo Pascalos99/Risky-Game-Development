@@ -1,5 +1,6 @@
 package graphics.sample;
 
+import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,12 +12,17 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class GameSceneController {
+public class GameSceneController implements Initializable{
 
     @FXML
-    public static Pane GamePane;
-//    @FXML
-//    public static SwingNode swingNode;
+    public Pane GamePane;
+
+    public static Pane GloabalGamePane;
+
+    public static SwingNode swingswing;
+
+    @FXML
+    public SwingNode swingNode;
 
     @FXML
     private void Exit(ActionEvent event) throws IOException {
@@ -27,6 +33,17 @@ public class GameSceneController {
     private void PlayAgain(ActionEvent event) throws IOException {
         Controller.newStage.close();
         Main.mainStage.show();
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        GloabalGamePane = GamePane;
+        swingswing = swingNode;
+//        JFXPanel panel = new JFXPanel();
+//        panel.setSize(500,500);
+//        panel.add(Controller.gamePanel);
+        Controller.gamePanel.setSize(500,500);
+        swingNode.setContent(Controller.gamePanel);
     }
 }
 

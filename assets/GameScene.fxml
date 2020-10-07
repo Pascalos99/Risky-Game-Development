@@ -31,6 +31,10 @@
             <Font name="System Bold" size="21.0" />
          </font>
       </JFXButton>
-      <Pane fx:id="GamePane" layoutX="250.0" layoutY="270.0" prefHeight="500.0" prefWidth="500.0" />
+      <Pane fx:id="GamePane" layoutX="250.0" layoutY="270.0" prefHeight="500.0" prefWidth="500.0">
+         <children>
+            <SwingNode fx:id="swingNode" layoutX="250.0" layoutY="250.0" />
+         </children>
+      </Pane>
    </children>
 </Pane>

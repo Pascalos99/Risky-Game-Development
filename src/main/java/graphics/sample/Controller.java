@@ -47,11 +47,12 @@ public class Controller implements Initializable {
 		public String name = null;
 		public String type = null;
 		public Color color = null;
-		public JPanel p;
         public boolean isComplete() {
 			return name!= null && !name.matches("[\\s\\v\\h ]*") && type != null && color != null; }
 	}
-	
+
+    public static GamePanel gamePanel;
+
 	private PlayerSelect[] players = {new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect(), new PlayerSelect()};
 	
     public static Stage newStage = new Stage();
@@ -160,17 +161,18 @@ public class Controller implements Initializable {
 
     	GameEvent.clearAll();
 		GamePanel result = gs.build();
+		gamePanel = result;
 
 		///*		<-- (un)comment this line to toggle code:
-    	JFrame frame = new JFrame("Risky Checkers v0.005");
-    	frame.setSize(800, 800);
-    	JPanel mainPanel = new JPanel();
-    	mainPanel.setPreferredSize(new Dimension(500,500));
-    	mainPanel.setBounds(100,100,500,500);
-    	mainPanel.add(result);
-    	frame.add(mainPanel);
-    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	frame.setVisible(true);
+//    	JFrame frame = new JFrame("Risky Checkers v0.005");
+//    	frame.setSize(800, 800);
+//    	JPanel mainPanel = new JPanel();
+//    	mainPanel.setPreferredSize(new Dimension(500,500));
+//    	mainPanel.setBounds(100,100,500,500);
+//    	mainPanel.add(result);
+//    	frame.add(mainPanel);
+//    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    	frame.setVisible(true);
     	//*/
 
 //        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
@@ -192,14 +194,16 @@ public class Controller implements Initializable {
 
 
     	//			<-- (un)comment this line to toggle code:
-//        JFXPanel panel = new JFXPanel();
-//        panel.setSize(500,500);
-//        panel.add(result);
-//        createAndSetSwingContent(GameSceneController.swingNode, panel);
-//        GameSceneController.GamePane.getChildren().add(GameSceneController.swingNode);
+        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
+        gameStage.setScene(new Scene(root, 1000, 1000));
 
-//        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
-//        gameStage.setScene(new Scene(root, 1000, 1000));
+//        panel.add(result);
+//        createAndSetSwingContent(GameSceneController.swingswing, panel);
+        Main.mainStage.hide();
+        gameStage.showAndWait();
+//        GameSceneController.GloabalGamePane.getChildren().add(GameSceneController.swingswing);
+
+
 //        gameStage.setScene(new Scene(GameSceneCon));
 //        Main.mainStage.hide();
 //        gameStage.showAndWait();
@@ -256,13 +260,13 @@ public class Controller implements Initializable {
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     }
 
-//    private void createAndSetSwingContent(SwingNode swingNode, JFXPanel panel) {
-//        SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                swingNode.setContent(panel);
-//            }
-//        });
-//    }
+    private void createAndSetSwingContent(SwingNode swingNode, JFXPanel panel) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                swingNode.setContent(panel);
+            }
+        });
+    }
 
 }
