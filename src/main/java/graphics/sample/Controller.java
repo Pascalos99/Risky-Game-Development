@@ -7,8 +7,11 @@ import com.jfoenix.controls.JFXTextField;
 import game.GamePanel;
 import game.GameSetup;
 import game.events.GameEvent;
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
@@ -23,10 +26,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -42,7 +47,8 @@ public class Controller implements Initializable {
 		public String name = null;
 		public String type = null;
 		public Color color = null;
-		public boolean isComplete() {
+		public JPanel p;
+        public boolean isComplete() {
 			return name!= null && !name.matches("[\\s\\v\\h ]*") && type != null && color != null; }
 	}
 	
@@ -52,7 +58,7 @@ public class Controller implements Initializable {
     public static Stage gameStage = new Stage();
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
-    
+
     @FXML
     private JFXTextField name1;
     @FXML
@@ -97,7 +103,7 @@ public class Controller implements Initializable {
     private ColorPicker color6;
     
     public int selected_graphics = GameSetup.REALISTIC_BOARD_GRAPHICS;
-    
+
     private List<ColorPicker> colorpickers;
     
     @FXML
@@ -144,7 +150,7 @@ public class Controller implements Initializable {
     				new java.awt.Color((int)(255 * ps.color.getRed()), (int)(255 * ps.color.getGreen()), (int)(255 * ps.color.getBlue())));
     	return gs;
     }
-    
+
     @FXML
     private void Play() throws IOException{
     	updatePlayers();
@@ -157,27 +163,52 @@ public class Controller implements Initializable {
 
 		///*		<-- (un)comment this line to toggle code:
     	JFrame frame = new JFrame("Risky Checkers v0.005");
-    	frame.setSize(500, 500);
-    	frame.add(result);
+    	frame.setSize(800, 800);
+    	JPanel mainPanel = new JPanel();
+    	mainPanel.setPreferredSize(new Dimension(500,500));
+    	mainPanel.setBounds(100,100,500,500);
+    	mainPanel.add(result);
+    	frame.add(mainPanel);
     	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	frame.setVisible(true);
     	//*/
-    	/*			<-- (un)comment this line to toggle code:
-    	JPanel panel = new JPanel();
-        panel.setSize(500,500);
-        panel.add(result);
-        createAndSetSwingContent(GameSceneController.swingnode, panel);
-        GameSceneController.GamePane.getChildren().add(GameSceneController.swingnode);
 
-        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
-        gameStage.setScene(new Scene(root, 1000, 1000));
+//        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
+//        Scene s = new Scene(root);
+//
+//        JFrame frame = new JFrame("Swing and JavaFX");
+//        final JFXPanel fxPanel = new JFXPanel();
+//        frame.add(fxPanel);
+//        frame.setSize(1000, 1000);
+//        frame.setVisible(true);
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                initFX(fxPanel,s);
+//            }
+//        });
+
+
+    	//			<-- (un)comment this line to toggle code:
+//        JFXPanel panel = new JFXPanel();
+//        panel.setSize(500,500);
+//        panel.add(result);
+//        createAndSetSwingContent(GameSceneController.swingNode, panel);
+//        GameSceneController.GamePane.getChildren().add(GameSceneController.swingNode);
+
+//        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
+//        gameStage.setScene(new Scene(root, 1000, 1000));
 //        gameStage.setScene(new Scene(GameSceneCon));
-        Main.mainStage.hide();
-        gameStage.showAndWait();
-        //*/
+//        Main.mainStage.hide();
+//        gameStage.showAndWait();
 
     	System.out.println("Created Game");
-    	
+    }
+
+    private void initFX(JFXPanel fxPanel,Scene scene) {
+        fxPanel.setScene(scene);
     }
 
     @FXML
@@ -205,17 +236,17 @@ public class Controller implements Initializable {
     	for (int i=0; i < players.length; i++) {
     		Color old_color = players[i].color;
     		boolean was_valid = players[i].isComplete();
-    		
+
     		players[i].name = namefields.get(i).getText();
     		players[i].type = comboboxes.get(i).getValue();
     		players[i].color = colorpickers.get(i).getValue();
-    		
+
     		if (!players[i].color.equals(old_color)) preview_needs_update = true;
     		if (was_valid != players[i].isComplete()) preview_needs_update = true;
     	}
     	if (preview_needs_update) updatePreview();
     }
-    
+
     public void updatePreview() {
     	if (bp_graphics == null) return;
     	GraphicsContext g = bp_graphics;
@@ -225,13 +256,13 @@ public class Controller implements Initializable {
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     }
 
-    private void createAndSetSwingContent(SwingNode swingNode, JPanel panel) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                swingNode.setContent(panel);
-            }
-        });
-    }
+//    private void createAndSetSwingContent(SwingNode swingNode, JFXPanel panel) {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                swingNode.setContent(panel);
+//            }
+//        });
+//    }
 
 }
