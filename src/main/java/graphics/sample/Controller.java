@@ -195,7 +195,7 @@ public class Controller implements Initializable {
 
     	//			<-- (un)comment this line to toggle code:
         Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
-        gameStage.setScene(new Scene(root, 1000, 1000));
+        gameStage.setScene(new Scene(root, 800, 600));
 
 //        panel.add(result);
 //        createAndSetSwingContent(GameSceneController.swingswing, panel);
