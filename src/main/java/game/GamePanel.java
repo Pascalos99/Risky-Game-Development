@@ -32,7 +32,7 @@ public class GamePanel extends JPanel {
 	public static Color selection_color = new Color(150, 150, 150, 150);
 	public static Color highlight_color = new Color(150, 150, 255, 100);
 	public static Color show_move_color = new Color(200, 200, 255, 200);
-	public static Color background_color= new Color(0 , 40, 80);
+	public static Color background_color= new Color(193, 154, 107, 255);
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();

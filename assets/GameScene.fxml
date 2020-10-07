@@ -31,6 +31,6 @@
             <Font name="System Bold" size="21.0" />
          </font>
       </JFXButton>
-      <SwingNode fx:id="swingNode" layoutX="250.0" layoutY="200.0" />
+      <SwingNode fx:id="swingNode" layoutX="200.0" layoutY="150.0" />
    </children>
 </Pane>

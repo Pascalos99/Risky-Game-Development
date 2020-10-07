@@ -45,6 +45,8 @@ public class Board {
 	private Player winner = null;
 	/** May be {@code null}; is used to sync game updates with graphics updates*/
 	private BoardGraphics graphics;
+	
+	public static boolean preview_settings = false;
 
 	/**
 	 * Generates a Board with initial conditions based on the number of players given and sets the selected
@@ -77,7 +79,7 @@ public class Board {
 						Dijkstra.setupTable(getAllnodes());
 					}};
 				t.start();
-			} else while (Dijkstra.isCalculatingTable())
+			} else if (!preview_settings) while (Dijkstra.isCalculatingTable())
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {

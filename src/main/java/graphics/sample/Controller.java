@@ -7,13 +7,10 @@ import com.jfoenix.controls.JFXTextField;
 import game.GamePanel;
 import game.GameSetup;
 import game.events.GameEvent;
-import javafx.application.Application;
-import javafx.application.Platform;
+import gamerules.Board;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -26,17 +23,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-
-import javax.swing.*;
 
 import java.io.IOException;
 
@@ -209,10 +202,12 @@ public class Controller implements Initializable {
 
     public void updatePreview() {
     	if (bp_graphics == null) return;
+    	Board.preview_settings = true;
     	GraphicsContext g = bp_graphics;
     	g.clearRect(0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     	GameSetup trial = getGameSetup();
     	Image img = SwingFXUtils.toFXImage(trial.getGraphics(trial.getBoard()).getImage(), null);
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
+    	Board.preview_settings = false;
     }
 }

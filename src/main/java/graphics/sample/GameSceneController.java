@@ -1,23 +1,30 @@
 package graphics.sample;
 
-import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.Pane;
-import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import game.GamePanel;
+
 public class GameSceneController implements Initializable{
 
     @FXML
     public SwingNode swingNode;
+    
+    @FXML
+    private Pane pane;
+    
+    private GamePanel gamePanel;
 
     @FXML
     private void Exit(ActionEvent event) throws IOException {
@@ -31,10 +38,11 @@ public class GameSceneController implements Initializable{
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        Controller.gamePanel.setSize(300,300);
+    	gamePanel = Controller.gamePanel;
+        gamePanel.setSize(400,400);
         JFXPanel panel = new JFXPanel();
-        panel.setSize(300,300);
-        panel.add(Controller.gamePanel);
+        panel.setSize(400,400);
+        panel.add(gamePanel);
         swingNode.setContent(panel);
     }
 }
