@@ -68,6 +68,7 @@ public class Board {
 
 		// initial new turn
 		if (player_count > 0) new TurnEvent(currentPlayer(), true);
+		if (!Dijkstra.isTableSetup()) Dijkstra.setupTable(getAllnodes());
 	}
     
     /* 
