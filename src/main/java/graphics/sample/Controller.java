@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXTextField;
 
 import game.GamePanel;
 import game.GameSetup;
+import game.events.GameEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -20,16 +21,12 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.awt.*;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -155,6 +152,7 @@ public class Controller implements Initializable {
     	if (gs.playerCount() == 0) { System.err.println("Starting graphical debug mode"); }
     	else if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
 
+    	GameEvent.clearAll();
 		GamePanel result = gs.build();
 
 		///*		<-- (un)comment this line to toggle code:

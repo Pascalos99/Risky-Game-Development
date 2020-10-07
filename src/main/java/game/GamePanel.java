@@ -28,7 +28,7 @@ public class GamePanel extends JPanel {
 	private Board game;
 	private InputHandler input;
 	
-	public static int turn_time = 50; // in ms
+	public static int turn_time = 500; // in ms
 	public static Color selection_color = new Color(150, 150, 150, 150);
 	public static Color highlight_color = new Color(150, 150, 255, 100);
 	public static Color show_move_color = new Color(200, 200, 255, 200);
@@ -55,6 +55,11 @@ public class GamePanel extends JPanel {
 		game = board;
 		graphics.setBoard(board);
 		graphics.notifyUpdate();
+		
+		boolean only_bots = true;
+		for (Player p : board.getPlayers())
+			if (p instanceof HumanPlayer) only_bots = false;
+		if (only_bots) turn_time = 50;
 		
 		input = new InputHandler(this, board, graphics);
 		addMouseListener(input);

@@ -133,7 +133,7 @@ public class BoardGraphics {
      * @return a Point2D object representing the node's coordinate (centre of the node)
      * invariant: x and y must lie in the range [0,1]
      */
-    public Point2D getCoordinateOfNode(BoardNode node) {
+    public static Point2D getCoordinateOfNode(BoardNode node) {
 
     	Point2D coord = coords_per_node[node.getID()];
     	
@@ -270,10 +270,6 @@ public class BoardGraphics {
     }
     
     public static Image createBoardImage(Board board) {
-    	return createBoardImage(board, default_home_colors);
-    }
-    
-    public static Image createBoardImage(Board board, Color[] home_colors) {
 		int[] num_nodes = DirectedAdjacencyMap.num_nodes_per_row;
 		
 		int width = default_board_width;
@@ -303,10 +299,10 @@ public class BoardGraphics {
 				// loop through all nodes in the row
 				BoardNode node = nodes.get(index);
 				Color color = brown;
-				if (node.getOwner() != null) {
-					int player_index = board.getPlayerIndex(node.getOwner());
-					if (player_index == -1) color = light_brown;
-					else color = home_colors[player_index];
+				Player owner = node.getOwner();
+				if (owner != null) {
+					if (owner == Player.NONE) color = light_brown;
+					else color = toHomeColor(owner.getColor());
 				}
 				
 				int x = 0; // denotes the x-coordinate of the origin of the circle
@@ -327,7 +323,7 @@ public class BoardGraphics {
 		return img;
 	}
     
-    public static Image createRealisticBoardImage() {
+    public static Image createRealisticBoardImage(Board board) {
     	String image = "BoardEmpty.png";
     	String mapping = "BoardNodeMap.png";
     	BufferedImage img = null, map;
@@ -339,31 +335,68 @@ public class BoardGraphics {
 			System.err.println("could not find image "+image);
 			e.printStackTrace();
 		}
+    	Graphics2D g = img.createGraphics();
+    	int width = img.getWidth();
+    	int height = img.getHeight();
+    	for (BoardNode node : board.getAllnodes()) {
+    		Player owner = node.getOwner();
+    		if (owner != null && owner != Player.NONE) {
+    			g.setStroke(new BasicStroke(4f));
+    			g.setColor(owner.getColor());
+    			Point2D xy = getCoordinateOfNode(node);
+    			double r = 25;
+    			g.drawOval((int)(xy.getX()*width - r), (int)(xy.getY()*height - r), (int)(r*2), (int)(r*2));
+    		}
+    	}
 		return img;
     }
     
-    public static Image[] createPawns(Board board) {
-    	return createPawns(board, default_pawn_diameter, default_pawn_colors);
+    public static Image[] createShadowedPawns(Board board) {
+    	return createRealisticPawns(board, default_pawn_diameter);
     }
-    public static Image[] createPawns(Board board, Color[] pawn_colors) {
-    	return createPawns(board, default_pawn_diameter, pawn_colors);
-    }
-    public static Image[] createPawns(Board board, int pawn_diameter) {
-    	return createPawns(board, pawn_diameter, default_pawn_colors);
-    }
-    public static Image[] createPawns(Board board, int pawn_diameter, Color[] pawn_colors) {
+    
+    public static Image[] createRealisticPawns(Board board, double pawn_diameter) {
     	Image[] pawns = new Image[6];
     	List<Player> players = board.getPlayers();
-		for (int i=0; i < players.size(); i++)
-			players.get(i).setColor(pawn_colors[i]);
+		
+		for (int i=0; i < pawns.length; i++) {
+			javafx.scene.canvas.Canvas c = new javafx.scene.canvas.Canvas(pawn_diameter*2,pawn_diameter*2);
+			javafx.scene.canvas.GraphicsContext g = c.getGraphicsContext2D();
+			Color color = Color.GRAY;
+			if (board.getPlayerCount() > i) color = players.get(i).getColor();
+			g.setFill(javafx.scene.paint.Color.rgb(color.getRed(), color.getGreen(), color.getBlue()));
+			g.fillOval(pawn_diameter/2, pawn_diameter/2, pawn_diameter, pawn_diameter);
+			g.applyEffect(new javafx.scene.effect.Lighting(new javafx.scene.effect.Light.Distant()));
+			javafx.scene.SnapshotParameters parameters = new javafx.scene.SnapshotParameters();
+			parameters.setFill(javafx.scene.paint.Color.rgb(0,0,0,0));
+			pawns[i] = javafx.embed.swing.SwingFXUtils.fromFXImage(c.snapshot(parameters, null), null);
+		}
+		return pawns;
+    }
+    
+    public static Image[] createPawns(Board board) {
+    	return createPawns(board, default_pawn_diameter);
+    }
+    public static Image[] createPawns(Board board, int pawn_diameter) {
+    	Image[] pawns = new Image[6];
+    	List<Player> players = board.getPlayers();
 		
 		for (int i=0; i < pawns.length; i++) {
 			BufferedImage pawn = new BufferedImage(pawn_diameter + 10, pawn_diameter + 10, BufferedImage.TYPE_INT_ARGB);
 			Graphics g = pawn.getGraphics();
-			g.setColor(pawn_colors[i]);
+			if (board.getPlayerCount() > i) g.setColor(players.get(i).getColor());
 			g.fillOval(5, 5, pawn_diameter, pawn_diameter);
 			pawns[i] = pawn;
 		}
 		return pawns;
     }
+    
+    public static Color toHomeColor(Color color) {
+		Color result = null;
+		int brightness = color.getBlue() + color.getGreen() + color.getRed();
+		if (brightness < 54) result = new Color(color.getRed()*2 + 40, color.getGreen()*2 + 40, color.getBlue()*2 + 40);
+		else if (brightness < 200) result = color.brighter();
+		else result = color.darker();
+		return result;
+	}
 }

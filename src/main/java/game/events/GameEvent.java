@@ -40,6 +40,13 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 		return next;
 	}
 	
+	public synchronized static void clearAll() {
+		root.nextEvent = null;
+		root.prevEvent = head;
+		head.nextEvent = root;
+		head.prevEvent = null;
+	}
+	
 	private String message;
 	private Urgency urgency;
 	

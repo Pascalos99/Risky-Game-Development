@@ -68,9 +68,23 @@ public class GameSetup {
 	}
 	
 	public BoardGraphics getGraphics(Board board) {
-		return generateGraphics(board,
-				getHomeColors().toArray(new Color[6]),
-				getColors().toArray(new Color[6]));
+		Image board_image; Image[] pawns;
+		switch(board_graphics_setting) {
+		case(SIMPLE_CIRCLE_GRAPHICS):
+			board_image = BoardGraphics.createBoardImage(board);
+			pawns = BoardGraphics.createPawns(board);
+			break;
+		case(REALISTIC_BOARD_GRAPHICS):
+			board_image = BoardGraphics.createRealisticBoardImage(board);
+			pawns = BoardGraphics.createShadowedPawns(board);
+			break;
+		default:
+			board_image = BoardGraphics.createBoardImage(board);
+			pawns = BoardGraphics.createPawns(board);
+			break;
+		}
+		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
+		return graphics;
 	}
 	
 	public void addPlayer(Player player_type, String player_name, Color player_color) {
@@ -102,47 +116,6 @@ public class GameSetup {
 	
 	public int playerCount() {
 		return players.size();
-	}
-	
-	private BoardGraphics generateGraphics(Board board, Color[] home_colors, Color[] player_colors) {
-		Image board_image; Image[] pawns;
-		switch(board_graphics_setting) {
-		case(SIMPLE_CIRCLE_GRAPHICS):
-			board_image = BoardGraphics.createBoardImage(board, home_colors);
-			pawns = BoardGraphics.createPawns(board, player_colors);
-			break;
-		case(REALISTIC_BOARD_GRAPHICS):
-			board_image = BoardGraphics.createRealisticBoardImage();
-			pawns = BoardGraphics.createPawns(board, player_colors);
-			break;
-		default:
-			board_image = BoardGraphics.createBoardImage(board, home_colors);
-			pawns = BoardGraphics.createPawns(board, player_colors);
-			break;
-		}
-		BoardGraphics graphics = new BoardGraphics(board, board_image, pawns);
-		return graphics;
-	}
-	
-	private List<Color> getColors() {
-		List<Color> result = new ArrayList<>();
-		for (int i=0; i < 6; i++) {
-			if (players.size() >= i + 1) result.add(players.get(i).getColor());
-			else result.add(Color.black);
-		}
-		return result;
-	}
-	
-	private List<Color> getHomeColors() {
-		List<Color> pawns = getColors();
-		List<Color> result = new ArrayList<>();
-		for (Color pawn : pawns) {
-			int brightness = pawn.getBlue() + pawn.getGreen() + pawn.getRed();
-			if (brightness < 54) result.add(new Color(pawn.getRed()*2 + 40, pawn.getGreen()*2 + 40, pawn.getBlue()*2 + 40));
-			else if (brightness < 200) result.add(pawn.brighter());
-			else result.add(pawn.darker());
-		}
-		return result;
 	}
 	
 }
