@@ -1,11 +1,14 @@
 package graphics.sample;
 
+import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.Pane;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,19 +17,15 @@ import java.util.ResourceBundle;
 public class GameSceneController implements Initializable{
 
     @FXML
-    public Pane GamePane;
-
-    @FXML
     public SwingNode swingNode;
 
     @FXML
     private void Exit(ActionEvent event) throws IOException {
-        Controller.newStage.close();
-        Main.mainStage.show();
+        System.exit(0);
     }
     @FXML
     private void PlayAgain(ActionEvent event) throws IOException {
-        Controller.newStage.close();
+        Controller.gameStage.close();
         Main.mainStage.show();
     }
 

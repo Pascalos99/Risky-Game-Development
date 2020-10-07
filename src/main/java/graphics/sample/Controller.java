@@ -163,56 +163,12 @@ public class Controller implements Initializable {
 		GamePanel result = gs.build();
 		gamePanel = result;
 
-		///*		<-- (un)comment this line to toggle code:
-//    	JFrame frame = new JFrame("Risky Checkers v0.005");
-//    	frame.setSize(800, 800);
-//    	JPanel mainPanel = new JPanel();
-//    	mainPanel.setPreferredSize(new Dimension(500,500));
-//    	mainPanel.setBounds(100,100,500,500);
-//    	mainPanel.add(result);
-//    	frame.add(mainPanel);
-//    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    	frame.setVisible(true);
-    	//*/
-
-//        Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
-//        Scene s = new Scene(root);
-//
-//        JFrame frame = new JFrame("Swing and JavaFX");
-//        final JFXPanel fxPanel = new JFXPanel();
-//        frame.add(fxPanel);
-//        frame.setSize(1000, 1000);
-//        frame.setVisible(true);
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                initFX(fxPanel,s);
-//            }
-//        });
-
-
-    	//			<-- (un)comment this line to toggle code:
         Parent root = FXMLLoader.load(AssetFinder.getResource("GameScene.fxml"));
         gameStage.setScene(new Scene(root, 800, 600));
-
-//        panel.add(result);
-//        createAndSetSwingContent(GameSceneController.swingswing, panel);
         Main.mainStage.hide();
         gameStage.showAndWait();
-//        GameSceneController.GloabalGamePane.getChildren().add(GameSceneController.swingswing);
-
-
-//        gameStage.setScene(new Scene(GameSceneCon));
-//        Main.mainStage.hide();
-//        gameStage.showAndWait();
 
     	System.out.println("Created Game");
-    }
-
-    private void initFX(JFXPanel fxPanel,Scene scene) {
-        fxPanel.setScene(scene);
     }
 
     @FXML
@@ -259,14 +215,4 @@ public class Controller implements Initializable {
     	Image img = SwingFXUtils.toFXImage(trial.getGraphics(trial.getBoard()).getImage(), null);
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     }
-
-    private void createAndSetSwingContent(SwingNode swingNode, JFXPanel panel) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                swingNode.setContent(panel);
-            }
-        });
-    }
-
 }
