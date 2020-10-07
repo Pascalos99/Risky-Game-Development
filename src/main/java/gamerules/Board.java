@@ -68,7 +68,22 @@ public class Board {
 
 		// initial new turn
 		if (player_count > 0) new TurnEvent(currentPlayer(), true);
-		if (!Dijkstra.isTableSetup()) Dijkstra.setupTable(getAllnodes());
+		
+		// setup up dijkstra table
+		if (!Dijkstra.isTableSetup() && player_count > 0) {
+			if (!Dijkstra.isCalculatingTable()) {
+				Thread t = new Thread() {
+					public void run() {
+						Dijkstra.setupTable(getAllnodes());
+					}};
+				t.start();
+			} else while (Dijkstra.isCalculatingTable())
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
 	}
     
     /* 

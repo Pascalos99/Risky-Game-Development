@@ -59,14 +59,23 @@ public class Dijkstra {
      * @param allNodes should all be nodes with consequtive IDs starting from 0 and ending at allNodes.size()-1
      */
     public static void setupTable(List<BoardNode> allNodes) {
+    	is_calculating_table = true;
     	Dijkstra dijk = new Dijkstra();
     	lookup_table = new int[allNodes.size()][allNodes.size()];
     	for (BoardNode from : allNodes)
     		for (BoardNode to : allNodes)
     			lookup_table[from.getID()][to.getID()] = dijk.calculateDistances(to, from);
+    	is_table_setup = true;
+    	is_calculating_table = false;
     }
     
+    private static boolean is_table_setup = false;
+    private static boolean is_calculating_table = false;
+    
     public static boolean isTableSetup() {
-    	return lookup_table != null;
+    	return is_table_setup;
+    }
+    public static boolean isCalculatingTable() {
+    	return is_calculating_table;
     }
 }
