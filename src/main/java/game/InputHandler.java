@@ -46,6 +46,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 			keys_held_down.add(code);
 			keys_just_pressed.add(code);
 		}
+		updateGraphics(e.getComponent());
 	}
 
 	@Override
@@ -53,6 +54,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 		Integer code = Integer.valueOf(e.getKeyCode());
 		if (keys_held_down.contains(code))
 			keys_held_down.remove(code);
+		updateGraphics(e.getComponent());
 	}
 	
 	public void tick() {
@@ -70,6 +72,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		setSelectedNode(graphics.getNodeAtScreenPosition(e.getPoint(), BoardGraphics.default_node_diameter / 2d, insets));
+		updateGraphics(e.getComponent());
 	}
 	
 	/**
@@ -91,4 +94,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 		return nodeIsHighlighted;
 	}
 	
+	public void updateGraphics(Component c) {
+		c.repaint();
+	}
 }
