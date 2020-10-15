@@ -99,6 +99,7 @@ public class GamePanel extends JPanel {
 			}
 		};
 		gameLoop.start();
+		main_panel = this;
 	}
 	
 	private Image selectedNodes = null;
@@ -107,6 +108,12 @@ public class GamePanel extends JPanel {
 		game.forceRequestMoveAndContinue();
 		repaint();
 	}
+	
+	public static void forceEventUpdate() {
+		if (main_panel != null) main_panel.eventLoop();
+	}
+	
+	private static GamePanel main_panel;
 	
 	public void eventLoop() {
 		while (GameEvent.hasPending()) {

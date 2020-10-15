@@ -2,6 +2,7 @@ package players;
 
 import java.util.List;
 
+import game.GamePanel;
 import game.InputHandler;
 import game.events.GameEvent;
 import game.events.MoveEvent;
@@ -53,6 +54,7 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
 					new MoveEvent(available_moves);
 					calculated_moves_for = pawn;
+					GamePanel.forceEventUpdate();
 				}
 				GLOBAL_INPUT.setHighlighted(true);
 				while (endNode == null) {

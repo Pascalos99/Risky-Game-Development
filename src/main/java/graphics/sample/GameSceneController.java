@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import game.GamePanel;
 
 public class GameSceneController implements Initializable{
