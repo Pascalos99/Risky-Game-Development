@@ -5,9 +5,17 @@ import java.util.Collections;
 import java.util.List;
 
 import players.Player;
+import static gamerules.DirectedAdjacencyMap.*;
 
 public class BoardNode {
 
+	public static final int TOPLEFT = INDEX_TOPLEFT;
+	public static final int TOPRIGHT = INDEX_TOPRIGHT;
+	public static final int LEFT = INDEX_LEFT;
+	public static final int RIGHT = INDEX_RIGHT;
+	public static final int BOTTOMLEFT = INDEX_BOTTOMLEFT;
+	public static final int BOTTOMRIGHT = INDEX_BOTTOMRIGHT;
+	
     private int nodeID;
     private Pawn occupying_pawn;
     private List<BoardNode> adjacent_nodes;
@@ -92,6 +100,12 @@ public class BoardNode {
     	int index = adjacent_nodes.indexOf(node);
     	if (index < 0) return -1;
     	return adjn_directions.get(index);
+    }
+    
+    public BoardNode getNeighbourToThe(int direction) {
+    	int index = adjn_directions.indexOf(direction);
+    	if (index < 0) return null;
+    	return adjacent_nodes.get(index);
     }
 
     /**

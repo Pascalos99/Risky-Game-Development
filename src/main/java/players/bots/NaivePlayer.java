@@ -5,6 +5,8 @@ import gamerules.BoardNode;
 import gamerules.Move;
 import gamerules.Pawn;
 import players.Player;
+import players.bots.utils.Dijkstra;
+
 import java.util.Collections;
 import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
@@ -38,7 +40,7 @@ public class NaivePlayer extends Player {
         List<BoardNode> tagets = board.getGoal(this);
         if(tagets.contains(currentPosition) && ! tagets.contains(position)) return Integer.MAX_VALUE;
         if(tagets.contains(position)) return 0;
-        int distance= (new Dijkstra().getDistances(tagets.get((int)Math.random()*tagets.size()),position));
+        int distance= (Dijkstra.getDistance(tagets.get((int)Math.random()*tagets.size()),position));
         return distance;
     }
 

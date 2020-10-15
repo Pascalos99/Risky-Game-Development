@@ -3,7 +3,7 @@ package gamerules;
 import graphics.BoardGraphics;
 import players.Player;
 import players.bots.DeterministicReturn;
-import players.bots.Dijkstra;
+import players.bots.utils.Dijkstra;
 
 import java.util.*;
 
@@ -113,15 +113,14 @@ public class Board {
 		for (Pawn pawn : getAllPawnsOf(player)) {
 			if (pawn.getPosition().getOwner() == player) score -= 13;
 			else if (pawn.getPosition().getOwner() == getEnemy(player)) score += 13;
-			else score -= new Dijkstra().getDistances(nodes.get(central_goal_nodes_per_player[getPlayerIndex(player)]), pawn.getPosition());
+			else score -= Dijkstra.getDistance(nodes.get(central_goal_nodes_per_player[getPlayerIndex(player)]), pawn.getPosition());
 		}
 		return score;
 	}
 	
 	public double moveScore(Move move) {
-		Dijkstra dijk = new Dijkstra();
 		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(move.pawn.getOwner())]);
-		return dijk.getDistances(goal, move.start) - dijk.getDistances(goal, move.target);
+		return Dijkstra.getDistance(goal, move.start) - Dijkstra.getDistance(goal, move.target);
 	}
 	
 	/**
@@ -130,7 +129,7 @@ public class Board {
 	 */
 	public double distanceToEnemy(Pawn pawn) {
 		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(pawn.getOwner())]);
-		return new Dijkstra().getDistances(goal, pawn.getPosition());
+		return Dijkstra.getDistance(goal, pawn.getPosition());
 	}
 	
 	/**

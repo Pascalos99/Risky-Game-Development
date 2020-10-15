@@ -56,7 +56,7 @@ public class DirectedAdjacencyMap {
     	
     }
     
-    private static IndexPoint getRowIndex(int nodeIndex) {
+    public static IndexPoint getRowIndex(int nodeIndex) {
     	int row = 0;
     	int nodes = 0;
     	for (int i=0; i < nodeIndex; i++) {
