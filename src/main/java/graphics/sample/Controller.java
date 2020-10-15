@@ -150,7 +150,7 @@ public class Controller implements Initializable {
     	updatePlayers();
     	GameSetup gs = getGameSetup();
     	if (gs.playerCount() == 0) { System.err.println("Starting graphical debug mode"); }
-    	else if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even amount of players to play"); return; }
+    	else if (!gs.hasValidPlayerCount()) { System.err.println("Must have at least 2 players and an even number of players to play"); return; }
 
     	GameEvent.clearAll();
 		GamePanel result = gs.build();

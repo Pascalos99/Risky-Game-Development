@@ -25,5 +25,10 @@
             <Font name="System Bold" size="21.0" />
          </font>
       </JFXButton>
+      <JFXTextArea layoutX="41.0" layoutY="161.0" prefHeight="351.0" prefWidth="726.0" text="Players \&amp; Setup:&#10;           1.       The game can be played by at least 2 players and at most 6 players.&#10;           2.       We only allow an even number of players to play the game.&#10;           3.       Every two players play start with their pawns in star points opposite to each other, such that no player starts with an advantage by having to move their pawns to an empty opposite star point.&#10;&#10;Allowed moves:&#10; In a turn, a pawn may move in two different ways:&#10;            1.       a pawn may move to an adjacent open space once; or&#10;            2.       a pawn may jump over another adjacent pawn in a straight line if the space behind this adjacent pawn is open. Per turn, a single pawn is allowed to jump multiple times.&#10;&#10;Winning condition:&#10;     - The first player to get all their pawns into the opposite star point, from where they started, wins.&#10;     - If a player is prevented from winning by one or more pawns from another player occupying their goal star point, then this player simply has to wait until the spot is open.">
+         <font>
+            <Font name="Times New Roman Bold Italic" size="14.0" />
+         </font>
+      </JFXTextArea>
    </children>
 </Pane>
