@@ -95,6 +95,7 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 	}
 	
 	public void updateGraphics(Component c) {
+		if (c instanceof GamePanel) ((GamePanel) c).eventLoop();
 		c.repaint();
 	}
 }

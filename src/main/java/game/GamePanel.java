@@ -108,7 +108,7 @@ public class GamePanel extends JPanel {
 		repaint();
 	}
 	
-	private void eventLoop() {
+	public void eventLoop() {
 		while (GameEvent.hasPending()) {
 			GameEvent e = GameEvent.getNext();
 			if (e instanceof TurnEvent) {
