@@ -3,7 +3,7 @@ package gamerules;
 import graphics.BoardGraphics;
 import players.Player;
 import players.bots.DeterministicReturn;
-import players.bots.utils.Dijkstra;
+import players.bots.utils.NodeDistanceCalc;
 
 import java.util.*;
 
@@ -72,14 +72,14 @@ public class Board {
 		if (player_count > 0) new TurnEvent(currentPlayer(), true);
 		
 		// setup up dijkstra table
-		if (!Dijkstra.isTableSetup() && player_count > 0) {
-			if (!Dijkstra.isCalculatingTable()) {
+		if (!NodeDistanceCalc.isTableSetup() && player_count > 0) {
+			if (!NodeDistanceCalc.isCalculatingTable()) {
 				Thread t = new Thread() {
 					public void run() {
-						Dijkstra.setupTable(getAllnodes());
+						NodeDistanceCalc.setupTable(getAllnodes());
 					}};
 				t.start();
-			} else if (!preview_settings) while (Dijkstra.isCalculatingTable())
+			} else if (!preview_settings) while (NodeDistanceCalc.isCalculatingTable())
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {
@@ -113,14 +113,14 @@ public class Board {
 		for (Pawn pawn : getAllPawnsOf(player)) {
 			if (pawn.getPosition().getOwner() == player) score -= 13;
 			else if (pawn.getPosition().getOwner() == getEnemy(player)) score += 13;
-			else score -= Dijkstra.getDistance(nodes.get(central_goal_nodes_per_player[getPlayerIndex(player)]), pawn.getPosition());
+			else score -= NodeDistanceCalc.getDistance(nodes.get(central_goal_nodes_per_player[getPlayerIndex(player)]), pawn.getPosition());
 		}
 		return score;
 	}
 	
 	public double moveScore(Move move) {
 		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(move.pawn.getOwner())]);
-		return Dijkstra.getDistance(goal, move.start) - Dijkstra.getDistance(goal, move.target);
+		return NodeDistanceCalc.getDistance(goal, move.start) - NodeDistanceCalc.getDistance(goal, move.target);
 	}
 	
 	/**
@@ -129,7 +129,7 @@ public class Board {
 	 */
 	public double distanceToEnemy(Pawn pawn) {
 		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(pawn.getOwner())]);
-		return Dijkstra.getDistance(goal, pawn.getPosition());
+		return NodeDistanceCalc.getDistance(goal, pawn.getPosition());
 	}
 	
 	/**
@@ -267,10 +267,19 @@ public class Board {
 	 * @return {@code true} if the turn ended as a result of this call
 	 */
 	public boolean requestMoveAndContinue() {
+		
+		// this is for testing purposes
+		//GameState state = new GameState(this);
+		//System.out.println("game-state now is:\n"+state);
+		//
+		
 		if (player_count <= 0) return true;
 		Move move = currentPlayer().returnMove(this);
 		if (move != null && move.isValid()) {
 			move.execute();
+			// this is for testing purposes
+			//System.out.println("game-state after executing move:\n"+new GameState(state, move));
+			//
 			if(graphics!=null) graphics.notifyUpdate();
 			nextTurn();
 			return true;
@@ -286,6 +295,7 @@ public class Board {
 	 * {@link #forceEndTurn()} if the given move is {@code null} or invalid.
 	 */
 	public void forceRequestMoveAndContinue() {
+		
 		if (player_count <= 0) return;
 		if (currentPlayer() instanceof DeterministicReturn) {
 			if (!requestMoveAndContinue()) forceEndTurn();
@@ -295,6 +305,7 @@ public class Board {
 		while (move == null || !move.isValid())
 			move = currentPlayer().returnMove(this);
 		move.execute();
+		
 		if(graphics!=null)graphics.notifyUpdate();
 		nextTurn();
 	}

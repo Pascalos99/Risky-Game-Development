@@ -10,11 +10,11 @@ import java.util.List;
 
 import static gamerules.BoardNode.*;
 
-public class Dijkstra {
+public class NodeDistanceCalc {
     private HashMap<BoardNode,Integer> distances;
     private BoardNode target;
     
-    private Dijkstra() {
+    private NodeDistanceCalc() {
     	
     }
     
@@ -114,7 +114,7 @@ public class Dijkstra {
      */
     public static void setupTable(List<BoardNode> allNodes) {
     	is_calculating_table = true;
-    	Dijkstra dijk = new Dijkstra();
+    	NodeDistanceCalc dijk = new NodeDistanceCalc();
     	lookup_table = new int[allNodes.size()][allNodes.size()];
     	for (BoardNode from : allNodes)
     		for (BoardNode to : allNodes)

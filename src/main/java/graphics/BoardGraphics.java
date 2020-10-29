@@ -5,7 +5,6 @@ import javafx.geometry.Point2D;
 import players.Player;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageProducer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +24,9 @@ public class BoardGraphics {
     private Image[] pawn_colors;
     private BufferedImage main_img;
     private Board board;
+    
+    private Image debug = null;
+    public static boolean DEBUG = false;
     
     private int width = -1;
     private int height = -1;
@@ -124,6 +126,12 @@ public class BoardGraphics {
         	g.drawImage(pawn, (int) (coord.getX() * ((double) scaled_width) - pawn_width / 2d), (int) (coord.getY() * ((double) scaled_height) - pawn_height / 2d), 
         			(int) pawn_width, (int) pawn_height, null);
         }
+        
+        if (DEBUG) {
+	        if (debug == null) debug = createDebugImage();
+	        g.drawImage(debug,0,0,null);
+        }
+        
     }
     
     /**
