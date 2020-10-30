@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.Pane;
+import players.HumanPlayer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,5 +42,9 @@ public class GameSceneController implements Initializable{
         panel.setSize(400,400);
         panel.add(gamePanel);
         swingNode.setContent(panel);
+        pane.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, e -> {
+        	HumanPlayer.GLOBAL_INPUT.setSelectedNode(null);
+        	gamePanel.repaint();
+        });
     }
 }

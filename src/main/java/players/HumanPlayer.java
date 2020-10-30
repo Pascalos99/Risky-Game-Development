@@ -1,11 +1,8 @@
 package players;
 
 import java.util.List;
-
-import game.GamePanel;
 import game.InputHandler;
 import game.events.GameEvent;
-import game.events.MoveEvent;
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.Move;
@@ -22,57 +19,41 @@ public class HumanPlayer extends Player implements DeterministicReturn {
     public Move returnMove(Board gameBoard){
 		Pawn calculated_moves_for = null;
 		List<Move> available_moves = null;
-		GameEvent note = null;
 
 		Pawn pawn = null;
 		BoardNode endNode = null;
 		boolean hasPlay = false;
 		
-		/*
-		while(!hasPlay){
-			if(Store.activateFromHuman){
-				BoardNode node = Store.node;
-				Store.activateFromHuman = false;
-				if(pawn==null &&
-					node.getCurrentPawn()!=null &&
-					!node.isEmpty()&&
-					node.getOwner().equals(this)){
-					System.out.println("dd");
-					pawn = node.getCurrentPawn();
-		*/
+		BoardNode previousSelect = null, currentSelect = null;
 		
 		while (!hasPlay) {
-			BoardNode select;
-			while ((select = GLOBAL_INPUT.getSelectedNode()) == null);
-			if ((pawn = select.getCurrentPawn()) == null || pawn.getOwner() != this) {
-				GLOBAL_INPUT.setHighlighted(false);
-				if (note == null) note = new GameEvent.Note("select a node of your color to continue");
+			detect_change: {
+				BoardNode select = GLOBAL_INPUT.getSelectedNode();
+				if (select != currentSelect) {
+					previousSelect = currentSelect;
+					currentSelect = select;
+				} else break detect_change;
+				
+				if (currentSelect == null || previousSelect == null || currentSelect.isOccupied() || previousSelect.isEmpty()) break detect_change;
+				
+				Pawn selected_pawn = previousSelect.getCurrentPawn();
+				BoardNode selected_node = currentSelect;
+				if (calculated_moves_for != selected_pawn) {
+					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(selected_pawn);
+					calculated_moves_for = selected_pawn;
+				}
+				if (!available_moves.contains(new Move(selected_pawn, selected_node))) {
+					new GameEvent.Warning("selected move is not valid");
+					break detect_change;
+				}
+				pawn = selected_pawn;
+				endNode = selected_node;
+				hasPlay = true;
 			}
-			else {
-				note = null;
-				if (calculated_moves_for != pawn) {
-					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
-					MoveEvent m = new MoveEvent(available_moves);
-					calculated_moves_for = pawn;
-					synchronized(m) {
-						GamePanel.forceEventUpdate();
-					}
-				}
-				GLOBAL_INPUT.setHighlighted(true);
-				while (endNode == null) {
-					BoardNode select2 = GLOBAL_INPUT.getSelectedNode();
-					if (select2 == null || select2.isOccupied()) break;
-					if (!available_moves.contains(new Move(pawn, select2))) {
-						// move is not valid
-						new GameEvent.Warning("selected move is not valid");
-						GLOBAL_INPUT.setSelectedNode(select);
-						GLOBAL_INPUT.setHighlighted(true);
-					} else {
-						// move is valid
-						endNode = select2;
-						hasPlay = true;
-					}
-				}
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 

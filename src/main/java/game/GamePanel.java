@@ -17,6 +17,7 @@ import game.events.TurnEvent;
 import game.events.WinEvent;
 import gamerules.Board;
 import gamerules.BoardNode;
+import gamerules.GameRules;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.*;
@@ -75,52 +76,50 @@ public class GamePanel extends JPanel {
 		});
 		
 		// substitute for a gameLoop
-		gameLoop = new Thread(){
-			@Override
-			public void run() {
-				while (game.noWinners()) synchronized(this) {
-					// gameTick: [we wait 'turn_time' milliseconds between turns]
-					Thread turn = new Thread() {
-						public void run() {
-							gameLoop();
-						}
-					};
-					Player next = game.nextPlayer();
-					try {
-						if (!(next instanceof HumanPlayer)) {
-							turn.start();
-							Thread.sleep(turn_time);
-						} else
-							turn.start();
-						turn.join();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		};
+		gameLoop = new Thread(() -> {
+				while (game.noWinners()) synchronized(this)
+				{ gameTick(); }
+			});
 		gameLoop.start();
 		main_panel = this;
 	}
 	
 	private Image selectedNodes = null;
 	
-	private void gameLoop() {
-		game.forceRequestMoveAndContinue();
-		repaint();
-	}
-	
 	public static void forceEventUpdate() {
-		if (main_panel != null) main_panel.eventLoop();
+		if (main_panel != null) main_panel.eventTick();
+	}
+	public static void forceGraphicsUpdate() {
+		if (main_panel != null) main_panel.repaint();
 	}
 	
 	private static GamePanel main_panel;
 	
-	public void eventLoop() {
+	private void gameTick() {
+		// gameTick: [we wait 'turn_time' milliseconds between turns]
+		Thread turn = new Thread(() -> {
+			game.forceRequestMoveAndContinue();
+			selectedNodes = null;
+			eventTick();
+			repaint();
+		});
+		Player next = game.nextPlayer();
+		try {
+			if (!(next instanceof HumanPlayer)) {
+				turn.start();
+				Thread.sleep(turn_time);
+			} else
+				turn.start();
+			turn.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void eventTick() {
 		while (GameEvent.hasPending()) {
 			GameEvent e = GameEvent.getNext();
 			if (e instanceof TurnEvent) {
-				selectedNodes = null;
 				Player player = ((TurnEvent) e).getPlayer();
 				if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
 				else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player.getName()+" ("+player.getTypeName()+")", player.getColorName());
@@ -145,6 +144,22 @@ public class GamePanel extends JPanel {
 		}
 	}
 	
+	private BoardNode previousMoveDisplay = null;
+	
+	public void generateMoveDisplay(BoardNode at) {
+		if (at == previousMoveDisplay || at.isEmpty()) return;
+		selectedNodes = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics g = selectedNodes.getGraphics();
+		for(Move move: GameRules.SELECTED_GAMERULES.getAllPossibleMoves(at.getCurrentPawn())){
+			BoardNode node = move.target;
+			Point pos = graphics.getScreenPositionOfNode(node);
+			g.setColor(show_move_color);
+			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
+			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
+		}
+		previousMoveDisplay = at;
+	}
+	
 	// graphics loop:
 	@Override
 	public void paintComponent(Graphics g) {
@@ -153,15 +168,21 @@ public class GamePanel extends JPanel {
 		graphics.setSize(getWidth(), getHeight());
 		g.drawImage(graphics.getImage(), 0, 0, null);
 		
-		eventLoop();
-		
 		BoardNode pointer = HumanPlayer.GLOBAL_INPUT.getSelectedNode();
 		
 		if (pointer != null) {
+			boolean highlight = false;
+			// deciding highlight and move-display
+			if (pointer.getCurrentPawn() != null && pointer.getCurrentPawn().getOwner() == game.currentPlayer()) {
+				highlight = true;
+				generateMoveDisplay(pointer);
+			}
+			
+			// drawing selected node:
 			Point pos = graphics.getScreenPositionOfNode(pointer);
-			g.setColor( HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()? highlight_color : selection_color );
+			g.setColor(highlight? highlight_color : selection_color);
 			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
-			if (HumanPlayer.GLOBAL_INPUT.isNodeHighlighted()) diameter *= 1.2;
+			if (highlight) diameter *= 1.2;
 			g.fillOval(pos.x - diameter / 2, pos.y - diameter / 2, diameter, diameter);
 			// draw the selected nodes:
 			if (selectedNodes != null && pointer.isOccupied() && pointer.getCurrentPawn().getOwner() == game.currentPlayer())

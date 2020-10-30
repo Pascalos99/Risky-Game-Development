@@ -87,15 +87,8 @@ public class InputHandler extends MouseAdapter implements KeyListener {
 		selectedNode = node;
 	}
 	
-	public void setHighlighted(boolean set) {
-		nodeIsHighlighted = set;
-	}
-	public boolean isNodeHighlighted() {
-		return nodeIsHighlighted;
-	}
-	
 	public void updateGraphics(Component c) {
-		if (c instanceof GamePanel) ((GamePanel) c).eventLoop();
+		if (c instanceof GamePanel) ((GamePanel) c).eventTick();
 		c.repaint();
 	}
 }
