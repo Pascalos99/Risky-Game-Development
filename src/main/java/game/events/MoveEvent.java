@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import game.GamePanel;
 import gamerules.Move;
 
 /**
@@ -21,6 +22,7 @@ public class MoveEvent extends GameEvent {
 			this.moves = new ArrayList<>(moves);
 			GameEvent.deleteEvents(e -> e != this && e instanceof MoveEvent);
 		}
+		GamePanel.forceEventUpdate();
 	}
 	
 	public synchronized List<Move> getMoves() {
