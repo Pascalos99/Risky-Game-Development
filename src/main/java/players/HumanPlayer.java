@@ -52,9 +52,11 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 				note = null;
 				if (calculated_moves_for != pawn) {
 					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
-					new MoveEvent(available_moves);
+					MoveEvent m = new MoveEvent(available_moves);
 					calculated_moves_for = pawn;
-					GamePanel.forceEventUpdate();
+					synchronized(m) {
+						GamePanel.forceEventUpdate();
+					}
 				}
 				GLOBAL_INPUT.setHighlighted(true);
 				while (endNode == null) {
@@ -72,11 +74,6 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 					}
 				}
 			}
-			/* try {
-				Thread.sleep(100);
-			}catch (InterruptedException e){
-
-			} */
 		}
 
 		GLOBAL_INPUT.setSelectedNode(null);
