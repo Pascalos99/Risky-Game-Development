@@ -1,9 +1,14 @@
 package gamerules;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
-public class GameState {
+import players.Player;
+
+public abstract class GameState {
 	
 	public static final byte PLAYER_PAWNS = 10;
 	
@@ -14,9 +19,63 @@ public class GameState {
 	 * Example of pawn positions:
 	 * [0,1,2,5,8,10,29,31,45,67, 7,9,12,13,17,21,51,62,91,100]
 	 * means: player 0 has pawns on nodes 0, 1, 2, 5, 8, 10, 29, 31, 45, 67
-	 * and:   player 1 has pawns on nodes 7, 9, 12, 13, 17, 21, 51, 62, 91, 100
+	 *   and: player 1 has pawns on nodes 7, 9, 12, 13, 17, 21, 51, 62, 91, 100
 	 */
+	
+	private LinkedList<Move> moves_since_original;
+	
 	private final int player_count;
+	
+	public abstract List<Move> getAllMoves(Pawn pawn);
+	// pawn A [102]
+	// 102 [pawn A]
+	// gamestate:
+	// (A, 103)
+	// getAllPawns()
+	// -> A => [102]
+	// A in gamestate is at 103
+
+	public abstract Player currentPlayer();
+	
+	public abstract List<BoardNode> getAllnodes();
+	// generate new BoardNode objects if different from original gamestate
+	
+	public abstract List<BoardNode> getAllNodesOf(Player player);
+	// generate new BoardNode objects if different from original gamestate
+	
+	public abstract List<Pawn> getAllPawnsOf(Player owner);
+	// generate new Pawn objects if different from original gamestate
+	
+	public abstract List<Pawn> getAllPawns();
+	// generate new Pawn objects if different from original gamestate
+	
+	public Player getEnemy(Player player) {
+		return original_board.getEnemy(player);
+	}
+
+	public List<BoardNode> getGoal(Player player) {
+		return original_board.getGoal(player);
+		// might be problem if BoardNodes change
+	}
+	
+	public final boolean isGoalNode(Player player, BoardNode node) {
+    	return node.getOwner() == getEnemy(player);
+    }
+	
+	public abstract boolean allowMove(Pawn pawn,BoardNode target);
+
+    public abstract List<Move> getAllPossibleMoves(Pawn pawn);
+
+    public abstract boolean hasWon(Player Player);
+    
+    public abstract boolean hasWinner();
+    
+    public final List<Move> getAllPossibleMoves(List<Pawn> pawns) {
+		ArrayList<Move> result = new ArrayList<>();
+		for (Pawn pawn : pawns)
+			result.addAll(getAllPossibleMoves(pawn));
+		return result;
+	}
 	
 	public GameState(Board copyFrom) {
 		original_board = copyFrom;
