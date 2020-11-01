@@ -10,6 +10,12 @@ public class GameState {
 	public final Board original_board;
 	
 	private byte[] pawn_positions;
+	/*
+	 * Example of pawn positions:
+	 * [0,1,2,5,8,10,29,31,45,67, 7,9,12,13,17,21,51,62,91,100]
+	 * means: player 0 has pawns on nodes 0, 1, 2, 5, 8, 10, 29, 31, 45, 67
+	 * and:   player 1 has pawns on nodes 7, 9, 12, 13, 17, 21, 51, 62, 91, 100
+	 */
 	private final int player_count;
 	
 	public GameState(Board copyFrom) {
