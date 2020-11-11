@@ -280,7 +280,7 @@ public class Board {
 			// this is for testing purposes
 			//System.out.println("game-state after executing move:\n"+new GameState(state, move));
 			//
-			if(graphics!=null) graphics.notifyUpdate();
+			updateGraphics();
 			nextTurn();
 			return true;
 		}
@@ -305,8 +305,8 @@ public class Board {
 		while (move == null || !move.isValid())
 			move = currentPlayer().returnMove(this);
 		move.execute();
-		
-		if(graphics!=null)graphics.notifyUpdate();
+
+		updateGraphics();
 		nextTurn();
 	}
 
@@ -342,7 +342,7 @@ public class Board {
 				break;
 			}
 		}
-		graphics.notifyUpdate();
+		updateGraphics();
 		nextTurn();
 	}
 
@@ -429,7 +429,7 @@ public class Board {
 				if (my_owner == null) my_owner = players[new Random().nextInt(player_count)];
 				node.addPawn(new Pawn(my_owner, node));
 			}
-		graphics.notifyUpdate();
+		updateGraphics();
 	}
 
 	/**
@@ -449,6 +449,22 @@ public class Board {
 				}
 			}
 		}
+	}
+
+	public Board clone() {
+		Board clone = new Board(null, null, Arrays.copyOf(players, player_count));
+		clone.current_player_ID = this.current_player_ID;
+		clone.winner = this.winner;
+		clone.player_count = this.player_count;
+
+		for (BoardNode node : clone.nodes) {
+			node.removePawn();
+			if (getNode(node.getID()).isOccupied()) {
+				node.addPawn(getNode(node.getID()).getCurrentPawn().clone(node));
+			}
+		}
+
+		return clone;
 	}
 
 }
