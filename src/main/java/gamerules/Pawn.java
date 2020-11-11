@@ -45,4 +45,10 @@ public class Pawn {
     	if (position == null) return s + ")";
     	else return s + " at "+position.getID()+")";
     }
+    
+    @Override
+    public Pawn clone() {
+    	return new Pawn(owner, position);
+    }
+    
 }
