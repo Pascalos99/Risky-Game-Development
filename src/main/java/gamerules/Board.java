@@ -6,6 +6,7 @@ import players.bots.DeterministicReturn;
 import players.bots.utils.NodeDistanceCalc;
 
 import java.util.*;
+import java.util.function.Function;
 
 import game.events.TurnEvent;
 import game.events.WinEvent;
@@ -174,6 +175,10 @@ public class Board {
 	
 	public Pawn getEquivalent(Pawn pawn) {
 		return getEquivalent(pawn.getPosition()).getCurrentPawn();
+	}
+	
+	public Function<BoardNode, BoardNode> getNodeMapper() {
+		return n -> getEquivalent(n);
 	}
 	
 	/**
