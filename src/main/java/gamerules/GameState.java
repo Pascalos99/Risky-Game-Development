@@ -14,6 +14,15 @@ public abstract class GameState {
 	
 	public final Board original_board;
 	
+	public static Board dummy_board;
+	public static GameState dummy_state;
+	
+	/*         /a---b---*p*
+	 *    /r--<
+	 * G-<     \c---d---%q%
+	 *    \---...
+	 */ 
+	
 	private byte[] pawn_positions;
 	/*
 	 * Example of pawn positions:
@@ -22,18 +31,19 @@ public abstract class GameState {
 	 *   and: player 1 has pawns on nodes 7, 9, 12, 13, 17, 21, 51, 62, 91, 100
 	 */
 	
-	private LinkedList<Move> moves_since_original;
+	private Move last_move;
+	private GameState parent;
 	
 	private final int player_count;
 	
+	/**
+	 * Makes sure the data in the dummy board matches this GameState
+	 */
+	private void setDummyBoard() {
+		
+	}
+	
 	public abstract List<Move> getAllMoves(Pawn pawn);
-	// pawn A [102]
-	// 102 [pawn A]
-	// gamestate:
-	// (A, 103)
-	// getAllPawns()
-	// -> A => [102]
-	// A in gamestate is at 103
 
 	public abstract Player currentPlayer();
 	
@@ -79,6 +89,8 @@ public abstract class GameState {
 	
 	public GameState(Board copyFrom) {
 		original_board = copyFrom;
+		parent = null;
+		last_move = null;
 		player_count = copyFrom.getPlayerCount();
 		pawn_positions = new byte[player_count * PLAYER_PAWNS];
 		for (int i=0; i < pawn_positions.length; i++) pawn_positions[i] = -1;
@@ -93,10 +105,12 @@ public abstract class GameState {
 		}
 	}
 	
-	public GameState(GameState copyFrom, Move move) {
-		original_board = copyFrom.original_board;
-		player_count = copyFrom.player_count;
-		pawn_positions = Arrays.copyOf(copyFrom.pawn_positions, copyFrom.pawn_positions.length);
+	public GameState(GameState parent, Move move) {
+		original_board = parent.original_board;
+		this.parent = parent;
+		last_move = move;
+		player_count = parent.player_count;
+		pawn_positions = Arrays.copyOf(parent.pawn_positions, parent.pawn_positions.length);
 		int player = original_board.getPlayerIndex(move.pawn.getOwner());
 		int from = player * PLAYER_PAWNS;
 		int to = from + PLAYER_PAWNS;
@@ -104,6 +118,14 @@ public abstract class GameState {
 		System.out.println(Arrays.toString(Arrays.copyOfRange(pawn_positions, from, to)));
 		pawn_positions[index] = (byte)move.target.getID();
 		Arrays.sort(pawn_positions, from, to);
+	}
+	
+	public GameState getStateAfterMove(Move move) {
+		return new GameState(this, move);
+	}
+	
+	public GameState getPrevious() {
+		return parent;
 	}
 	
 	public BigInteger gameStateID() {

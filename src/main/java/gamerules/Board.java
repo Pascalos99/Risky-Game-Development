@@ -160,6 +160,22 @@ public class Board {
 		return result;
 	}
 	
+	public void executeMove(Move m) {
+		m.execute();
+	}
+	
+	public void reverseMove(Move m) {
+		m.reverse();
+	}
+	
+	public BoardNode getEquivalent(BoardNode node) {
+		return nodes.get(node.getID());
+	}
+	
+	public Pawn getEquivalent(Pawn pawn) {
+		return getEquivalent(pawn.getPosition()).getCurrentPawn();
+	}
+	
 	/**
 	 * [WARNING] This is a dangerous operation in thread-unsafe environments
 	 * @param player the player for whom to calculate the score

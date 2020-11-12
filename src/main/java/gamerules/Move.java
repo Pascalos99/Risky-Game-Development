@@ -30,6 +30,9 @@ public class Move {
 	protected boolean execute() {
 		return target.addPawn(pawn);
 	}
+	protected boolean execute(Board board) {
+		return 
+	}
 	
 	protected boolean reverse() {
 		return start.addPawn(pawn);
