@@ -142,7 +142,7 @@ public class Board {
 		ArrayList<Move> result = new ArrayList<>();
 		int moves_done_until = moves.length;
 		for (int i=0; i < moves.length; i++) {
-			if (moves[i].isValid()) moves[i].execute();
+			if (moves[i].isValid()) moves[i].execute(this);
 			else {
 				moves_done_until = i;
 				break;
@@ -161,11 +161,11 @@ public class Board {
 	}
 	
 	public void executeMove(Move m) {
-		m.execute();
+		m.execute(this);
 	}
 	
 	public void reverseMove(Move m) {
-		m.reverse();
+		m.reverse(this);
 	}
 	
 	public BoardNode getEquivalent(BoardNode node) {
@@ -186,7 +186,7 @@ public class Board {
 		Double result = null;
 		int moves_done_until = moves.length;
 		for (int i=0; i < moves.length; i++) {
-			if (moves[i].isValid()) moves[i].execute();
+			if (moves[i].isValid()) moves[i].execute(this);
 			else {
 				moves_done_until = i;
 				break;
@@ -200,7 +200,7 @@ public class Board {
 			result = currentScore(player);
 			
 		}
-		for (int i=0; i < moves_done_until; i++) moves[i].reverse();
+		for (int i=0; i < moves_done_until; i++) moves[i].reverse(this);
 		return result;
 	}
 
@@ -292,7 +292,7 @@ public class Board {
 		if (player_count <= 0) return true;
 		Move move = currentPlayer().returnMove(this);
 		if (move != null && move.isValid()) {
-			move.execute();
+			move.execute(this);
 			// this is for testing purposes
 			//System.out.println("game-state after executing move:\n"+new GameState(state, move));
 			//
@@ -320,7 +320,7 @@ public class Board {
 		Move move = null;
 		while (move == null || !move.isValid())
 			move = currentPlayer().returnMove(this);
-		move.execute();
+		move.execute(this);
 
 		updateGraphics();
 		nextTurn();
@@ -354,7 +354,7 @@ public class Board {
 			List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
 			if (moves.size() > 0) {
 				Collections.shuffle(moves);
-				moves.get(0).execute();
+				moves.get(0).execute(this);
 				break;
 			}
 		}

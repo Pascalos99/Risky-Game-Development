@@ -41,7 +41,7 @@ public abstract class GameState {
 	 * Makes sure the data in the dummy board matches this GameState
 	 */
 	private void setDummyBoard() {
-		
+		if (dummy_state == this) continue;
 	}
 	
 	public abstract List<Move> getAllMoves(Pawn pawn);
@@ -149,6 +149,7 @@ public abstract class GameState {
 		return new BigInteger(input);
 	}
 	
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("GameState with id [");
 		sb.append(gameStateID());
@@ -159,6 +160,11 @@ public abstract class GameState {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return true;
 	}
 
 }
