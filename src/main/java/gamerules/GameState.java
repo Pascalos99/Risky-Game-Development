@@ -58,7 +58,7 @@ public abstract class GameState {
 		dummy_state = this;
 	}
 	
-	public List<Move> getAllMoves(Pawn pawn) {
+	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		setDummyBoard();
 		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board.getEquivalent(pawn));
 	};
@@ -106,8 +106,6 @@ public abstract class GameState {
     }
 	
 	public abstract boolean allowMove(Pawn pawn,BoardNode target);
-
-    public abstract List<Move> getAllPossibleMoves(Pawn pawn);
 
     public abstract boolean hasWon(Player Player);
     
