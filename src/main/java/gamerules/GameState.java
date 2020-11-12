@@ -46,7 +46,9 @@ public abstract class GameState {
 	
 	public abstract List<Move> getAllMoves(Pawn pawn);
 
-	public abstract Player currentPlayer();
+	public Player currentPlayer() {
+		return original_board.getPlayers().get(depth % original_board.getPlayerCount());
+	}
 	
 	public abstract List<BoardNode> getAllnodes();
 	// generate new BoardNode objects if different from original gamestate
@@ -92,6 +94,7 @@ public abstract class GameState {
 		original_board = copyFrom;
 		parent = null;
 		last_move = null;
+		depth = 0;
 		player_count = copyFrom.getPlayerCount();
 		pawn_positions = new byte[player_count * PLAYER_PAWNS];
 		for (int i=0; i < pawn_positions.length; i++) pawn_positions[i] = -1;
@@ -110,6 +113,7 @@ public abstract class GameState {
 		original_board = parent.original_board;
 		this.parent = parent;
 		last_move = move;
+		depth = parent.depth + 1;
 		player_count = parent.player_count;
 		pawn_positions = Arrays.copyOf(parent.pawn_positions, parent.pawn_positions.length);
 		int player = original_board.getPlayerIndex(move.pawn.getOwner());
