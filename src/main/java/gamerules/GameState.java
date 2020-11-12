@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import players.Player;
 
-public abstract class GameState {
+public class GameState {
 	
 	public static final byte PLAYER_PAWNS = 10;
 	
