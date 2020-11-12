@@ -59,7 +59,8 @@ public abstract class GameState {
 	}
 	
 	public List<Move> getAllMoves(Pawn pawn) {
-		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+		setDummyBoard();
+		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board.getEquivalent(pawn));
 	};
 
 	public Player currentPlayer() {
@@ -68,21 +69,25 @@ public abstract class GameState {
 	}
 	
 	public List<BoardNode> getAllnodes() {
+		setDummyBoard();
 		return dummy_board.getAllnodes();
 	};
 	// generate new BoardNode objects if different from original gamestate
 	
 	public List<BoardNode> getAllNodesOf(Player player) {
+		setDummyBoard();
 		return dummy_board.getAllNodesOf(player);
 	};
 	// generate new BoardNode objects if different from original gamestate
 
 	public List<Pawn> getAllPawns() {
+		setDummyBoard();
 		return dummy_board.getAllPawns();
 	};
 	// generate new Pawn objects if different from original gamestate
 
 	public List<Pawn> getAllPawnsOf(Player owner) {
+		setDummyBoard();
 		return dummy_board.getAllPawnsOf(owner);
 	};
 	// generate new Pawn objects if different from original gamestate
