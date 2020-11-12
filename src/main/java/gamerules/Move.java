@@ -31,11 +31,14 @@ public class Move {
 		return target.addPawn(pawn);
 	}
 	protected boolean execute(Board board) {
-		return 
+		return board.getEquivalent(target).addPawn(board.getEquivalent(pawn));
 	}
 	
 	protected boolean reverse() {
 		return start.addPawn(pawn);
+	}
+	protected boolean reverse(Board board) {
+		return board.getEquivalent(start).addPawn(board.getEquivalent(pawn));
 	}
 	
 	public double calculateScore(Board board) {

@@ -33,6 +33,7 @@ public abstract class GameState {
 	
 	private Move last_move;
 	private GameState parent;
+	private int depth;
 	
 	private final int player_count;
 	
