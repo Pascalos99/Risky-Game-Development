@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import players.Player;
 
@@ -33,6 +34,7 @@ public abstract class GameState {
 	
 	private Move last_move;
 	private GameState parent;
+	private GameState root;
 	private int depth;
 	
 	private final int player_count;
@@ -43,10 +45,9 @@ public abstract class GameState {
 	public void setDummyBoard() {
 		if (dummy_board != null && this.equals(dummy_state)) return;
 		
-		if (dummy_board == null) dummy_board = original_board.clone();
-		else
-			for (GameState state = dummy_state; state != null; state = state.parent)
-				if (state.last_move != null) dummy_board.reverseMove(state.last_move);
+		if (dummy_board == null || !dummy_state.root.contentEquals(root)) dummy_board = original_board.clone();
+		else for (GameState state = dummy_state; state != null; state = state.parent)
+					if (state.last_move != null) dummy_board.reverseMove(state.last_move);
 		
 		LinkedList<Move> moves = new LinkedList<>();
 		
@@ -97,8 +98,7 @@ public abstract class GameState {
 	}
 
 	public List<BoardNode> getGoal(Player player) {
-		return original_board.getGoal(player);
-		// might be problem if BoardNodes change
+		return original_board.getGoal(player).stream().map(dummy_board.getNodeMapper()).collect(Collectors.toList());
 	}
 	
 	public final boolean isGoalNode(Player player, BoardNode node) {
@@ -134,6 +134,7 @@ public abstract class GameState {
 	
 	public GameState(Board copyFrom) {
 		original_board = copyFrom;
+		root = this;
 		parent = null;
 		last_move = null;
 		depth = 0;
@@ -154,6 +155,7 @@ public abstract class GameState {
 	public GameState(GameState parent, Move move) {
 		original_board = parent.original_board;
 		this.parent = parent;
+		this.root = parent.root;
 		last_move = move;
 		depth = parent.depth + 1;
 		player_count = parent.player_count;
@@ -175,24 +177,30 @@ public abstract class GameState {
 		return parent;
 	}
 	
+	private BigInteger gameStateID;
+	
 	public BigInteger gameStateID() {
-		byte[] input = new byte[46]; // 3 bits per boardnode, for 121 boardnodes, gives 121*3/8 + 1 = 46 bytes
-		for (int p=0; p < player_count; p++) {
-			for (int i=0; i < PLAYER_PAWNS; i++) {
-				int index = pawn_positions[p * PLAYER_PAWNS + i];
-				int index_in_byte = index*3 % 8; // 3 bits per color
-				byte part1 = input[index*3/8];
-				byte part2 = (index*3/8+1 < 46)? input[index*3/8+1] : 0;
-				//byte index is (i*3/8) and index within byte is (i*3%8)
-				for (int j=0; j < 3; j++)
-					if (index_in_byte + j < 8) part1 |= (((p+1) >> (2 - j)) & 1) << (index_in_byte + j);
-					else part2 |= (((p+1) >> (2 - j)) & 1) << (index_in_byte + j - 8);
-				
-				input[index*3/8] = part1;
-				if (index*3/8+1 < 46) input[index*3/8+1] = part2;
+		if (gameStateID == null) {
+			byte[] input = new byte[46]; // 3 bits per boardnode, for 121 boardnodes, gives 121*3/8 + 1 = 46 bytes
+			for (int p=0; p < player_count; p++) {
+				for (int i=0; i < PLAYER_PAWNS; i++) {
+					int index = pawn_positions[p * PLAYER_PAWNS + i];
+					int index_in_byte = index*3 % 8; // 3 bits per color
+					byte part1 = input[index*3/8];
+					byte part2 = (index*3/8+1 < 46)? input[index*3/8+1] : 0;
+					//byte index is (i*3/8) and index within byte is (i*3%8)
+					for (int j=0; j < 3; j++)
+						if (index_in_byte + j < 8) part1 |= (((p+1) >> (2 - j)) & 1) << (index_in_byte + j);
+						else part2 |= (((p+1) >> (2 - j)) & 1) << (index_in_byte + j - 8);
+					
+					input[index*3/8] = part1;
+					if (index*3/8+1 < 46) input[index*3/8+1] = part2;
+				}
 			}
+			gameStateID = new BigInteger(input);
 		}
-		return new BigInteger(input);
+		
+		return gameStateID;
 	}
 	
 	@Override
@@ -206,6 +214,13 @@ public abstract class GameState {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+	
+	public boolean contentEquals(Object o) {
+		if (o == this) return true;
+		if (!(o instanceof GameState)) return false;
+		GameState s = (GameState) o;
+		return s.gameStateID().equals(gameStateID());
 	}
 	
 	@Override
