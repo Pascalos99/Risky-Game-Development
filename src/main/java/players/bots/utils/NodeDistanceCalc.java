@@ -40,6 +40,11 @@ public class NodeDistanceCalc {
         }
     }
 
+    public static int getDistance(int goalID, int startID) {
+    	if (lookup_table == null) return -1;
+    	return lookup_table[startID][goalID];
+    }
+    
     public static int getDistance(BoardNode goal, BoardNode start) {
     	if (lookup_table == null) {
     		ArrayList<BoardNode> nodes = new ArrayList<>();

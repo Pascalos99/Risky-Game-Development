@@ -23,12 +23,12 @@ public class Board {
 	 * player[2] is paired against player[3]
 	 * player[4] is paired against player[5]
 	 */
-	private static final int[] player_pairings = {
+	public static final byte[] player_pairings = {
 			1, 0,
 			3, 2,
 			5, 4};
 
-	private static final int[][] nodes_owned_per_player = {
+	public static final byte[][] nodes_owned_per_player = {
 			{0,1,2,3,4,5,6,7,8,9},
 			{111,112,113,114,115,116,117,118,119,120},
 			{19,20,21,22,32,33,34,44,45,55},
@@ -37,7 +37,9 @@ public class Board {
 			{10,11,12,13,23,24,25,35,36,46}
 	};
 	
-	private static final int[] central_goal_nodes_per_player = {116, 4, 87, 33, 24, 97};
+	public static final int[] central_goal_nodes_per_player = {116, 4, 87, 33, 24, 96};
+	
+	public static final int[] furthest_goal_nodes_per_player = {120, 0, 98, 22, 10, 110};
 
 	private int current_player_ID;
 	private int player_count;
@@ -379,6 +381,13 @@ public class Board {
 			//TODO method equals don't exist in player
 			if (player.equals(players[i])) return i;
 		return -1;
+	}
+	
+	/**
+	 * Alias for {@link Board#getPlayerIndex(Player)}
+	 */
+	public int getPlayerID(Player player) {
+		return getPlayerIndex(player);
 	}
 
 	public List<Player> getPlayers() {

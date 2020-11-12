@@ -24,6 +24,14 @@ public class GameState {
 	 *    \---...
 	 */ 
 	
+	/**
+	 * A byte representation of the GameState holds the positions of all pawns in an efficient format<br>
+	 * Every 10 elements represent the pawns of a single player in increasing order of the result
+	 * from {@linkplain BoardNode#getID()} of its board position. This representation is applicable to different
+	 * board objects as the ID's are the position identifying aspect of each {@linkplain BoardNode}.<br><br>
+	 * The length of this array is equal to {@link Board#getPlayerCount()} {@code * 10} and the pawns per player
+	 * are ordered by {@linkplain Board#getPlayerIndex(Player)} starting at 0.
+	 */
 	private byte[] pawn_positions;
 	/*
 	 * Example of pawn positions:
@@ -60,11 +68,22 @@ public class GameState {
 	}
 	
 	/**
-	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * Returns the integer representation of this GameState.
+	 * @return a byte array of length {@link #getPlayerCount()} {@code * 10} with a byte for each pawn
+	 * @see #pawn_positions
+	 */
+	public byte[] getIntegerRepresentation() {
+		return Arrays.copyOf(pawn_positions, pawn_positions.length);
+	}
+	
+	/**
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
-	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllPossibleMoves(List)}</li>
+	 * <li>{@link #getAllPossibleMoves(Pawn)}</li>
 	 * <li>{@link #getAllNodesOf()}</li>
 	 * <li>{@link #getAllPawns()}</li>
 	 * <li>{@link #getAllPawnsOf()}</li>
@@ -84,11 +103,13 @@ public class GameState {
 	}
 	
 	/**
-	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
-	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllPossibleMoves(List)}</li>
+	 * <li>{@link #getAllPossibleMoves(Pawn)}</li>
 	 * <li>{@link #getAllNodesOf()}</li>
 	 * <li>{@link #getAllPawns()}</li>
 	 * <li>{@link #getAllPawnsOf()}</li>
@@ -103,11 +124,13 @@ public class GameState {
 	};
 	
 	/**
-	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
-	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllPossibleMoves(List)}</li>
+	 * <li>{@link #getAllPossibleMoves(Pawn)}</li>
 	 * <li>{@link #getAllNodesOf()}</li>
 	 * <li>{@link #getAllPawns()}</li>
 	 * <li>{@link #getAllPawnsOf()}</li>
@@ -122,11 +145,13 @@ public class GameState {
 	};
 	
 	/**
-	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
-	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllPossibleMoves(List)}</li>
+	 * <li>{@link #getAllPossibleMoves(Pawn)}</li>
 	 * <li>{@link #getAllNodesOf()}</li>
 	 * <li>{@link #getAllPawns()}</li>
 	 * <li>{@link #getAllPawnsOf()}</li>
@@ -141,11 +166,13 @@ public class GameState {
 	};
 
 	/**
-	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
-	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllPossibleMoves(List)}</li>
+	 * <li>{@link #getAllPossibleMoves(Pawn)}</li>
 	 * <li>{@link #getAllNodesOf()}</li>
 	 * <li>{@link #getAllPawns()}</li>
 	 * <li>{@link #getAllPawnsOf()}</li>
@@ -171,16 +198,29 @@ public class GameState {
     	return node.getOwner() == getEnemy(player);
     }
 	
+	public int getDepth() {
+		return depth;
+	}
+	
+	/**
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 */
 	public boolean allowMove(Pawn pawn,BoardNode target) {
 		setDummyBoard();
 		return GameRules.SELECTED_GAMERULES.allowMove(dummy_board.getEquivalent(pawn), dummy_board.getEquivalent(target));
 	};
 
+	/**
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 */
     public boolean hasWon(Player Player) {
     	setDummyBoard();
     	return GameRules.SELECTED_GAMERULES.hasWon(dummy_board, Player);
 	};
     
+	/**
+	 * This method may require {@link GameState#dummy_board} to be modified.<br><br>
+	 */
     public boolean hasWinner() {
     	if (parent.hasWinner() || original_board.getWinner() != null) {
     		return true;
@@ -191,11 +231,13 @@ public class GameState {
 	};
     
 	/**
-	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
-	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllPossibleMoves(List)}</li>
+	 * <li>{@link #getAllPossibleMoves(Pawn)}</li>
 	 * <li>{@link #getAllNodesOf()}</li>
 	 * <li>{@link #getAllPawns()}</li>
 	 * <li>{@link #getAllPawnsOf()}</li>
