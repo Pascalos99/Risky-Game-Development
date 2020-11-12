@@ -105,11 +105,25 @@ public abstract class GameState {
     	return node.getOwner() == getEnemy(player);
     }
 	
-	public abstract boolean allowMove(Pawn pawn,BoardNode target);
+	public boolean allowMove(Pawn pawn,BoardNode target) {
+		setDummyBoard();
+		return GameRules.SELECTED_GAMERULES.allowMove(pawn, target);
+	};
 
-    public abstract boolean hasWon(Player Player);
+    public boolean hasWon(Player Player) {
+    	setDummyBoard();
+    	return GameRules.SELECTED_GAMERULES.hasWon(dummy_board, Player);
+	};
     
-    public abstract boolean hasWinner();
+    public boolean hasWinner() {
+    	setDummyBoard();
+    	if (parent.hasWinner() || original_board.getWinner() != null) {
+    		return true;
+		}
+    	else {
+			return hasWon(parent.currentPlayer());
+		}
+	};
     
     public final List<Move> getAllPossibleMoves(List<Pawn> pawns) {
 		ArrayList<Move> result = new ArrayList<>();

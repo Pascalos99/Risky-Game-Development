@@ -486,4 +486,8 @@ public class Board {
 		return clone;
 	}
 
+	public Player getWinner() {
+		return winner;
+	}
+
 }
