@@ -59,6 +59,20 @@ public class GameState {
 		dummy_state = this;
 	}
 	
+	/**
+	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * by any call of the following methods: <br>
+	 * <l>
+	 * <li>{@link #getAllnodes()}</li>
+	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllNodesOf()}</li>
+	 * <li>{@link #getAllPawns()}</li>
+	 * <li>{@link #getAllPawnsOf()}</li>
+	 * <li>{@link #allowMove()}</li>
+	 * <li>{@link #hasWon()}</li>
+	 * <li>{@link #hasWinner()}</li>
+	 * </l>
+	 */
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		setDummyBoard();
 		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board.getEquivalent(pawn));
@@ -69,30 +83,82 @@ public class GameState {
 				(depth + original_board.currentPlayerID()) % original_board.getPlayerCount());
 	}
 	
+	/**
+	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * by any call of the following methods: <br>
+	 * <l>
+	 * <li>{@link #getAllnodes()}</li>
+	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllNodesOf()}</li>
+	 * <li>{@link #getAllPawns()}</li>
+	 * <li>{@link #getAllPawnsOf()}</li>
+	 * <li>{@link #allowMove()}</li>
+	 * <li>{@link #hasWon()}</li>
+	 * <li>{@link #hasWinner()}</li>
+	 * </l>
+	 */
 	public List<BoardNode> getAllnodes() {
 		setDummyBoard();
 		return dummy_board.getAllnodes();
 	};
-	// generate new BoardNode objects if different from original gamestate
 	
+	/**
+	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * by any call of the following methods: <br>
+	 * <l>
+	 * <li>{@link #getAllnodes()}</li>
+	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllNodesOf()}</li>
+	 * <li>{@link #getAllPawns()}</li>
+	 * <li>{@link #getAllPawnsOf()}</li>
+	 * <li>{@link #allowMove()}</li>
+	 * <li>{@link #hasWon()}</li>
+	 * <li>{@link #hasWinner()}</li>
+	 * </l>
+	 */
 	public List<BoardNode> getAllNodesOf(Player player) {
 		setDummyBoard();
 		return dummy_board.getAllNodesOf(player);
 	};
-	// generate new BoardNode objects if different from original gamestate
-
+	
+	/**
+	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * by any call of the following methods: <br>
+	 * <l>
+	 * <li>{@link #getAllnodes()}</li>
+	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllNodesOf()}</li>
+	 * <li>{@link #getAllPawns()}</li>
+	 * <li>{@link #getAllPawnsOf()}</li>
+	 * <li>{@link #allowMove()}</li>
+	 * <li>{@link #hasWon()}</li>
+	 * <li>{@link #hasWinner()}</li>
+	 * </l>
+	 */
 	public List<Pawn> getAllPawns() {
 		setDummyBoard();
 		return dummy_board.getAllPawns();
 	};
-	// generate new Pawn objects if different from original gamestate
 
+	/**
+	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * by any call of the following methods: <br>
+	 * <l>
+	 * <li>{@link #getAllnodes()}</li>
+	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllNodesOf()}</li>
+	 * <li>{@link #getAllPawns()}</li>
+	 * <li>{@link #getAllPawnsOf()}</li>
+	 * <li>{@link #allowMove()}</li>
+	 * <li>{@link #hasWon()}</li>
+	 * <li>{@link #hasWinner()}</li>
+	 * </l>
+	 */
 	public List<Pawn> getAllPawnsOf(Player owner) {
 		setDummyBoard();
 		return dummy_board.getAllPawnsOf(owner);
 	};
-	// generate new Pawn objects if different from original gamestate
-	
+
 	public Player getEnemy(Player player) {
 		return original_board.getEnemy(player);
 	}
@@ -107,7 +173,7 @@ public class GameState {
 	
 	public boolean allowMove(Pawn pawn,BoardNode target) {
 		setDummyBoard();
-		return GameRules.SELECTED_GAMERULES.allowMove(pawn, target);
+		return GameRules.SELECTED_GAMERULES.allowMove(dummy_board.getEquivalent(pawn), dummy_board.getEquivalent(target));
 	};
 
     public boolean hasWon(Player Player) {
@@ -116,7 +182,6 @@ public class GameState {
 	};
     
     public boolean hasWinner() {
-    	setDummyBoard();
     	if (parent.hasWinner() || original_board.getWinner() != null) {
     		return true;
 		}
@@ -125,6 +190,20 @@ public class GameState {
 		}
 	};
     
+	/**
+	 * <b>[Disclaimer]</b> results from this method from different GameStates will be altered 
+	 * by any call of the following methods: <br>
+	 * <l>
+	 * <li>{@link #getAllnodes()}</li>
+	 * <li>{@link #getAllPossibleMoves()}</li>
+	 * <li>{@link #getAllNodesOf()}</li>
+	 * <li>{@link #getAllPawns()}</li>
+	 * <li>{@link #getAllPawnsOf()}</li>
+	 * <li>{@link #allowMove()}</li>
+	 * <li>{@link #hasWon()}</li>
+	 * <li>{@link #hasWinner()}</li>
+	 * </l>
+	 */
     public final List<Move> getAllPossibleMoves(List<Pawn> pawns) {
 		ArrayList<Move> result = new ArrayList<>();
 		for (Pawn pawn : pawns)
