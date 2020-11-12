@@ -40,14 +40,29 @@ public abstract class GameState {
 	/**
 	 * Makes sure the data in the dummy board matches this GameState
 	 */
-	private void setDummyBoard() {
-		if (dummy_state == this) continue;
+	public void setDummyBoard() {
+		if (dummy_board != null && this.equals(dummy_state)) return;
+		
+		if (dummy_board == null) dummy_board = original_board.clone();
+		else
+			for (GameState state = dummy_state; state != null; state = state.parent)
+				if (state.last_move != null) dummy_board.reverseMove(state.last_move);
+		
+		LinkedList<Move> moves = new LinkedList<>();
+		
+		for (GameState state = this; state != null; state = state.parent)
+			moves.addFirst(state.last_move);
+		
+		for (Move move : moves) move.execute(dummy_board);
+		
+		dummy_state = this;
 	}
 	
 	public abstract List<Move> getAllMoves(Pawn pawn);
 
 	public Player currentPlayer() {
-		return original_board.getPlayers().get(depth % original_board.getPlayerCount());
+		return original_board.getPlayers().get(
+				(depth + original_board.currentPlayerID()) % original_board.getPlayerCount());
 	}
 	
 	public abstract List<BoardNode> getAllnodes();
@@ -168,7 +183,12 @@ public abstract class GameState {
 	
 	@Override
 	public boolean equals(Object o) {
-		return true;
+		if (o == this) return true;
+		if (!(o instanceof GameState)) return false;
+		GameState s = (GameState) o;
+		if (s.parent.equals(parent) && s.last_move.equals(last_move)
+				&& s.depth == depth && s.gameStateID().equals(gameStateID())) return true;
+		return false;
 	}
 
 }

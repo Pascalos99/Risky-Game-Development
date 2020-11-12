@@ -263,6 +263,9 @@ public class Board {
 	public Player currentPlayer() {
 		return players[current_player_ID];
 	}
+	public int currentPlayerID() {
+		return current_player_ID;
+	}
 	
 	/**
 	 * @return the next player in order
