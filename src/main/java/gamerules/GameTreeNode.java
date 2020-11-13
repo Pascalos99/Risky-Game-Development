@@ -11,7 +11,8 @@ public class GameTreeNode {
     protected ArrayList<GameTreeNode> children;
 
     public GameTreeNode(GameTreeNode parent, GameState gameState) {
-        if (!parent.gameState.equals(gameState.getPrevious())) {
+    	if (parent == null);
+    	else if (!parent.gameState.equals(gameState.getPrevious())) {
             throw new IllegalArgumentException("GameState parent doesn't match GameState of parent\n>:(");
         }
         this.gameState = gameState;
@@ -20,9 +21,7 @@ public class GameTreeNode {
     }
 
     public GameTreeNode(GameTreeNode parent, Move move) {
-        this.gameState = new GameState(parent.gameState, move);
-        this.parent = parent;
-        this.children = new ArrayList<>();
+    	this(parent, new GameState(parent.gameState, move));
     }
 
     public GameState getGameState() {
@@ -32,9 +31,21 @@ public class GameTreeNode {
     public GameTreeNode getParent() {
         return this.parent;
     }
+    
+    public GameTreeNode getStateAfterMove(Move m) {
+    	return new GameTreeNode(this, gameState.getStateAfterMove(m));
+    }
 
     public List<GameTreeNode> getChildren() {
         return Collections.unmodifiableList(this.children);
+    }
+    
+    public boolean isRoot() {
+    	return parent == null;
+    }
+    
+    public int getDepth() {
+    	return gameState.getDepth();
     }
 
 }
