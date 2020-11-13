@@ -74,7 +74,7 @@ public abstract class GameTree {
     	return expand(maxDepth(), filter);
     }
     
-    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> filter) {
+    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter) {
     	// TODO
     	return null;
     }
@@ -82,7 +82,7 @@ public abstract class GameTree {
     /**
      * expand all nodes at all depths that satisfy the filter
      */
-    public List<GameTreeNode> expandAll(Function<GameState, Boolean> filter) {
+    public List<GameTreeNode> expandAll(Function<GameState, Boolean> pre_filter) {
     	// TODO
     	return null;
     }
