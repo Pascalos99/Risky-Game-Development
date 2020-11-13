@@ -85,7 +85,7 @@ public abstract class GameTree {
     	return null;
     }
     
-    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter, Function<GameState, Boolean> post_filter) {
+    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter, Function<Pawn, Boolean> post_filter) {
     	// TODO
     	return null;
     }
@@ -93,9 +93,11 @@ public abstract class GameTree {
     /**
      * expand all nodes at all depths that satisfy the filter
      */
-    public List<GameTreeNode> expandAll(Function<GameState, Boolean> pre_filter) {
-    	// TODO
-    	return null;
+    public List<GameTreeNode> expandAll(Function<GameState, Boolean> pre_filter, Function<Pawn, Boolean> post_filter) {
+    	List<GameTreeNode> all_added = new ArrayList<>();
+    	for (int d = maxDepth(); d >= 0; d--)
+    		all_added.addAll(expand(d, pre_filter, post_filter));
+    	return all_added;
     }
     
     /**
@@ -119,7 +121,8 @@ public abstract class GameTree {
     public List<GameTreeNode> expand(GameTreeNode node, Function<Pawn, Boolean> post_filter) {
     	List<GameTreeNode> to_add = getAllPossibleMoves(node.getGameState(), post_filter).stream().map
 				(m -> node.getStateAfterMove(m)).collect(Collectors.toList());
-    	addChildren(to_add);
+    	boolean expanded = post_filter == POST_ALLOW_ALL || post_filter.apply(null);
+    	addChildren(to_add, expanded);
     	return to_add;
     }
     
@@ -130,11 +133,11 @@ public abstract class GameTree {
     public List<GameTreeNode> expand(GameTreeNode node) {
     	List<GameTreeNode> to_add = getAllPossibleMoves(node.getGameState()).stream().map
     			(m -> node.getStateAfterMove(m)).collect(Collectors.toList());
-    	addChildren(to_add);
+    	addChildren(to_add, true);
     	return to_add;
     }
     
-    private void addChild(GameTreeNode node) {
+    private void addChild(GameTreeNode node, boolean setExpanded) {
     	if (node.getParent() == null) {
     		throw new RuntimeException("can't add child to GameTree which does not have a parent");
     	}
@@ -144,8 +147,8 @@ public abstract class GameTree {
     	all_layers.get(depth).add(node);
     }
     
-    private void addChildren(List<GameTreeNode> nodes) {
-    	for (GameTreeNode node : nodes) addChild(node);
+    private void addChildren(List<GameTreeNode> nodes, boolean setExpanded) {
+    	for (GameTreeNode node : nodes) addChild(node, setExpanded);
     }
     
     public int maxDepth() {
