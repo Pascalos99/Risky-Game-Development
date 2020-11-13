@@ -13,6 +13,9 @@ public abstract class GameTree {
     private GameTreeNode current;
     private List<List<GameTreeNode>> all_layers;
     private EvaluationFunction evaluation;
+    
+    public static final Function<GameState, Boolean> PRE_ALLOW_ALL = state -> true;
+    public static final Function<Pawn, Boolean> POST_ALLOW_ALL = pawn -> true;
 
     public GameTree(GameState root) {
         this.root = new GameTreeNode(null, root);
@@ -67,49 +70,57 @@ public abstract class GameTree {
     /**
      * expand all nodes at the deepest depth that satisfy the filter
      */
-    public void expand(Function<GameState, Boolean> filter) {
+    public List<GameTreeNode> expand(Function<GameState, Boolean> filter) {
+    	return expand(maxDepth(), filter);
+    }
+    
+    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> filter) {
     	// TODO
+    	return null;
     }
     
     /**
      * expand all nodes at all depths that satisfy the filter
      */
-    public void expandAll(Function<GameState, Boolean> filter) {
+    public List<GameTreeNode> expandAll(Function<GameState, Boolean> filter) {
     	// TODO
+    	return null;
     }
     
     /**
      * expand all nodes at the deepest depth
      */
-    public void expand() {
-    	expand(s -> true);
+    public List<GameTreeNode> expand() {
+    	return expand(s -> true);
     }
     
     /**
      * expand all nodes at all depths
      */
-    public void expandAll() {
-    	expandAll(s -> true);
+    public List<GameTreeNode> expandAll() {
+    	return expandAll(s -> true);
     }
     
     /**
      * expand a single node already contained in the tree at all pawns that satisfy the filter<br><br>
      * Assumes the given state is contained in this GameTree
      */
-    private void expand(GameTreeNode node, Function<Pawn, Boolean> post_filter) {
+    public List<GameTreeNode> expand(GameTreeNode node, Function<Pawn, Boolean> post_filter) {
     	List<GameTreeNode> to_add = getAllPossibleMoves(node.getGameState(), post_filter).stream().map
 				(m -> node.getStateAfterMove(m)).collect(Collectors.toList());
     	addChildren(to_add);
+    	return to_add;
     }
     
     /**
      * expand a single node already contained in the tree at all pawns<br><br>
      * Assumes the given state is contained in this GameTree
      */
-    private void expand(GameTreeNode node) {
+    public List<GameTreeNode> expand(GameTreeNode node) {
     	List<GameTreeNode> to_add = getAllPossibleMoves(node.getGameState()).stream().map
     			(m -> node.getStateAfterMove(m)).collect(Collectors.toList());
     	addChildren(to_add);
+    	return to_add;
     }
     
     private void addChild(GameTreeNode node) {

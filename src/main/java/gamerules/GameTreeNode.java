@@ -9,6 +9,8 @@ public class GameTreeNode {
     private final GameState gameState;
     private final GameTreeNode parent;
     protected ArrayList<GameTreeNode> children;
+    
+    protected boolean isExpanded = false;
 
     public GameTreeNode(GameTreeNode parent, GameState gameState) {
     	if (parent == null);
