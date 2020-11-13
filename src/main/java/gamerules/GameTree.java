@@ -74,10 +74,19 @@ public abstract class GameTree {
     	return expand(maxDepth(), filter);
     }
     
+    public List<GameTreeNode> expand(int depth) {
+    	return expand(depth, PRE_ALLOW_ALL);
+    }
+    
     public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter) {
     	// TODO
     	List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(p -> pre_filter.apply(p.getGameState())).collect(Collectors.toList());
     	// for all nodes in depth: if pre_filter.apply then expand
+    	return null;
+    }
+    
+    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter, Function<GameState, Boolean> post_filter) {
+    	// TODO
     	return null;
     }
     
