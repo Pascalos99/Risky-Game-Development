@@ -49,5 +49,9 @@ public class GameTreeNode {
     public int getDepth() {
     	return gameState.getDepth();
     }
+    
+    public boolean isExpanded() {
+    	return isExpanded;
+    }
 
 }

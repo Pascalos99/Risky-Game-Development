@@ -103,6 +103,10 @@ public abstract class GameTree {
     		all_added.addAll(expand(d, pre_filter, post_filter));
     	return all_added;
     }
+    
+    public List<GameTreeNode> expandAll(Function<GameState, Boolean> pre_filter) {
+    	return expandAll(pre_filter, POST_ALLOW_ALL);
+    }
 
     /**
      * expand all nodes at the deepest depth
@@ -121,8 +125,10 @@ public abstract class GameTree {
     /**
      * expand a single node already contained in the tree at all pawns that satisfy the filter<br><br>
      * Assumes the given state is contained in this GameTree
+     * @return {@code null} if the given node has already been expanded
      */
     public List<GameTreeNode> expand(GameTreeNode node, Function<Pawn, Boolean> post_filter) {
+    	if (node.isExpanded) return null;
     	List<GameTreeNode> to_add = getAllPossibleMoves(node.getGameState(), post_filter).stream().map
 				(m -> node.getStateAfterMove(m)).collect(Collectors.toList());
     	boolean expanded = post_filter == POST_ALLOW_ALL || post_filter.apply(null);
@@ -158,13 +164,5 @@ public abstract class GameTree {
     public int maxDepth() {
     	return all_layers.size() - 1;
     }
-
-    /*
-    private void build() {
-        for (Move move : current.getAllPossibleMoves(current.getAllPawnsOf(current.currentPlayer()))) {
-
-        }
-    }
-    */
 
 }
