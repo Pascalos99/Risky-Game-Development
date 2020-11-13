@@ -79,15 +79,19 @@ public abstract class GameTree {
     }
     
     public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter) {
-    	// TODO
-    	List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(p -> pre_filter.apply(p.getGameState())).collect(Collectors.toList());
-    	// for all nodes in depth: if pre_filter.apply then expand
-    	return null;
+    	return expand(depth, pre_filter, POST_ALLOW_ALL);
     }
     
-    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter, Function<GameState, Boolean> post_filter) {
-    	// TODO
-    	return null;
+    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter, Function<Pawn, Boolean> post_filter) {
+        List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(p -> pre_filter.apply(p.getGameState())).collect(Collectors.toList());
+
+        List<GameTreeNode> childNodes = new ArrayList<>();
+        // for all nodes in depth: if pre_filter.apply ands node is not expanded then expand
+        for (GameTreeNode node : nodes) {
+            if (!node.isExpanded) childNodes.addAll(expand(node, post_filter));
+        }
+
+    	return childNodes;
     }
     
     /**
