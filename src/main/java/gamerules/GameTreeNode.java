@@ -11,6 +11,8 @@ public class GameTreeNode {
     protected ArrayList<GameTreeNode> children;
     
     protected boolean isExpanded = false;
+    
+    private boolean addedToParent = false;
 
     public GameTreeNode(GameTreeNode parent, GameState gameState) {
     	if (parent == null);
@@ -52,6 +54,15 @@ public class GameTreeNode {
     
     public boolean isExpanded() {
     	return isExpanded;
+    }
+    
+    public void addToParent() {
+    	if (parent != null) parent.children.add(this);
+    	addedToParent = true;
+    }
+    
+    public boolean isAddedToParent() {
+    	return addedToParent;
     }
 
 }

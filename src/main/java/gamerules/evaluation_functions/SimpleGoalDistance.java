@@ -23,7 +23,7 @@ public class SimpleGoalDistance implements EvaluationFunction {
 	
 	@Override
 	public Double apply(GameState state, Player player) {
-		int playerID = state.original_board.getPlayerIndex(player);
+		int playerID = state.getOriginalBoard().getPlayerIndex(player);
 		byte[] state_rep = state.getIntegerRepresentation();
 		byte[] goal_nodes = Board.nodes_owned_per_player[Board.player_pairings[playerID]];
 		boolean[] is_pawn_at_goal = new boolean[10];
@@ -34,7 +34,7 @@ public class SimpleGoalDistance implements EvaluationFunction {
 		
 		for (int i=0; i < goal_nodes.length; i++) {
 			boolean found = false;
-			for (int p=0; p < state.original_board.getPlayerCount() && !found; p++) {
+			for (int p=0; p < state.getOriginalBoard().getPlayerCount() && !found; p++) {
 				int res = Arrays.binarySearch(state_rep, p*10, (p+1)*10, goal_nodes[i]);
 				found = res >= 0;
 				if (p == playerID && found) {

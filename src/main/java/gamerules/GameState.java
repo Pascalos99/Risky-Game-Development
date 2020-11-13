@@ -13,7 +13,7 @@ public class GameState {
 	
 	public static final byte PLAYER_PAWNS = 10;
 	
-	public final Board original_board;
+	private Board original_board;
 	
 	public static Board dummy_board;
 	public static GameState dummy_state;
@@ -53,9 +53,11 @@ public class GameState {
 	public void setDummyBoard() {
 		if (dummy_board != null && this.equals(dummy_state)) return;
 		
-		if (dummy_board == null || !dummy_state.root.contentEquals(root)) dummy_board = original_board.clone();
-		else for (GameState state = dummy_state; state != null; state = state.parent)
-					if (state.last_move != null) dummy_board.reverseMove(state.last_move);
+		if (dummy_board == null || !dummy_state.root.contentEquals(root)) dummy_board = getOriginalBoard().clone();
+		else for (GameState state = dummy_state; state != null; state = state.parent) {
+				if (state == this) { dummy_state = this; return; }
+				if (state.last_move != null) dummy_board.reverseMove(state.last_move);
+		}
 		
 		LinkedList<Move> moves = new LinkedList<>();
 		
@@ -98,8 +100,8 @@ public class GameState {
 	};
 
 	public Player currentPlayer() {
-		return original_board.getPlayers().get(
-				(depth + original_board.currentPlayerID()) % original_board.getPlayerCount());
+		return getOriginalBoard().getPlayers().get(
+				(depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount());
 	}
 	
 	/**
@@ -187,11 +189,11 @@ public class GameState {
 	};
 
 	public Player getEnemy(Player player) {
-		return original_board.getEnemy(player);
+		return getOriginalBoard().getEnemy(player);
 	}
 
 	public List<BoardNode> getGoal(Player player) {
-		return original_board.getGoal(player).stream().map(dummy_board.getNodeMapper()).collect(Collectors.toList());
+		return getOriginalBoard().getGoal(player).stream().map(dummy_board.getNodeMapper()).collect(Collectors.toList());
 	}
 	
 	public final boolean isGoalNode(Player player, BoardNode node) {
@@ -222,7 +224,7 @@ public class GameState {
 	 * This method may require {@link GameState#dummy_board} to be modified.<br><br>
 	 */
     public boolean hasWinner() {
-    	if (parent.hasWinner() || original_board.getWinner() != null) {
+    	if (parent.hasWinner() || getOriginalBoard().getWinner() != null) {
     		return true;
 		}
     	else {
@@ -274,18 +276,17 @@ public class GameState {
 	}
 	
 	public GameState(GameState parent, Move move) {
-		original_board = parent.original_board;
+		original_board = parent.getOriginalBoard();
 		this.parent = parent;
 		this.root = parent.root;
 		last_move = move;
 		depth = parent.depth + 1;
 		player_count = parent.player_count;
 		pawn_positions = Arrays.copyOf(parent.pawn_positions, parent.pawn_positions.length);
-		int player = original_board.getPlayerIndex(move.pawn.getOwner());
+		int player = getOriginalBoard().getPlayerIndex(move.pawn.getOwner());
 		int from = player * PLAYER_PAWNS;
 		int to = from + PLAYER_PAWNS;
 		int index = Arrays.binarySearch(pawn_positions, from, to, (byte)move.start.getID());
-		System.out.println(Arrays.toString(Arrays.copyOfRange(pawn_positions, from, to)));
 		pawn_positions[index] = (byte)move.target.getID();
 		Arrays.sort(pawn_positions, from, to);
 	}
@@ -298,6 +299,26 @@ public class GameState {
 		return parent;
 	}
 	
+	public Move lastMove() {
+		return last_move;
+	}
+	
+	/**
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 * Clones the dummy board at this GameState and stores it as this state's original board.<br>
+	 * This allows for having multiple trees side by side, but it does not allow for multi-threading over these trees.
+	 * (please still iterate over each tree one at a time)
+	 */
+	public synchronized void backupBoard() {
+		setDummyBoard();
+		original_board = dummy_board.clone();
+		depth = 0;
+	}
+	
+	public Board getOriginalBoard() {
+		return original_board;
+	}
+
 	private BigInteger gameStateID;
 	
 	public BigInteger gameStateID() {
