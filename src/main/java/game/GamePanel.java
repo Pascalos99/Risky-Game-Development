@@ -122,7 +122,8 @@ public class GamePanel extends JPanel {
 			if (e instanceof TurnEvent) {
 				Player player = ((TurnEvent) e).getPlayer();
 				if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
-				else System.out.format("=~=~ Now it's %s [%s]'s turn! ~=~=\n", player.getName()+" ("+player.getTypeName()+")", player.getColorName());
+				else System.out.format("=~=~ Now it's %s [%s]'s (%d) turn! ~=~=\n",
+						player.getName()+" ("+player.getTypeName()+")", player.getColorName(), player.turnCounter.getCount());
 			} else if (e instanceof MoveEvent) {
 				MoveEvent m = (MoveEvent) e;
 				

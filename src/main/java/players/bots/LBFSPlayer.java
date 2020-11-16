@@ -1,5 +1,8 @@
 package players.bots;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 import gamerules.Board;
 import gamerules.GameState;
 import gamerules.GameTree;
@@ -20,14 +23,17 @@ public class LBFSPlayer extends Player implements DeterministicReturn {
 		GameState root = new GameState(gameBoard);
 		GameTree tree = new GameTree(root);
 		long start = System.currentTimeMillis();
-		while (System.currentTimeMillis() - start < limit_in_ms) {
-			tree.expandDeepest();
-			// TODO
+		tree.setMaxExpansionTime(limit_in_ms);
+		while (!tree.limitReached()) {
+			tree.expandDeepest(tree.preFilterBarrierEval(0.6, true, null));
 		}
 		GameTreeNode best = tree.getHighestEval(this);
 		System.out.println("after "+(System.currentTimeMillis()-start)+" ms; tree achieved a depth of "+tree.maxDepth()+
 				" and found a best move with value "+tree.evaluate(best));
-		return best.getGameState().getMoveSequence().get(0);
+		
+		List<Move> sequence = best.getGameState().getMoveSequence();
+		if (sequence.size() == 0) return null;
+		return sequence.get(0);
 	}
 
 	@Override
@@ -37,12 +43,17 @@ public class LBFSPlayer extends Player implements DeterministicReturn {
 
 	@Override
 	public String getDescription() {
-		return "Uses Limited Breadth First Search to iterate through the GameTree based on the default heuristic";
+		return "Uses Time-Limited Breadth First Search to iterate through the GameTree based on the default heuristic while only "
+				+"expanding moves that have a top-60% evaluation value";
 	}
 
 	@Override
 	public Player getNewInstance() {
 		return new LBFSPlayer(limit_in_ms);
+	}
+	
+	public String toString() {
+		return "LBFS[l="+limit_in_ms+"]";
 	}
 	
 }

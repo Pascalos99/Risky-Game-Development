@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import players.Player;
 
@@ -16,8 +16,40 @@ public class GameTree {
     private EvaluationFunction evaluation;
     private boolean pruneCopyStates = false;
 
-    public static final Function<GameState, Boolean> PRE_ALLOW_ALL = state -> true;
-    public static final Function<Pawn, Boolean> POST_ALLOW_ALL = pawn -> true;
+    public static final Predicate<GameTreeNode> PRE_ALLOW_ALL = node -> true;
+    public static final Predicate<Pawn> POST_ALLOW_ALL = pawn -> true;
+    
+    private long max_expansion_time = Long.MAX_VALUE;
+    private long expansion_time = 0;
+    
+    /**
+     * Set the maximum time the GameTree is allowed to use when expanding; the tree will stop when this limit has been reached.
+     * At this point, the call {@linkplain #limitReached()} will return {@code true} and the search will halt.<br>
+     * To make the search continue, you need to call {@linkplain #clearTimeUsed()} and restart the search the same way it was started.
+     * Nodes that have already been visited will not be visited again, but the search will start over from scratch for unvisited nodes.
+     */
+    public void setMaxExpansionTime(long max_expansion_time_ms) {
+    	max_expansion_time = max_expansion_time_ms;
+    }
+    
+    /**
+     * @return The amount of time (in milliseconds)
+     *  this GameTree has used to expand nodes since the last {@linkplain #clearTimeUsed()} call.
+     */
+    public long getExpansionTime() {
+    	return expansion_time;
+    }
+    
+    public boolean limitReached() {
+    	return expansion_time >= max_expansion_time;
+    }
+    
+    /**
+     * Set the timer for counting whether too much time has been used for search back to 0.
+     */
+    public void clearTimeUsed() {
+    	expansion_time = 0;
+    }
 
     public GameTree(GameState root) {
         this.root = new GameTreeNode(null, root);
@@ -41,24 +73,51 @@ public class GameTree {
     
     /**
      * Gives a pre-filter that filters based on the evaluation function result of the GameState being evaluated.<br>
-     * Only lets through GameStates that get an evaluation value that is in the top x-percent of all GameStates from the same 
-     *  parent.
+     * Only lets through GameStates that get an evaluation value that is above or below the top x-percent of
+     *  all GameStates from the same parent.
      * @param percent the percentage barrier from which the GameState population is cut
-     * @return
+     * @param maximize if this is set to {@code true}, the filter will let through GameState's with evaluation ABOVE the 
+     *  percent-point;<br>if this is set to {@code false}, the filter will let through GameState's with evaluation BELOW the 
+     *  percent-point.
+     * @param player the Player who's evaluation score needs to be filtered. {@code null} if this needs to always be the 
+     *  currentPlayer() in the given GameState
+     * @return A predicate that does this
      */
-    public Function<GameState, Boolean> evaluationMinimum(double percent) {
+    public Predicate<GameTreeNode> preFilterBarrierEval(double percent, boolean maximize, Player player) {
+    	final double percentage;
+    	if (percent < 0) percentage = 0;
+    	else if (percent > 1) percentage = 1;
+    	else percentage = percent;
+    	
     	GameTree tree = this;
-		Map<GameState, Double> percentPoints = new HashMap<>();
+		Map<GameTreeNode, Double> percentPoints = new HashMap<>();
 		
-    	Function<GameState, Boolean> result = new Function<GameState, Boolean>() {
+		Predicate<GameTreeNode> result = new Predicate<GameTreeNode>() {
+			
+			private double evaluate(GameTreeNode node) {
+				if (player == null) return tree.evaluate(node);
+				return tree.evaluate(node, player);
+			}
+			
 			@Override
-			public Boolean apply(GameState t) {
-				if (t.getPrevious() == null) return true;
-				GameState parent = t.getPrevious();
+			public boolean test(GameTreeNode node) {
+				
+				if (percentage == 0) return false;
+				if (percentage == 1) return true;
+				
+				if (node.getParent() == null) return true;
+				GameTreeNode parent = node.getParent();
 				if (!percentPoints.containsKey(parent)) {
-					//TODO
+					int num_children = parent.children.size();
+					List<Double> values = new ArrayList<>(num_children);
+					for (GameTreeNode child : parent.children)
+						values.add(evaluate(child));
+					int index = (int)(percentage * num_children);
+					Collections.sort(values);
+					percentPoints.put(parent, values.get(index));
 				}
-				if (tree.evaluate(t) >= percentPoints.get(parent)) return true;
+				if (maximize && evaluate(node) >= percentPoints.get(parent)) return true;
+				else if (evaluate(node) <= percentPoints.get(parent)) return true;
 				return false;
 			}
     	};
@@ -196,9 +255,9 @@ public class GameTree {
      * @return returns a list of all moves executable by the current player in the given GameState filtered by pawns that
      *  satisfy the filter
      */
-    public List<Move> getAllPossibleMoves(GameState state, Function<Pawn, Boolean> post_filter) {
+    public List<Move> getAllPossibleMoves(GameState state, Predicate<Pawn> post_filter) {
     	return state.getAllPossibleMoves(state.getAllPawnsOf(state.currentPlayer()).stream().
-    			filter(p -> post_filter.apply(p)).collect(Collectors.toList()));
+    			filter(post_filter).collect(Collectors.toList()));
     }
     
     /**
@@ -217,12 +276,16 @@ public class GameTree {
      *  to the GameTree
      * @return the list of nodes that were added to the GameTree
      */
-    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter, Function<Pawn, Boolean> post_filter) {
-        List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(p -> pre_filter.apply(p.getGameState())).collect(Collectors.toList());
+    public List<GameTreeNode> expand(int depth, Predicate<GameTreeNode> pre_filter, Predicate<Pawn> post_filter) {
+        List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(pre_filter).collect(Collectors.toList());
 
         List<GameTreeNode> childNodes = new ArrayList<>();
         // for all nodes in depth: if pre_filter.apply ands node is not expanded then expand
+        long last = System.currentTimeMillis();
         for (GameTreeNode node : nodes) {
+        	expansion_time += System.currentTimeMillis() - last;
+        	last = System.currentTimeMillis();
+        	if (expansion_time > max_expansion_time) return childNodes;
             if (!node.isExpanded) childNodes.addAll(expand(node, post_filter));
         }
 
@@ -235,7 +298,7 @@ public class GameTree {
      * @param pre_filter a filter that limits which nodes will be expanded based on the returnvalue of the pre_filter
      * @return the list of nodes that were added to the GameTree
      */
-    public List<GameTreeNode> expand(int depth, Function<GameState, Boolean> pre_filter) {
+    public List<GameTreeNode> expand(int depth, Predicate<GameTreeNode> pre_filter) {
     	return expand(depth, pre_filter, POST_ALLOW_ALL);
     }
     
@@ -250,9 +313,9 @@ public class GameTree {
 
     /**
      * expand all nodes at all depths that satisfy the filters
-     * @see #expand(int, Function, Function)
+     * @see #expand(int, Predicate, Predicate)
      */
-    public List<GameTreeNode> expandAll(Function<GameState, Boolean> pre_filter, Function<Pawn, Boolean> post_filter) {
+    public List<GameTreeNode> expandAll(Predicate<GameTreeNode> pre_filter, Predicate<Pawn> post_filter) {
     	List<GameTreeNode> all_added = new ArrayList<>();
     	for (int d = maxDepth(); d >= 0; d--)
     		all_added.addAll(expand(d, pre_filter, post_filter));
@@ -261,9 +324,9 @@ public class GameTree {
     
     /**
      * expand all nodes at all depths that satisfy the filter
-     * @see #expand(int, Function)
+     * @see #expand(int, Predicate)
      */
-    public List<GameTreeNode> expandAll(Function<GameState, Boolean> pre_filter) {
+    public List<GameTreeNode> expandAll(Predicate<GameTreeNode> pre_filter) {
     	return expandAll(pre_filter, POST_ALLOW_ALL);
     }
     
@@ -282,7 +345,7 @@ public class GameTree {
      *  to the GameTree
      * @return the list of nodes that were added to the GameTree
      */
-    public List<GameTreeNode> expandDeepest(Function<GameState, Boolean> pre_filter, Function<Pawn, Boolean> post_filter) {
+    public List<GameTreeNode> expandDeepest(Predicate<GameTreeNode> pre_filter, Predicate<Pawn> post_filter) {
     	return expand(maxDepth(), pre_filter, post_filter);
     }
     
@@ -291,7 +354,7 @@ public class GameTree {
      * @param pre_filter a filter that limits which nodes will be expanded based on the returnvalue of the pre_filter
      * @return the list of nodes that were added to the GameTree
      */
-    public List<GameTreeNode> expandDeepest(Function<GameState, Boolean> pre_filter) {
+    public List<GameTreeNode> expandDeepest(Predicate<GameTreeNode> pre_filter) {
     	return expand(maxDepth(), pre_filter);
     }
     
@@ -308,11 +371,11 @@ public class GameTree {
      * Assumes the given state is contained in this GameTree
      * @return {@code null} if the given node has already been expanded
      */
-    public List<GameTreeNode> expand(GameTreeNode node, Function<Pawn, Boolean> post_filter) {
+    public List<GameTreeNode> expand(GameTreeNode node, Predicate<Pawn> post_filter) {
     	if (node.isExpanded) return null;
     	List<GameTreeNode> to_add = getAllPossibleMoves(node.getGameState(), post_filter).stream().map
 				(m -> node.getStateAfterMove(m)).collect(Collectors.toList());
-    	boolean expanded = post_filter == POST_ALLOW_ALL || post_filter.apply(null);
+    	boolean expanded = post_filter == POST_ALLOW_ALL || post_filter.test(null);
     	addChildren(to_add, expanded);
     	return to_add;
     }
