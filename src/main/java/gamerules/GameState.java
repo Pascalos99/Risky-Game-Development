@@ -68,7 +68,7 @@ public class GameState {
 		LinkedList<Move> moves = new LinkedList<>();
 		
 		for (GameState state = this; state != null; state = state.parent)
-			moves.addFirst(state.last_move);
+			if (state.last_move != null) moves.addFirst(state.last_move);
 		
 		for (Move move : moves) move.execute(dummy_board);
 		
@@ -108,6 +108,25 @@ public class GameState {
 	public Player currentPlayer() {
 		return getOriginalBoard().getPlayers().get(
 				(depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount());
+	}
+	
+	public GameState getRoot() {
+		return root;
+	}
+	
+	/**
+	 * @return the list of moves executed to get to this GameState (in order of execution) from this GameState's root state (this
+	 *  is the furthest parent down from this GameState which is directly derived from a Board object)
+	 */
+	public List<Move> getMoveSequence() {
+		LinkedList<Move> moves = new LinkedList<>();
+		
+		for (GameState state = this; state != null; state = state.parent) {
+			if (state == root) break;
+			moves.addFirst(state.last_move);
+		}
+		
+		return moves;
 	}
 	
 	/**
@@ -383,7 +402,8 @@ public class GameState {
 		if (o == this) return true;
 		if (!(o instanceof GameState)) return false;
 		GameState s = (GameState) o;
-		if (s.parent.equals(parent) && s.last_move.equals(last_move)
+		if ((s.parent != parent && s.parent == null) || (s.last_move != last_move && s.last_move == null)) return false;
+		if ((s.parent == parent || s.parent.equals(parent)) && (s.last_move == last_move || s.last_move.equals(last_move))
 				&& s.depth == depth && s.gameStateID().equals(gameStateID())) return true;
 		return false;
 	}

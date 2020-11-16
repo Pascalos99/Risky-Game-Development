@@ -2,7 +2,9 @@ package gamerules;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +38,32 @@ public class GameTree {
 
     public EvaluationFunction getEvaluation() {
     	return evaluation;
+    }
+    
+    /**
+     * Gives a pre-filter that filters based on the evaluation function result of the GameState being evaluated.<br>
+     * Only lets through GameStates that get an evaluation value that is in the top x-percent of all GameStates from the same 
+     *  parent.
+     * @param percent the percentage barrier from which the GameState population is cut
+     * @return
+     */
+    public Function<GameState, Boolean> evaluationMinimum(double percent) {
+    	GameTree tree = this;
+		Map<GameState, Double> percentPoints = new HashMap<>();
+		
+    	Function<GameState, Boolean> result = new Function<GameState, Boolean>() {
+			@Override
+			public Boolean apply(GameState t) {
+				if (t.getPrevious() == null) return true;
+				GameState parent = t.getPrevious();
+				if (!percentPoints.containsKey(parent)) {
+					//TODO
+				}
+				if (tree.evaluate(t) >= percentPoints.get(parent)) return true;
+				return false;
+			}
+    	};
+    	return result;
     }
 
     /**

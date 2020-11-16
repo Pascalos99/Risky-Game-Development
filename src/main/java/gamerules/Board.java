@@ -302,10 +302,7 @@ public class Board {
 		if (player_count <= 0) return true;
 		Move move = currentPlayer().returnMove(this);
 		if (move != null && move.isValid()) {
-			move.execute(this);
-			// this is for testing purposes
-			//System.out.println("game-state after executing move:\n"+new GameState(state, move));
-			//
+			executeMoveForReal(move);
 			updateGraphics();
 			nextTurn();
 			return true;
@@ -330,10 +327,19 @@ public class Board {
 		Move move = null;
 		while (move == null || !move.isValid())
 			move = currentPlayer().returnMove(this);
-		move.execute(this);
+		executeMoveForReal(move);
 
 		updateGraphics();
 		nextTurn();
+	}
+	
+	/**
+	 * Executed a move that can come from any board from any state such that no Move mismatch can occur
+	 * @param move the move to be executed
+	 */
+	private void executeMoveForReal(Move move) {
+		new GameState(this).setDummyBoard();
+		move.execute(this);
 	}
 
 	public boolean hasTurn(Player player){
