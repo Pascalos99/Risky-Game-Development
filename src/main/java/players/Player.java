@@ -5,6 +5,7 @@ import java.util.List;
 
 import gamerules.Board;
 import gamerules.BoardNode;
+import gamerules.GameState;
 import gamerules.Move;
 import gamerules.TurnCounter;
 

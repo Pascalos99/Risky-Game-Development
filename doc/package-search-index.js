@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"game"},{"l":"game.events"},{"l":"gamerules"},{"l":"gamerules.evaluation_functions"},{"l":"graphics"},{"l":"graphics.sample"},{"l":"players"},{"l":"players.bots"},{"l":"players.bots.utils"}]

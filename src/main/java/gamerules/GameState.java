@@ -15,6 +15,12 @@ public class GameState {
 	
 	private Board original_board;
 	
+	/**
+	 * Internal state of the GameState, is updated for most information requests from any GameState object. This object is 
+	 *  shared among them and thus will not keep its state the same at most times.
+	 * Please inform me (@pascal) if you intend to directly use this field for anything, as there is likely a way to solve your
+	 *  problem in a safer way.
+	 */
 	public static Board dummy_board;
 	public static GameState dummy_state;
 	
@@ -211,6 +217,13 @@ public class GameState {
 		setDummyBoard();
 		return GameRules.SELECTED_GAMERULES.allowMove(dummy_board.getEquivalent(pawn), dummy_board.getEquivalent(target));
 	};
+	
+	/**
+	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
+	 */
+	public boolean allowMove(Move move) {
+		return allowMove(move.pawn, move.target);
+	}
 
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
