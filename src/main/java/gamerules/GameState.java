@@ -105,6 +105,12 @@ public class GameState {
 		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board.getEquivalent(pawn));
 	};
 
+
+	public double currentScore(Player player){
+		setDummyBoard();
+		return dummy_board.currentScore(player);
+	}
+
 	public Player currentPlayer() {
 		return getOriginalBoard().getPlayers().get(
 				(depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount());
