@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import gamerules.Board;
+import gamerules.GameState;
 import gamerules.Move;
 import gamerules.Pawn;
 import players.Player;
@@ -24,6 +25,20 @@ public class RandomPlayer extends Player {
     		}
     	}
     	return null;
+	}
+
+
+	public Move returnMove(GameState board) {
+		List<Pawn> pawns = board.getAllPawnsOf(this);
+		Collections.shuffle(pawns);
+		for (Pawn pawn : pawns) {
+			List<Move> moves = board.getAllPossibleMoves(pawn);
+			if (moves.size() > 0) {
+				Collections.shuffle(moves);
+				return moves.get(0);
+			}
+		}
+		return null;
 	}
 
 	@Override
