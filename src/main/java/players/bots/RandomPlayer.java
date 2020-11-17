@@ -27,20 +27,6 @@ public class RandomPlayer extends Player {
     	return null;
 	}
 
-
-	public Move returnMove(GameState board) {
-		List<Pawn> pawns = board.getAllPawnsOf(this);
-		Collections.shuffle(pawns);
-		for (Pawn pawn : pawns) {
-			List<Move> moves = board.getAllPossibleMoves(pawn);
-			if (moves.size() > 0) {
-				Collections.shuffle(moves);
-				return moves.get(0);
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public String getTypeName() {
 		return "Random Player";

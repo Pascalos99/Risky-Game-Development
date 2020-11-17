@@ -12,35 +12,50 @@ public class ProtoMST extends Player {
 
     @Override
     public Move returnMove(Board gameBoard){
-        List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
-        List<Move> moves = new ArrayList<Move>();
-        for(Pawn pawn : pawns){
-            moves.addAll(SELECTED_GAMERULES.getAllPossibleMoves(pawn));
+        List<BoardNode> tragets = gameBoard.getGoal(this);
+        HashMap<Double,GameTreeNode> eval= new HashMap<>();
+        HashMap<GameTreeNode,Move> moves= new HashMap<>();
+        GameState game = new GameState(gameBoard);
+        GameTree tree = new GameTree(game);
+        List<GameTreeNode> nodes = tree.expand(0);
+        for(GameTreeNode node :nodes){
+            moves.put(node,node.getGameState().lastMove());
         }
-        Collections.shuffle(moves);
-        HashMap<Double,Move> eval = eval(moves,gameBoard);
-        return eval.get((Collections.max(eval.keySet())));
+        for(GameTreeNode node : nodes){
+            long t1 = System.currentTimeMillis();
+            while(500/nodes.size()>=System.currentTimeMillis()-t1){
+                GameTreeNode ne = new GameTreeNode(node,returnMove(node.getGameState(),node.getGameState().currentPlayer()));
+                for(int i2=0;i2<10;i2++){
+                    if(!tragets.contains(ne.getGameState().lastMove().start)){
+                        if(tragets.contains(ne.getGameState().lastMove().target)){
+                            System.out.println("ddd");
+                            break;
+                        }
+                    }
+                    ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
+
+                }
+                if (eval.containsKey(ne.getGameState().currentScore(this))) eval.put(ne.getGameState().currentScore(this) + Math.random()-0.5,node);
+                else eval.put(ne.getGameState().currentScore(this),node);
+            }
+        }
+        GameTreeNode best= eval.get((Collections.max(eval.keySet())));
+        Move move = moves.get(best);
+        return move;
+
     }
 
-    private HashMap<Double,Move> eval(List<Move> moves,Board basegame){
-        HashMap<Double,Move> eval = new HashMap<Double,Move>();
-        for(Move m : moves){
-            long t1 = System.currentTimeMillis();
-            List<Player> players = new ArrayList<Player>();
-            for(int i=0;i<basegame.getPlayers().size();i++){
-                players.add(new NaivePlayer());
+    private Move returnMove(GameState board,Player player) {
+        List<Pawn> pawns = board.getAllPawnsOf(player);
+        Collections.shuffle(pawns);
+        for (Pawn pawn : pawns) {
+            List<Move> moves = board.getAllPossibleMoves(pawn);
+            if (moves.size() > 0) {
+                Collections.shuffle(moves);
+                return moves.get(0);
             }
-            Player player = basegame.currentPlayer();
-            GameState game = new GameState(basegame);
-            game = new GameState(game,m);
-            System.out.println("yes");
-            RandomPlayer pls = new RandomPlayer();
-            while ((3000/moves.size())>=System.currentTimeMillis()-t1){
-                game = new GameState(game,pls.returnMove(game));
-            }
-            eval.put(game.currentScore(player),m);
         }
-        return eval;
+        return null;
     }
 
     @Override
