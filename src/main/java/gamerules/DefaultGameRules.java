@@ -28,11 +28,10 @@ public class DefaultGameRules extends GameRules {
 	public void recurseMoves(Pawn pawn, BoardNode previous, Set<Move> moves, Set<BoardNode> visited) {
 		List<BoardNode> neighbours = previous.getNeighbours();
 		for (BoardNode neighbour : neighbours) {
+			if (neighbour.isEmpty() && pawn.equals(previous.getCurrentPawn())) moves.add(new Move(pawn, neighbour));
 			if (visited.contains(neighbour)) continue;
 			visited.add(neighbour);
-			if (neighbour.isEmpty()) {
-				if (pawn == previous.getCurrentPawn()) moves.add(new Move(pawn, neighbour));
-			} else {
+			if (neighbour.isOccupied()) {
 				
 				List<BoardNode> jumpingNodes = neighbour.getNeighbours();
 				int direction = previous.getDirectionOf(neighbour);
