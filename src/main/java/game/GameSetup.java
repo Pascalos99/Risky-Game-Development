@@ -28,7 +28,7 @@ import players.bots.*;
  */
 public class GameSetup {
 	
-	private static List<Player> player_types = List.of(new HumanPlayer(), new RandomPlayer(), new NaivePlayer(), new EvilPlayer(), new LBFSPlayer(500));
+	private static List<Player> player_types = List.of(new HumanPlayer(), new RandomPlayer(), new NaivePlayer(), new EvilPlayer(), new LBFSPlayer());
 	private static List<GameRules> gamerule_types = List.of(new DefaultGameRules());
 	
 	/** This list can be used for selection buttons: */

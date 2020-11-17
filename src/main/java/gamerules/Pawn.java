@@ -50,4 +50,11 @@ public class Pawn {
     	return new Pawn(owner, newPosition);
     }
     
+    public boolean equals(Object o) {
+    	if (!(o instanceof Pawn)) return false;
+    	Pawn p = (Pawn) o;
+    	if (p.owner == owner && p.position == position) return true;
+    	return false;
+    }
+    
 }

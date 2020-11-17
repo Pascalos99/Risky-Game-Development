@@ -92,7 +92,7 @@ public class GameTree {
     	GameTree tree = this;
 		Map<GameTreeNode, Double> percentPoints = new HashMap<>();
 		
-		Predicate<GameTreeNode> result = new Predicate<GameTreeNode>() {
+		Predicate<GameTreeNode> result = new Predicate<>() {
 			
 			private double evaluate(GameTreeNode node) {
 				if (player == null) return tree.evaluate(node);
@@ -102,23 +102,26 @@ public class GameTree {
 			@Override
 			public boolean test(GameTreeNode node) {
 				
-				if (percentage == 0) return false;
-				if (percentage == 1) return true;
+				if (percentage == 0) return !maximize;
+				if (percentage == 1) return maximize;
 				
 				if (node.getParent() == null) return true;
 				GameTreeNode parent = node.getParent();
 				if (!percentPoints.containsKey(parent)) {
+					
 					int num_children = parent.children.size();
 					List<Double> values = new ArrayList<>(num_children);
-					for (GameTreeNode child : parent.children)
+					
+					for (GameTreeNode child : parent.children) {
 						values.add(evaluate(child));
-					int index = (int)(percentage * num_children);
+					}
+					int index = (int)((1 - percentage) * num_children);
 					Collections.sort(values);
 					percentPoints.put(parent, values.get(index));
 				}
-				if (maximize && evaluate(node) >= percentPoints.get(parent)) return true;
-				else if (evaluate(node) <= percentPoints.get(parent)) return true;
-				return false;
+				if (maximize)
+					return evaluate(node) >= percentPoints.get(parent);
+				return evaluate(node) <= percentPoints.get(parent);
 			}
     	};
     	return result;
@@ -277,7 +280,7 @@ public class GameTree {
      * @return the list of nodes that were added to the GameTree
      */
     public List<GameTreeNode> expand(int depth, Predicate<GameTreeNode> pre_filter, Predicate<Pawn> post_filter) {
-        List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(pre_filter).collect(Collectors.toList());
+    	List<GameTreeNode> nodes = all_layers.get(depth).stream().filter(pre_filter).collect(Collectors.toList());
 
         List<GameTreeNode> childNodes = new ArrayList<>();
         // for all nodes in depth: if pre_filter.apply ands node is not expanded then expand
@@ -288,7 +291,7 @@ public class GameTree {
         	if (expansion_time > max_expansion_time) return childNodes;
             if (!node.isExpanded) childNodes.addAll(expand(node, post_filter));
         }
-
+        
     	return childNodes;
     }
     
