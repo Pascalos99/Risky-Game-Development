@@ -262,7 +262,11 @@ public class GameState {
 	 * This method may require {@link GameState#dummy_board} to be modified.<br><br>
 	 */
     public boolean hasWinner() {
-    	if (parent.hasWinner() || getOriginalBoard().getWinner() != null) {
+    	if(parent == null ){
+    		if(getOriginalBoard().getWinner() != null) return true;
+    		else return false;
+		}
+    	else if (parent.hasWinner() || getOriginalBoard().getWinner() != null) {
     		return true;
 		}
     	else {
