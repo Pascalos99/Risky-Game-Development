@@ -69,7 +69,7 @@ public class RulesTest {
         }
         movesfinale.addAll(moves);
         for(Move m : moves){
-            recursiveMove(m.target,movesfinale,pawn);
+            recursiveMove(m.target, movesfinale, pawn);
         }
     }
 

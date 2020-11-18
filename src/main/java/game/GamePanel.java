@@ -130,7 +130,7 @@ public class GamePanel extends JPanel {
 				selectedNodes = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 				Graphics g = selectedNodes.getGraphics();
 				for(Move move: m.getMoves()){
-					BoardNode node = move.target;
+					BoardNode node = move.getTarget(game);
 					Point pos = graphics.getScreenPositionOfNode(node);
 					g.setColor(show_move_color);
 					int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());
@@ -152,7 +152,7 @@ public class GamePanel extends JPanel {
 		selectedNodes = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = selectedNodes.getGraphics();
 		for(Move move: GameRules.SELECTED_GAMERULES.getAllPossibleMoves(at.getCurrentPawn())){
-			BoardNode node = move.target;
+			BoardNode node = move.getTarget(game);
 			Point pos = graphics.getScreenPositionOfNode(node);
 			g.setColor(show_move_color);
 			int diameter = (int) (BoardGraphics.default_node_diameter * graphics.getScale());

@@ -26,8 +26,8 @@ public class ProtoMST extends Player {
             while(500/nodes.size()>=System.currentTimeMillis()-t1){
                 GameTreeNode ne = new GameTreeNode(node,returnMove(node.getGameState(),node.getGameState().currentPlayer()));
                 for(int i2=0;i2<10;i2++){
-                    if(!tragets.contains(ne.getGameState().lastMove().start)){
-                        if(tragets.contains(ne.getGameState().lastMove().target)){
+                    if(!tragets.contains(ne.getGameState().lastMove().getStart(gameBoard))){
+                        if(tragets.contains(ne.getGameState().lastMove().getTarget(gameBoard))){
                             System.out.println("ddd");
                             break;
                         }

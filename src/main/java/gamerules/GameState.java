@@ -238,16 +238,16 @@ public class GameState {
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
 	 */
-	public boolean allowMove(Pawn pawn,BoardNode target) {
-		setDummyBoard();
-		return GameRules.SELECTED_GAMERULES.allowMove(dummy_board.getEquivalent(pawn), dummy_board.getEquivalent(target));
+	public boolean allowMove(Pawn pawn, BoardNode target) {
+		return allowMove(new Move(pawn, target));
 	};
 	
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
 	 */
 	public boolean allowMove(Move move) {
-		return allowMove(move.pawn, move.target);
+		setDummyBoard();
+		return move.isValid(dummy_board);
 	}
 
 	/**
@@ -325,11 +325,11 @@ public class GameState {
 		depth = parent.depth + 1;
 		player_count = parent.player_count;
 		pawn_positions = Arrays.copyOf(parent.pawn_positions, parent.pawn_positions.length);
-		int player = getOriginalBoard().getPlayerIndex(move.pawn.getOwner());
+		int player = getOriginalBoard().getPlayerIndex(move.pawn_owner);
 		int from = player * PLAYER_PAWNS;
 		int to = from + PLAYER_PAWNS;
-		int index = Arrays.binarySearch(pawn_positions, from, to, (byte)move.start.getID());
-		pawn_positions[index] = (byte)move.target.getID();
+		int index = Arrays.binarySearch(pawn_positions, from, to, (byte)move.start_node);
+		pawn_positions[index] = (byte)move.target_node;
 		Arrays.sort(pawn_positions, from, to);
 	}
 	

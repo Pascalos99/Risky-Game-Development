@@ -84,11 +84,11 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 					if (longest_distance <= 4 || not_goal_pawns.size() < 4) {
 						List<Move> moves_after = board.getPossibleMovesAfterMove(not_goal_pawns, move);
 						for (Move m : moves_after) {
-							if (m.start == move.target || m.pawn == move.pawn)
-							if (m.target.getOwner() == getEnemy(board)) {
+							if (m.start_node == move.target_node || m.pawn == move.pawn) // idk what this is doing
+							 if (m.getTarget(board).getOwner() == getEnemy(board)) {
 								weight = new WeightedMove(move, 1000000 + board.calculateScoreAfterMove(this, move, m));
 								break;
-							}
+							 }
 						}
 					}
 					if (weight == null) weight = new WeightedMove(move, 0);
@@ -122,7 +122,7 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 	private WeightedMove normalWeights(Move move, Board board, GameRules rules) {
 		WeightedMove weight = new WeightedMove(move);
 		backup_weights.put(move, move.calculateScore(board));
-		if (move.target.isGoal(this, board)) weight.weight = Double.POSITIVE_INFINITY;
+		if (move.getTarget(board).isGoal(this, board)) weight.weight = Double.POSITIVE_INFINITY;
 		else {
 			for (Player player : board.getPlayers()) {
 				if (player == this) continue;

@@ -122,8 +122,8 @@ public class Board {
 	}
 	
 	public double moveScore(Move move) {
-		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(move.pawn.getOwner())]);
-		return NodeDistanceCalc.getDistance(goal, move.start) - NodeDistanceCalc.getDistance(goal, move.target);
+		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(move.pawn_owner)]);
+		return NodeDistanceCalc.getDistance(goal, move.getStart(this)) - NodeDistanceCalc.getDistance(goal, move.getTarget(this));
 	}
 	
 	/**
@@ -145,7 +145,7 @@ public class Board {
 		ArrayList<Move> result = new ArrayList<>();
 		int moves_done_until = moves.length;
 		for (int i=0; i < moves.length; i++) {
-			if (moves[i].isValid()) moves[i].execute(this);
+			if (moves[i].isValid(this)) moves[i].execute(this);
 			else {
 				moves_done_until = i;
 				break;
@@ -159,7 +159,7 @@ public class Board {
 			for (Pawn pawn : pawns)
 				result.addAll(SELECTED_GAMERULES.getAllPossibleMoves(pawn));
 		}
-		for (int i=0; i < moves_done_until; i++) moves[i].reverse();
+		for (int i=0; i < moves_done_until; i++) moves[i].reverse(this);
 		return result;
 	}
 	
@@ -193,7 +193,7 @@ public class Board {
 		Double result = null;
 		int moves_done_until = moves.length;
 		for (int i=0; i < moves.length; i++) {
-			if (moves[i].isValid()) moves[i].execute(this);
+			if (moves[i].isValid(this)) moves[i].execute(this);
 			else {
 				moves_done_until = i;
 				break;
@@ -301,7 +301,7 @@ public class Board {
 		
 		if (player_count <= 0) return true;
 		Move move = currentPlayer().returnMove(this);
-		if (move != null && move.isValid()) {
+		if (move != null && move.isValid(this)) {
 			executeMoveForReal(move);
 			updateGraphics();
 			nextTurn();
