@@ -1,47 +1,32 @@
 package players.bots;
 
-import gamerules.Board;
-import gamerules.BoardNode;
-import gamerules.Move;
-import gamerules.Pawn;
+import gamerules.*;
+import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 import players.bots.utils.NodeDistanceCalc;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
 public class NaivePlayer extends Player {
 
+    EvaluationFunction evaluation = new SimpleGoalDistance();
+
     @Override
     public Move returnMove(Board gameBoard) {
-        //long t1 = System.currentTimeMillis();
+        GameState gameState = new GameState(gameBoard);
+        HashMap<Double,Move> eval= new HashMap<>();
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
-        Move move = null;
-        int min = 14;
-        Pawn pawn = pawns.get((int) (Math.random()*pawns.size()));
-        while(SELECTED_GAMERULES.getAllPossibleMoves(pawn).size()<=0){
-            pawn = pawns.get((int) (Math.random()*pawns.size()));
-        }
-        List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
-        Collections.shuffle(moves);
-        for (Move move1 : moves) {
-            if(move1.target.getOwner() == getEnemy(gameBoard)) return move1;
-            int distance = distanceTarget(gameBoard, move1.target,pawn.getPosition());
-            if (distance <= min) {
-                move = move1;
-                min = distance;
+        Collections.shuffle(pawns);
+        for (Pawn pawn : pawns) {
+            List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+            for (Move move : moves) {
+                eval.put(evaluation.apply(new GameState(gameState, move), this), move);
             }
         }
-        return move;
-    }
-
-    private int distanceTarget(Board board, BoardNode position,BoardNode currentPosition){
-        List<BoardNode> tagets = board.getGoal(this);
-        if(tagets.contains(currentPosition) && ! tagets.contains(position)) return Integer.MAX_VALUE;
-        if(tagets.contains(position)) return 0;
-        int distance= (NodeDistanceCalc.getDistance(tagets.get((int)Math.random()*tagets.size()),position));
-        return distance;
+        return eval.get((Collections.max(eval.keySet())));
     }
 
     @Override

@@ -22,6 +22,11 @@ public class Move {
 	public boolean isValid() {
 		return GameRules.SELECTED_GAMERULES.allowMove(pawn, target);
 	}
+
+	public boolean isValid(Board game) {
+		new GameState(game).setDummyBoard();
+		return GameRules.SELECTED_GAMERULES.allowMove(game.getEquivalent(pawn), game.getEquivalent(target));
+	}
 	
 	/**
 	 * This method assumes the move is valid

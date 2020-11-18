@@ -325,10 +325,9 @@ public class Board {
 			return;
 		}
 		Move move = null;
-		while (move == null || !move.isValid())
+		while (move == null || !move.isValid(this))
 			move = currentPlayer().returnMove(this);
 		executeMoveForReal(move);
-
 		updateGraphics();
 		nextTurn();
 	}
