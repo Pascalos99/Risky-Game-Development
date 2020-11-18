@@ -1,6 +1,7 @@
 package players.bots;
 
 import gamerules.*;
+import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,40 +10,52 @@ import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
 public class ProtoMST extends Player {
+    private EvaluationFunction evaluation;
+    private int treeSize;
+    private int depthTree;
+    private int time;
+
+    public ProtoMST(int treeSize, int depth,int time,EvaluationFunction evaluation){
+        this.treeSize = treeSize;
+        this.depthTree = depth;
+        this.time = time;
+        this.evaluation = evaluation;
+    }
+
+    public ProtoMST(){
+        this(2,1,75,new SimpleGoalDistance());
+    }
 
     @Override
     public Move returnMove(Board gameBoard){
-        List<BoardNode> tragets = gameBoard.getGoal(this);
         HashMap<Double,GameTreeNode> eval= new HashMap<>();
         HashMap<GameTreeNode,Move> moves= new HashMap<>();
         GameState game = new GameState(gameBoard);
         GameTree tree = new GameTree(game);
-        List<GameTreeNode> nodes = tree.expand(0);
+        List<GameTreeNode> nodes = null;
+        for(int i = 0;i < depthTree ; i++){
+            nodes = tree.expand(0);
+        }
         for(GameTreeNode node :nodes){
             moves.put(node,node.getGameState().lastMove());
+            if(node.getGameState().hasWon(this)) return node.getGameState().lastMove();
         }
         for(GameTreeNode node : nodes){
             long t1 = System.currentTimeMillis();
-            while(500/nodes.size()>=System.currentTimeMillis()-t1){
+            while(time/nodes.size()>=System.currentTimeMillis()-t1){
                 GameTreeNode ne = new GameTreeNode(node,returnMove(node.getGameState(),node.getGameState().currentPlayer()));
-                for(int i2=0;i2<10;i2++){
-                    if(!tragets.contains(ne.getGameState().lastMove().getStart(gameBoard))){
-                        if(tragets.contains(ne.getGameState().lastMove().getTarget(gameBoard))){
-                            System.out.println("ddd");
-                            break;
-                        }
-                    }
+                for(int i2=0;i2<treeSize;i2++){
+                    if(ne.getGameState().hasWinner()) break;
                     ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
-
                 }
                 if (eval.containsKey(ne.getGameState().currentScore(this))) eval.put(ne.getGameState().currentScore(this) + Math.random()-0.5,node);
                 else eval.put(ne.getGameState().currentScore(this),node);
             }
         }
         GameTreeNode best= eval.get((Collections.max(eval.keySet())));
-        Move move = moves.get(best);
-        return move;
-
+        List<Move> sequence = best.getGameState().getMoveSequence();
+        if (sequence.size() == 0) return null;
+        return sequence.get(0);
     }
 
     private Move returnMove(GameState board,Player player) {
