@@ -38,8 +38,8 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer("Naive player", "Henry", Color.WHITE);
-		gs.addPlayer("Proto1", "Melissa", new Color(78,0,0));
+		gs.addPlayer("Proto1", "Henry", Color.red);
+		gs.addPlayer("Proto2", "Melissa", Color.cyan);
 		
 		JPanel panel = gs.build();
 		JFrame frame = new JFrame("Risky Checkers v.0.004");
