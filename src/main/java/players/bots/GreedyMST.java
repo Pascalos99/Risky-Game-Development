@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class GreedyMST extends Player {
-    private EvaluationFunction evaluation;
-    private int treeSize;
-    private int depthTree;
-    private int time;
-    private int randomSize;
+    private final EvaluationFunction evaluation;
+    private final int treeSize;
+    private final int depthTree;
+    private final int time;
+    private final int randomSize;
 
     public GreedyMST(){
         this(5,3,500,50,new SimpleGoalDistance());
@@ -37,12 +37,10 @@ public class GreedyMST extends Player {
         for(int i = 0;i < depthTree ; i++){
             nodes = tree.expand(0);
             for(GameTreeNode node :nodes){
-                moves.put(node,node.getGameState().lastMove());
                 if(i==0
                         && node.getGameState().hasWon(this)) return node.getGameState().lastMove();
-                else if(node.getGameState().hasWon(this)){
-                    return node.getGameState().getMoveSequence().get(0);
-                }
+                else if(node.getGameState().hasWon(this)) return node.getGameState().getMoveSequence().get(0);
+
             }
         }
         for(GameTreeNode node : nodes){
@@ -59,7 +57,7 @@ public class GreedyMST extends Player {
                     }
                     ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
                 }
-                all += ne.getGameState().currentScore(this);
+                all += evaluation.apply(ne.getGameState(),this);
             }
             all /= index;
             eval.put(all,node);

@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ProtoMST extends Player {
-    private EvaluationFunction evaluation;
-    private int treeSize;
-    private int depthTree;
-    private int time;
+    private final EvaluationFunction evaluation;
+    private final int treeSize;
+    private final int depthTree;
+    private final int time;
 
     public ProtoMST(int treeSize, int depth,int time,EvaluationFunction evaluation){
         this.treeSize = treeSize;
@@ -28,16 +28,15 @@ public class ProtoMST extends Player {
     @Override
     public Move returnMove(Board gameBoard){
         HashMap<Double,GameTreeNode> eval= new HashMap<>();
-        HashMap<GameTreeNode,Move> moves= new HashMap<>();
         GameState game = new GameState(gameBoard);
         GameTree tree = new GameTree(game);
         List<GameTreeNode> nodes = null;
         for(int i = 0;i < depthTree ; i++){
             nodes = tree.expand(0);
             for(GameTreeNode node :nodes){
-                moves.put(node,node.getGameState().lastMove());
                 if(i==0
                    && node.getGameState().hasWon(this)) return node.getGameState().lastMove();
+                else if(node.getGameState().hasWon(this)) return node.getGameState().getMoveSequence().get(0);
             }
         }
         for(GameTreeNode node : nodes){
@@ -51,7 +50,7 @@ public class ProtoMST extends Player {
                     if(ne.getGameState().hasWinner()) break;
                     ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
                 }
-                all += ne.getGameState().currentScore(this);
+                all += evaluation.eval(ne.getGameState(),this);
             }
             all /= index;
             eval.put(all,node);
@@ -79,7 +78,6 @@ public class ProtoMST extends Player {
     @Override
     public String getTypeName() {
         return "Monte carlo search tree random";
-
     }
 
     @Override

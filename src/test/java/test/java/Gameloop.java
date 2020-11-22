@@ -21,7 +21,7 @@ public class Gameloop {
             game.nextPlayer();
             game.forceRequestMoveAndContinue();
         }
-        assertEquals(SELECTED_GAMERULES.hasWon(game,pl) || SELECTED_GAMERULES.hasWon(game,pl2),true);
+        assertEquals(SELECTED_GAMERULES.hasWon(game,game.currentPlayer()),true);
     }
 
     @Test
