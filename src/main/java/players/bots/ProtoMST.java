@@ -2,13 +2,11 @@ package players.bots;
 
 import gamerules.*;
 import gamerules.evaluation_functions.SimpleGoalDistance;
-import gamerules.evaluation_functions.SimpleGoalDistanceImprove;
 import players.Player;
-import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import static gamerules.GameRules.SELECTED_GAMERULES;
 
 public class ProtoMST extends Player {
     private EvaluationFunction evaluation;
@@ -24,7 +22,7 @@ public class ProtoMST extends Player {
     }
 
     public ProtoMST(){
-        this(10,2,10000,new SimpleGoalDistanceImprove());
+        this(5,3,1000,new SimpleGoalDistance());
     }
 
     @Override
@@ -80,12 +78,13 @@ public class ProtoMST extends Player {
 
     @Override
     public String getTypeName() {
-        return "Proto1";
+        return "Monte carlo search tree random";
+
     }
 
     @Override
     public String getDescription() {
-        return "Fuck other Player";
+        return "A monte carlo algorithm who determine the score by using random move";
     }
 
     @Override

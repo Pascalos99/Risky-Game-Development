@@ -38,8 +38,12 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer("Proto1", "Henry", Color.red);
-		gs.addPlayer("Proto2", "Melissa", Color.cyan);
+		gs.addPlayer("Monte carlo search tree greedy", "Henry", Color.red);
+		gs.addPlayer("Evil Player", "Melissa", Color.cyan);
+		gs.addPlayer("Monte carlo search tree greedy", "Henry", Color.green);
+		gs.addPlayer("Evil Player", "Melissa", Color.gray);
+		gs.addPlayer("Monte carlo search tree greedy", "Henry", Color.black);
+		gs.addPlayer("Evil Player", "Melissa", Color.blue);
 		
 		JPanel panel = gs.build();
 		JFrame frame = new JFrame("Risky Checkers v.0.004");

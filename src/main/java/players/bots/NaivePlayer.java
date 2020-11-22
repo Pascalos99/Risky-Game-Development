@@ -12,7 +12,15 @@ import static gamerules.GameRules.SELECTED_GAMERULES;
 
 public class NaivePlayer extends Player {
 
-    EvaluationFunction evaluation = new SimpleGoalDistance();
+    EvaluationFunction evaluation;
+
+    public NaivePlayer(){
+        this(new SimpleGoalDistance());
+    }
+
+    public NaivePlayer(EvaluationFunction evaluation){
+        this.evaluation = evaluation;
+    }
 
     @Override
     public Move returnMove(Board gameBoard) {
