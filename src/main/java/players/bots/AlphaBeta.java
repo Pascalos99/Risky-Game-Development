@@ -3,6 +3,8 @@ package players.bots;
 import gamerules.*;
 import players.Player;
 
+import java.util.List;
+
 public class AlphaBeta extends Player {
 
     private double alphabeta(GameTreeNode node, double alpha, double beta, boolean maximizingPlayer) {
@@ -42,9 +44,25 @@ public class AlphaBeta extends Player {
             System.out.println("Expanding deepest layer");
             tree.expandDeepest();
         }
-        double value = alphabeta(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true);
-        System.out.println(value);
-        return null;
+
+        List<GameTreeNode> children = tree.getRoot().getChildren();
+        double[] values = new double[children.size()];
+        double max = Double.NEGATIVE_INFINITY;
+        int index = -1;
+
+        for (int i = 0; i < children.size(); i++) {
+            values[i] = alphabeta(children.get(i), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
+
+            if (values[i] > max) {
+                max = values[i];
+                index = i;
+            }
+            System.out.println(values[i]);
+        }
+
+        //double value = alphabeta(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true);
+        //System.out.println(value);
+        return children.get(index).getGameState().getMoveSequence().get(0);
     }
 
     @Override
