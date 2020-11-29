@@ -6,12 +6,11 @@ import players.bots.utils.ValueNode;
 
 public class AlphaBeta extends Player {
 
-    private double prev1, prev2 = 0;
-    private GameTreeNode winning;
+    private GameState winning;
 
     private ValueNode alphabeta(GameTreeNode node, double alpha, double beta, boolean maximizingPlayer) {
-        if (node.getGameState().hasWon(this)) {
-            winning = node;
+        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+            winning = node.getGameState();
         }
         if (node.getChildren().isEmpty()) {
             GameState state = node.getGameState();
@@ -52,14 +51,12 @@ public class AlphaBeta extends Player {
         ValueNode valueNode = alphabeta(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true);
         if (winning != null) {
             System.out.println("Winning node");
-            move = winning.getGameState().getMoveSequence().get(0);
+            move = winning.getMoveSequence().get(0);
         }
         else {
             System.out.println("Best node");
             move = valueNode.getGameTreeNode().getGameState().getMoveSequence().get(0);
         }
-        prev2 = prev1;
-        prev1 = valueNode.getValue();
         return move;
     }
 
