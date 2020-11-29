@@ -4,11 +4,15 @@ import gamerules.*;
 import players.Player;
 import players.bots.utils.ValueNode;
 
-import java.util.List;
-
 public class AlphaBeta extends Player {
 
+    private double prev1, prev2 = 0;
+    private GameTreeNode winning;
+
     private ValueNode alphabeta(GameTreeNode node, double alpha, double beta, boolean maximizingPlayer) {
+        if (node.getGameState().hasWon(this)) {
+            winning = node;
+        }
         if (node.getChildren().isEmpty()) {
             GameState state = node.getGameState();
             return new ValueNode(EvaluationFunction.SIMPLE_GOAL_DISTANCE.eval(state, this), node);
@@ -42,28 +46,21 @@ public class AlphaBeta extends Player {
         GameTree tree = new GameTree(new GameState(gameBoard));
         tree.setMaxExpansionTime(500);
         while (!tree.limitReached()) {
-            System.out.println("Expanding deepest layer");
             tree.expandDeepest();
         }
-
-//        List<GameTreeNode> children = tree.getRoot().getChildren();
-//        double[] values = new double[children.size()];
-//        double max = Double.NEGATIVE_INFINITY;
-//        int index = -1;
-//
-//        for (int i = 0; i < children.size(); i++) {
-//            values[i] = alphabeta(children.get(i), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, false);
-//
-//            if (values[i] > max) {
-//                max = values[i];
-//                index = i;
-//            }
-//            System.out.println(values[i]);
-//        }
-
+        Move move;
         ValueNode valueNode = alphabeta(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, true);
-        System.out.println(valueNode.getValue());
-        return valueNode.getGameTreeNode().getGameState().getMoveSequence().get(0);
+        if (winning != null) {
+            System.out.println("Winning node");
+            move = winning.getGameState().getMoveSequence().get(0);
+        }
+        else {
+            System.out.println("Best node");
+            move = valueNode.getGameTreeNode().getGameState().getMoveSequence().get(0);
+        }
+        prev2 = prev1;
+        prev1 = valueNode.getValue();
+        return move;
     }
 
     @Override
