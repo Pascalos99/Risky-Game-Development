@@ -14,28 +14,33 @@ public class GreedyMST extends Player {
     private final int depthTree;
     private final int time;
     private final int randomSize;
+    private final int minimumEvaluation;
 
     public GreedyMST(){
-        this(5,3,500,50,new SimpleGoalDistance());
+        this(4,1,500,50,30,new SimpleGoalDistance());
     }
 
-    public GreedyMST(int treeSize, int depth,int time,int randomSize,EvaluationFunction evaluation){
+    public GreedyMST(int treeSize, int depth,int time,int randomSize,int minimumEvaluation,EvaluationFunction evaluation){
         this.treeSize = treeSize;
         this.depthTree = depth;
         this.time = time;
         this.randomSize = randomSize;
         this.evaluation = evaluation;
+        this.minimumEvaluation = minimumEvaluation;
     }
 
     @Override
     public Move returnMove(Board gameBoard){
+        long l1 = System.currentTimeMillis();
+        int numberPlayers = gameBoard.getPlayers().size();
         HashMap<Double,GameTreeNode> eval= new HashMap<>();
         HashMap<GameTreeNode,Move> moves= new HashMap<>();
         GameState game = new GameState(gameBoard);
         GameTree tree = new GameTree(game);
         List<GameTreeNode> nodes = null;
         for(int i = 0;i < depthTree ; i++){
-            nodes = tree.expand(0);
+            nodes = tree.expand(i);
+            tree.setCopyPruning(true);
             for(GameTreeNode node :nodes){
                 if(i==0
                         && node.getGameState().hasWon(this)) return node.getGameState().lastMove();
@@ -47,18 +52,19 @@ public class GreedyMST extends Player {
             long t1 = System.currentTimeMillis();
             double all = 0;
             int index = 0;
-            while(time/nodes.size()>=System.currentTimeMillis()-t1){
+            while(time/nodes.size()>=System.currentTimeMillis()-t1 || index<minimumEvaluation){
                 index++;
                 GameTreeNode ne = new GameTreeNode(node,returnMove(node.getGameState(),node.getGameState().currentPlayer()));
-                for(int i2=0;i2<treeSize;i2++){
+                for(int i2=0;i2<(treeSize*numberPlayers)-1;i2++){
                     if(ne.getGameState().hasWinner()){
-                        //if(ne.getGameState().hasWon(this)) all += 100/i2;
+                        if(ne.getGameState().hasWon(this)) all += 100/i2;
                         break;
                     }
                     ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
                 }
                 all += evaluation.apply(ne.getGameState(),this);
             }
+            //System.out.println(index);
             all /= index;
             eval.put(all,node);
 
@@ -66,6 +72,7 @@ public class GreedyMST extends Player {
         GameTreeNode best= eval.get((Collections.max(eval.keySet())));
         List<Move> sequence = best.getGameState().getMoveSequence();
         if (sequence.size() == 0) return null;
+        //System.out.println(System.currentTimeMillis()-l1);
         return sequence.get(0);
     }
 

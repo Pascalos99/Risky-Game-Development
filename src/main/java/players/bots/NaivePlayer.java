@@ -31,7 +31,14 @@ public class NaivePlayer extends Player {
         for (Pawn pawn : pawns) {
             List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
             for (Move move : moves) {
-                eval.put(evaluation.apply(new GameState(gameState, move), this), move);
+                double score = evaluation.apply(new GameState(gameState, move),this);
+                if(eval.containsKey(score)){
+                    eval.put(score+Math.random()-0.5,move);
+                }
+                else{
+                    eval.put(score, move);
+                }
+
             }
         }
         return eval.get((Collections.max(eval.keySet())));

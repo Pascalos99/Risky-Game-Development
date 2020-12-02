@@ -21,6 +21,10 @@ import gamerules.GameRules;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.*;
+import players.bots.EvilPlayer;
+import players.bots.GreedyMST;
+import players.bots.IDDFS;
+import players.bots.NaivePlayer;
 
 public class GamePanel extends JPanel {
 
@@ -38,12 +42,12 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer("Monte carlo search tree greedy", "Henry", Color.red);
-		gs.addPlayer("Evil Player", "Melissa", Color.cyan);
-		gs.addPlayer("Monte carlo search tree greedy", "Henry", Color.green);
-		gs.addPlayer("Evil Player", "Melissa", Color.gray);
-		gs.addPlayer("Monte carlo search tree greedy", "Henry", Color.black);
-		gs.addPlayer("Evil Player", "Melissa", Color.blue);
+		gs.addPlayer(new GreedyMST().getTypeName(), "Melissa", Color.cyan);
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.red);/*
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.green);
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.gray);
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.black);
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.blue);*/
 		
 		JPanel panel = gs.build();
 		JFrame frame = new JFrame("Risky Checkers v.0.004");
