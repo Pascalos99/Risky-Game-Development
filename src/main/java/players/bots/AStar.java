@@ -47,6 +47,9 @@ public class AStar extends Player {
             }
         }
 
+        System.out.println(pawn);
+        System.out.println(goalnode);
+
         pawn.getPosition().setgScore(0);
         unexploredNode.add(pawn.getPosition());
         boolean found = false;
@@ -60,9 +63,9 @@ public class AStar extends Player {
 
             for (BoardNode boardNode : currentNode.getNeighbours()) {
 
-                if (boardNode.isOccupied()) {
-                    continue;
-                }
+//                if (boardNode.isOccupied()) {
+//                    continue;
+//                }
 
 //                if (boardNode.getfScore() == 0)
 //                    boardNode.setfScore(Double.MAX_VALUE);
@@ -93,9 +96,13 @@ public class AStar extends Player {
         }
         Collections.reverse(pathList);
 
+        for(BoardNode b:pathList){
+            System.out.println(b);
+        }
+
         for(Move m : root.getAllPossibleMoves(pawn))
         {
-            if(m.target_node == pathList.get(1).getID())
+            if(pathList.contains(m.target_node))
                 best = m;
         }
         return best;

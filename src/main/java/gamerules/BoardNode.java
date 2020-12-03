@@ -7,7 +7,7 @@ import java.util.List;
 import players.Player;
 import static gamerules.DirectedAdjacencyMap.*;
 
-public class BoardNode {
+public class BoardNode implements Comparable<BoardNode> {
 
 	public static final int TOPLEFT = INDEX_TOPLEFT;
 	public static final int TOPRIGHT = INDEX_TOPRIGHT;
@@ -21,6 +21,7 @@ public class BoardNode {
     private List<BoardNode> adjacent_nodes;
     private List<Integer> adjn_directions;
     private Player player_home;
+
     private double gScore;
     private double fScore;
     private BoardNode parent;
@@ -167,5 +168,10 @@ public class BoardNode {
     	else sb.append(occupying_pawn);
     	sb.append("}");
     	return sb.toString();
+    }
+
+    @Override
+    public int compareTo(BoardNode otherNode) {
+        return Double.compare(this.fScore, otherNode.getfScore());
     }
 }
