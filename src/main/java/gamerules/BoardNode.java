@@ -21,6 +21,33 @@ public class BoardNode {
     private List<BoardNode> adjacent_nodes;
     private List<Integer> adjn_directions;
     private Player player_home;
+    private double gScore;
+    private double fScore;
+    private BoardNode parent;
+
+    public BoardNode getParent() {
+        return parent;
+    }
+
+    public void setParent(BoardNode parent) {
+        this.parent = parent;
+    }
+
+    public double getgScore() {
+        return gScore;
+    }
+
+    public void setgScore(double gScore) {
+        this.gScore = gScore;
+    }
+
+    public double getfScore() {
+        return fScore;
+    }
+
+    public void setfScore(double fScore) {
+        this.fScore = fScore;
+    }
 
     public BoardNode(int nodeID, Pawn occupying_pawn, Player player_home) {
         this.nodeID = nodeID;
