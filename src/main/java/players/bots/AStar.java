@@ -7,11 +7,12 @@ import java.util.*;
 
 public class AStar extends Player {
 
-    HashMap<BoardNode,Double> ListOfParents = new HashMap<>();
+    HashMap<BoardNode,Double> ListOfParents;
     Move best;
 
     public AStar(){
-
+        ListOfParents = new HashMap<>();
+        best = null;
     }
 
     @Override
