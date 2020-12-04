@@ -47,8 +47,8 @@ public class AStar extends Player {
             }
         }
 
-        System.out.println(pawn);
-        System.out.println(goalnode);
+        //System.out.println(pawn);
+        //System.out.println(goalnode);
 
         pawn.getPosition().setgScore(0);
         unexploredNode.add(pawn.getPosition());
@@ -97,7 +97,7 @@ public class AStar extends Player {
         Collections.reverse(pathList);
 
         for(BoardNode b:pathList){
-            System.out.println(b);
+            //System.out.println(b);
         }
 
         for(Move m : root.getAllPossibleMoves(pawn))

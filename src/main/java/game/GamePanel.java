@@ -21,10 +21,7 @@ import gamerules.GameRules;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.*;
-import players.bots.EvilPlayer;
-import players.bots.GreedyMST;
-import players.bots.IDDFS;
-import players.bots.NaivePlayer;
+import players.bots.*;
 
 public class GamePanel extends JPanel {
 
@@ -42,7 +39,7 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer(new GreedyMST().getTypeName(), "Melissa", Color.cyan);
+		gs.addPlayer(new AStar().getTypeName(), "Melissa", Color.cyan);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.red);/*
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.green);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.gray);
