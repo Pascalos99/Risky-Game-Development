@@ -20,6 +20,7 @@ public class TestBot {
         List<String> results = new ArrayList<>();
         List<Player> bots = new ArrayList<>();
         bots.add(new GreedyMST());
+        bots.add(new AStar());
         bots.add(new NaivePlayer());
         bots.add(new EvilPlayer());
         bots.add(new AlphaBeta());
