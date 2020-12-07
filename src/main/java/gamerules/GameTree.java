@@ -394,13 +394,18 @@ public class GameTree {
     	return to_add;
     }
 
+    public int copy_prune_count = 0;
+    
     private void addChild(GameTreeNode node, boolean setExpanded) {
     	if (node.getParent() == null) {
     		throw new RuntimeException("can't add child to GameTree which does not have a parent");
     	}
     	
     	// if we already have it in the tree, we won't add it (if copy pruning is activated)
-    	if (pruneCopyStates && existsInTree(node.getGameState())) return;
+    	if (pruneCopyStates && existsInTree(node.getGameState())) {
+    		copy_prune_count++;
+    		return;
+    	}
     	
     	node.addToParent();
     	int depth = node.getGameState().getDepth();

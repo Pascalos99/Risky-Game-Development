@@ -11,6 +11,17 @@ public class Move {
 		start_node = (byte)start.getID();
 		target_node = (byte)target.getID();
 		pawn_owner = start.getCurrentPawn().getOwner();
+		playerID = -1;
+	}
+	
+	public Move(byte startID, byte targetID, int playerID) {
+		this.pawn = null;
+		this.target = null;
+		this.start = null;
+		start_node = startID;
+		target_node = targetID;
+		pawn_owner = null;
+		this.playerID = playerID;
 	}
 	
 	public Move(Pawn pawn, BoardNode target) {
@@ -19,7 +30,31 @@ public class Move {
 	
 	public final int start_node;
 	public final int target_node;
-	public final Player pawn_owner;
+	
+	private final Player pawn_owner;
+	private final int playerID;
+	
+	public Player getOwner(Board board) {
+		if (pawn_owner != null) return pawn_owner;
+		return board.getPlayer(playerID);
+	}
+	
+	/**
+	 * @param board
+	 * @return index of the player owner of this move's pawn
+	 */
+	public int getPlayerIndex(Board board) {
+		if (pawn_owner != null) return board.getPlayerID(pawn_owner);
+		return playerID;
+	}
+	
+	/**
+	 * @return index of the player owner of this move's pawn; but will return {@code -1}
+	 *   if the constructor used was not {@link #Move(byte, byte, int)}
+	 */
+	protected int getPlayerIndex() {
+		return playerID;
+	}
 	
 	@Deprecated
 	public final BoardNode start;

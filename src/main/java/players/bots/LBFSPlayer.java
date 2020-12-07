@@ -28,6 +28,7 @@ public class LBFSPlayer extends Player implements DeterministicReturn {
 	public Move returnMove(Board gameBoard) {
 		GameState root = new GameState(gameBoard);
 		GameTree tree = new GameTree(root);
+		tree.setCopyPruning(true);
 		long start = System.currentTimeMillis();
 		tree.setMaxExpansionTime(limit_in_ms);
 		while (!tree.limitReached()) {
@@ -38,6 +39,7 @@ public class LBFSPlayer extends Player implements DeterministicReturn {
 				" and found a best move with value "+tree.evaluate(best));
 		
 		List<Move> sequence = best.getGameState().getMoveSequence();
+		System.out.println("copy prune effectiveness = "+tree.copy_prune_count);
 		if (sequence.size() == 0) return null;
 		return sequence.get(0);
 	}

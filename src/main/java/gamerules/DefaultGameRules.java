@@ -1,6 +1,7 @@
 package gamerules;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import players.Player;
 
@@ -57,61 +58,25 @@ public class DefaultGameRules extends GameRules {
 		}
 	}
 	
-
-	//@Pascale I don't have find the mistake inside your methode However I think that my method doesn't contains this bug
-
-	/*
-	@Override
-	public List<Move> getAllPossibleMoves(Pawn pawn) {
-		List<Move> possibleMoves = new ArrayList<Move>();
-		for (BoardNode node : pawn.getPosition().getNeighbours()) {
-			if (node.isEmpty()) possibleMoves.add(new Move(pawn, node));
-		}
-		recursiveMove(pawn.getPosition(), possibleMoves, pawn);
-
-		return possibleMoves;
-	}
-	// full field a set with the possiblility
-	private void recursiveMove(BoardNode place, List<Move> movesfinale, Pawn pawn){
-		BoardNode [] jumps = new BoardNode [place.getNeighbours().size()];
-		List<BoardNode> two = new ArrayList<BoardNode>();
-		int  y = 0;
-		for(BoardNode node : place.getNeighbours()){
-			jumps[y++] = node;
-		}
-		for(BoardNode node : place.getNeighbours()){
-			for(BoardNode node2 : node.getNeighbours()){
-				two.add(node2);
-			}
-		}
-		List<Move> moves = new ArrayList<Move>();
-		for (int i = 0; i <jumps.length; i++){
-			if(jumps[i].isOccupied()){
-				for(BoardNode node : jumps[i].getNeighbours()){
-					if(contains(two,node)==1){
-						if(!movesfinale.contains(new Move(pawn,node))){
-							moves.add(new Move(pawn,node));
-						}
-					}
+	public List<Move> getAllPossibleMoves(byte[] integer_rep, int pawn_pos_ID) {
+		byte start = (byte) pawn_pos_ID;
+		int pawns = GameState.PLAYER_PAWNS;
+		int playerCount = integer_rep.length / pawns;
+		int player;
+		test: {
+			for (int i=0; i < playerCount; i++) 
+				if (Arrays.binarySearch(integer_rep, i*pawns, (i+1)*pawns, start) > 0) {
+					player = i; break test;
 				}
-			}
+			throw new RuntimeException("given pawn position does not contain any pawn");
 		}
-		movesfinale.addAll(moves);
-		for(Move m : moves){
-			recursiveMove(m.target,movesfinale,pawn);
-		}
+		byte[] occupiedNodes = Arrays.copyOf(integer_rep, integer_rep.length);
+		Arrays.sort(occupiedNodes);
+		HashSet<Byte> visitedNodes = new HashSet<>();
+		visitedNodes.add(start);
+		// TODO complete method
+		return visitedNodes.stream().map(target -> new Move(start, target, player)).collect(Collectors.toList());
 	}
-
-	public int contains (List<BoardNode> nodes, BoardNode target){
-		if(target.isOccupied()) return 10;
-		int total = 0;
-		for(BoardNode node : nodes){
-			if(node==target){
-				total++;
-			}
-		}
-		return total;
-	}*/
 
 	public String toString() {
 		return "Default Gamerules";
@@ -122,16 +87,6 @@ public class DefaultGameRules extends GameRules {
 		for (Pawn pawn : board.getAllPawnsOf(player))
 			if (pawn.getPosition().getOwner() != player.getEnemy(board)) return false;
 		return true;
-		
-		// used player.getEnemy instead of board.getGoal(player) as it is more efficient
-		
-		/*
-		List<Pawn> allPawns= board.getAllPawnsOf(player);
-		List<BoardNode> possiblePositions = board.getGoal(player);
-		for (Pawn pawn : allPawns) {
-			if(!possiblePositions.contains(pawn.getPosition())) return false;
-		}
-		return true; */
 	}
 
 	@Override

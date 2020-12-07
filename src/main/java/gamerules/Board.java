@@ -122,7 +122,7 @@ public class Board {
 	}
 	
 	public double moveScore(Move move) {
-		BoardNode goal = nodes.get(central_goal_nodes_per_player[getPlayerIndex(move.pawn_owner)]);
+		BoardNode goal = nodes.get(central_goal_nodes_per_player[move.getPlayerIndex(this)]);
 		return NodeDistanceCalc.getDistance(goal, move.getStart(this)) - NodeDistanceCalc.getDistance(goal, move.getTarget(this));
 	}
 	
@@ -386,6 +386,15 @@ public class Board {
 			//TODO method equals don't exist in player
 			if (player.equals(players[i])) return i;
 		return -1;
+	}
+	
+	/**
+	 * @param player_index index of the player to be fetched
+	 * @return {@code null} if the index is not valid; the corresponding player to the index otherwise.
+	 */
+	public Player getPlayer(int player_index) {
+		if (player_index < 0 || player_index > players.length) return null;
+		return players[player_index];
 	}
 	
 	/**

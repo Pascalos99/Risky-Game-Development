@@ -37,14 +37,15 @@ public class GameState {
 	 * board objects as the ID's are the position identifying aspect of each {@linkplain BoardNode}.<br><br>
 	 * The length of this array is equal to {@link Board#getPlayerCount()} {@code * 10} and the pawns per player
 	 * are ordered by {@linkplain Board#getPlayerIndex(Player)} starting at 0.
+	 * <br><br>
+	 * Example of pawn positions:<br>
+	 * [0,1,2,5,8,10,29,31,45,67, 7,9,12,13,17,21,51,62,91,100]<br>
+	 * means: player 0 has pawns on nodes 0, 1, 2, 5, 8, 10, 29, 31, 45, 67<br>
+	 *   and: player 1 has pawns on nodes 7, 9, 12, 13, 17, 21, 51, 62, 91, 100
+	 * <br><br>
+	 * Get a copy of this array through {@linkplain #getIntegerRepresentation()}
 	 */
 	private byte[] pawn_positions;
-	/*
-	 * Example of pawn positions:
-	 * [0,1,2,5,8,10,29,31,45,67, 7,9,12,13,17,21,51,62,91,100]
-	 * means: player 0 has pawns on nodes 0, 1, 2, 5, 8, 10, 29, 31, 45, 67
-	 *   and: player 1 has pawns on nodes 7, 9, 12, 13, 17, 21, 51, 62, 91, 100
-	 */
 	
 	private Move last_move;
 	private GameState parent;
@@ -325,7 +326,7 @@ public class GameState {
 		depth = parent.depth + 1;
 		player_count = parent.player_count;
 		pawn_positions = Arrays.copyOf(parent.pawn_positions, parent.pawn_positions.length);
-		int player = getOriginalBoard().getPlayerIndex(move.pawn_owner);
+		int player = move.getPlayerIndex(getOriginalBoard());
 		int from = player * PLAYER_PAWNS;
 		int to = from + PLAYER_PAWNS;
 		int index = Arrays.binarySearch(pawn_positions, from, to, (byte)move.start_node);
