@@ -53,11 +53,11 @@ public class AlphaBeta extends Player {
         }
         Move move;
         if (winning != null) {
-            System.out.println("Winning node");
+            //System.out.println("Winning node");
             move = winning.getMoveSequence().get(0);
         }
         else {
-            System.out.println("Best node");
+            //System.out.println("Best node");
             move = maxValueNode.getGameTreeNode().getGameState().getMoveSequence().get(0);
         }
         return move;

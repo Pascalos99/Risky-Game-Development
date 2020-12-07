@@ -15,20 +15,18 @@ public class TestBot {
     }
 
     private static void initializeTest(){
-        int numberTest = 10;
+        int numberTest = 16;
         HashMap<Player,Player> matches = new HashMap<>();
-        List<String> results = new ArrayList<>();
+        String results = "";
         List<Player> bots = new ArrayList<>();
         bots.add(new GreedyMST());
         bots.add(new NaivePlayer());
         bots.add(new EvilPlayer());
         bots.add(new AlphaBeta());
-        //test 2 players
+        results +="\n"+  "1 vs 1";
         for(Player player: bots){
             for(Player player2: bots){
-                if(player != player2 && matches.get(player) != player2){
-                    matches.put(player, player2);
-                    matches.put(player2, player);
+                if(player != player2){
                     HashMap<String, Integer> result = new HashMap<>();
                     result.put(player.getTypeName(),0);
                     result.put(player2.getTypeName(),0);
@@ -37,16 +35,18 @@ public class TestBot {
                         if(winner != null) result.replace(winner,result.get(winner)+1);
                         else i--;
                     }
-                    results.add(result.toString());
+                    results += transform(result , numberTest);
                 }
+                results +="\n";
             }
         }
+        print(results);
+        System.out.println(results);
+        results +="\n"+  "2 vs 2";
         // test 4 players
         for(Player player: bots){
             for(Player player2: bots){
-                if(player != player2 && matches.get(player) != player2){
-                    matches.put(player, player2);
-                    matches.put(player2, player);
+                if(player != player2){
                     HashMap<String, Integer> result = new HashMap<>();
                     result.put(player.getTypeName(),0);
                     result.put(player2.getTypeName(),0);
@@ -55,17 +55,18 @@ public class TestBot {
                         if(winner != null) result.replace(winner,result.get(winner)+1);
                         else i--;
                     }
-                    results.add(result.toString());
+                    results += transform(result , numberTest);
                 }
+                results +="\n";
             }
         }
-
+        System.out.println(results);
+        print(results);
+        results +="\n"+ "3 vs 3";
         // test 4 players
         for(Player player: bots) {
             for (Player player2 : bots) {
-                if (player != player2 && matches.get(player) != player2) {
-                    matches.put(player, player2);
-                    matches.put(player2, player);
+                if (player != player2 ){
                     HashMap<String, Integer> result = new HashMap<>();
                     result.put(player.getTypeName(), 0);
                     result.put(player2.getTypeName(), 0);
@@ -74,10 +75,12 @@ public class TestBot {
                         if (winner != null) result.replace(winner, result.get(winner) + 1);
                         else i--;
                     }
-                    results.add(result.toString());
+                    results += transform(result , numberTest);
                 }
+                results +="\n";
             }
         }
+        System.out.println(results);
         print(results);
     }
 
@@ -87,18 +90,24 @@ public class TestBot {
         while (game.noWinners()){
             game.nextPlayer();
             game.forceRequestMoveAndContinue();
-            if(index++>200) return null;
+            if(index++>2000) return null;
         }
         return game.currentPlayer().getTypeName();
     }
 
-    private static void print(List<String> result){
+    private static String transform(HashMap<String, Integer> result, int number){
+        String end = "";
+        for (String key : result.keySet()){
+            end +="\n";
+            end += key +" haswon " + ((double)result.get(key)/number)*100+"%";
+        }
+        return end;
+    }
+
+    private static void print(String result){
         try {
             FileWriter myWriter = new FileWriter("result.txt");
-            for(String s: result){
-                myWriter.write(s);
-                myWriter.write("\n");
-            }
+            myWriter.write(result);
             myWriter.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
