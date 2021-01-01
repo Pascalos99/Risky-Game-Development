@@ -58,6 +58,9 @@ public class DefaultGameRules extends GameRules {
 		}
 	}
 	
+	/**
+	 * some behavior still seems a bit off....
+	 */
 	public List<Move> getAllPossibleMoves(byte[] integer_rep, int pawn_pos_ID) {
 		byte start = (byte) pawn_pos_ID;
 		int pawns = GameState.PLAYER_PAWNS;
@@ -65,17 +68,37 @@ public class DefaultGameRules extends GameRules {
 		int player;
 		test: {
 			for (int i=0; i < playerCount; i++) 
-				if (Arrays.binarySearch(integer_rep, i*pawns, (i+1)*pawns, start) > 0) {
+				if (Arrays.binarySearch(integer_rep, i*pawns, (i+1)*pawns, start) >= 0) {
 					player = i; break test;
 				}
 			throw new RuntimeException("given pawn position does not contain any pawn");
 		}
-		byte[] occupiedNodes = Arrays.copyOf(integer_rep, integer_rep.length);
-		Arrays.sort(occupiedNodes);
+		byte[] OccN = Arrays.copyOf(integer_rep, integer_rep.length);
+		HashSet<Byte> occupiedNodes = new HashSet<>();
 		HashSet<Byte> visitedNodes = new HashSet<>();
 		visitedNodes.add(start);
-		// TODO complete method
+		for (int i=0; i < OccN.length; i++) occupiedNodes.add(OccN[i]);
+		Map<Byte, byte[]> adjacency = DirectedAdjacencyMap.getAdjacencyMap();
+		byte[] neighbours = adjacency.get(start);
+		for (int dir=0; dir < 6; dir++) {
+			if (neighbours[dir] == DirectedAdjacencyMap.NULL) continue;
+			if (!occupiedNodes.contains(neighbours[dir]))
+				visitedNodes.add(neighbours[dir]);
+		}
+		recurseMoves(visitedNodes, adjacency, occupiedNodes, start);
 		return visitedNodes.stream().map(target -> new Move(start, target, player)).collect(Collectors.toList());
+	}
+	
+	private void recurseMoves(HashSet<Byte> visitedNodes, Map<Byte, byte[]> adjacency, HashSet<Byte> occupiedNodes, byte current_node) {
+		if (!visitedNodes.add(current_node)) return; // stop recursion if node already visited
+		byte[] neighbours = adjacency.get(current_node);
+		for (int dir=0; dir < 6; dir++) // loop over all neighbours (per direction)
+			if (occupiedNodes.contains(neighbours[dir])) {// is it occupied?
+				byte node = adjacency.get(neighbours[dir])[dir];
+				if (node == DirectedAdjacencyMap.NULL) continue; // check that it's not an edge
+				if (!occupiedNodes.contains(node)) // can we jump over?
+					recurseMoves(visitedNodes, adjacency, occupiedNodes, node);
+			}
 	}
 
 	public String toString() {

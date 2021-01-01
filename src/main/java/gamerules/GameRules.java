@@ -12,6 +12,8 @@ public abstract class GameRules {
     public abstract boolean allowMove(Pawn pawn,BoardNode target);
 
     public abstract List<Move> getAllPossibleMoves(Pawn pawn);
+    
+    public abstract List<Move> getAllPossibleMoves(byte[] integer_rep, int pawn_pos_ID);
 
     public abstract boolean hasWon(Board board, Player Player);  
     

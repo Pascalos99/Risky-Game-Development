@@ -456,9 +456,9 @@ public class Board {
 			Player owner = player_per_node[i];
 			nodes[i] = new BoardNode(i, (owner == null || owner == Player.NONE)? null : new Pawn(owner, null), owner);
 		}
-		Map<Integer, int[]> adjacency = DirectedAdjacencyMap.getAdjacencyMap();
-		for (int i=0; i < nodes.length; i++) {
-			int[] neighbours = adjacency.get(i);
+		Map<Byte, byte[]> adjacency = DirectedAdjacencyMap.getAdjacencyMap();
+		for (byte i=0; i < nodes.length; i++) {
+			byte[] neighbours = adjacency.get(i);
 			for (int j=0; j < neighbours.length; j++)
 				if (neighbours[j] != DirectedAdjacencyMap.NULL)
 					nodes[i].addNeighbour(nodes[neighbours[j]], j);

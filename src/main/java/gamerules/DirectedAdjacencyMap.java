@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class DirectedAdjacencyMap {
 	
-	public static final int NULL = -1;
+	public static final byte NULL = -1;
 	
 	public static final int INDEX_TOPLEFT = 0;
 	public static final int INDEX_TOPRIGHT = 1;
@@ -17,16 +17,16 @@ public class DirectedAdjacencyMap {
 	
 	public static final String[] DIRECTION_NAMES = {"Top-Left","Top-Right","Left","Right","Bottom-Left","Bottom-Right"};
 	
-	private static Map<Integer, int[]> adjacency_map;
+	private static Map<Byte, byte[]> adjacency_map;
     
-    public static Map<Integer, int[]> getAdjacencyMap() {
+    public static Map<Byte, byte[]> getAdjacencyMap() {
     	
     	if (adjacency_map != null) return adjacency_map;
     	
     	adjacency_map = new HashMap<>();
     	
-    	for (int node=0; node < 121; node++) {
-    		int[] neighbours = new int[6];
+    	for (byte node=0; node < 121; node++) {
+    		byte[] neighbours = new byte[6];
     		Arrays.fill(neighbours, NULL);
     		IndexPoint nodeIndex = getRowIndex(node);
     		
@@ -35,19 +35,19 @@ public class DirectedAdjacencyMap {
     			// TOP
     			int node_topleft = node - (num_nodes_per_row[this_row] + num_nodes_per_row[this_row - 1])/2 - 1;
     			int node_topright = node - (num_nodes_per_row[this_row] + num_nodes_per_row[this_row - 1])/2;
-    			if (getRowIndex(node_topleft).row_index == this_row - 1) neighbours[INDEX_TOPLEFT] = node_topleft;
-        		if (getRowIndex(node_topright).row_index == this_row - 1) neighbours[INDEX_TOPRIGHT] = node_topright;
+    			if (getRowIndex(node_topleft).row_index == this_row - 1) neighbours[INDEX_TOPLEFT] = (byte) node_topleft;
+        		if (getRowIndex(node_topright).row_index == this_row - 1) neighbours[INDEX_TOPRIGHT] = (byte) node_topright;
     		}
     		if (this_row != num_nodes_per_row.length-1) {
     			// BOTTOM
     			int node_bottomleft = node + (num_nodes_per_row[this_row] + num_nodes_per_row[this_row + 1])/2;
     			int node_bottomright = node + (num_nodes_per_row[this_row] + num_nodes_per_row[this_row + 1])/2 + 1;
-    			if (getRowIndex(node_bottomleft).row_index == this_row + 1) neighbours[INDEX_BOTTOMLEFT] = node_bottomleft;
-        		if (getRowIndex(node_bottomright).row_index == this_row + 1) neighbours[INDEX_BOTTOMRIGHT] = node_bottomright;
+    			if (getRowIndex(node_bottomleft).row_index == this_row + 1) neighbours[INDEX_BOTTOMLEFT] = (byte) node_bottomleft;
+        		if (getRowIndex(node_bottomright).row_index == this_row + 1) neighbours[INDEX_BOTTOMRIGHT] = (byte) node_bottomright;
     		}
     		// LEFT AND RIGHT
-    		if (getRowIndex(node - 1).row_index == this_row) neighbours[INDEX_LEFT] = node - 1;
-    		if (getRowIndex(node + 1).row_index == this_row) neighbours[INDEX_RIGHT] = node + 1;
+    		if (getRowIndex(node - 1).row_index == this_row) neighbours[INDEX_LEFT] = (byte) (node - 1);
+    		if (getRowIndex(node + 1).row_index == this_row) neighbours[INDEX_RIGHT] = (byte) (node + 1);
     		
     		adjacency_map.put(node, neighbours);
     	}
