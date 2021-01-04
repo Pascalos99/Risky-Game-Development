@@ -40,10 +40,10 @@ public class GamePanel extends JPanel {
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
 		gs.addPlayer(new AStar().getTypeName(), "Melissa", Color.cyan);
-		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.red);/*
-		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.green);
+		gs.addPlayer(new AlphaBeta().getTypeName(), "Henry", Color.red);/*
+		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.green);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.gray);
-		gs.addPlayer(new NaivePlayer().getTypeName(), "Henry", Color.black);
+		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.black);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.blue);*/
 		
 		JPanel panel = gs.build();
