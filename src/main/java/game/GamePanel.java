@@ -18,6 +18,7 @@ import game.events.WinEvent;
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.GameRules;
+import gamerules.GameState;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.*;
@@ -127,8 +128,18 @@ public class GamePanel extends JPanel {
 			if (e instanceof TurnEvent) {
 				Player player = ((TurnEvent) e).getPlayer();
 				if (((TurnEvent) e).isEndOfTurn()) System.out.println("----Turn Ended----\n");
-				else System.out.format("=~=~ Now it's %s [%s]'s (%d) turn! ~=~=\n",
+				else {
+					System.out.format("=~=~ Now it's %s [%s]'s (%d) turn! ~=~=\n",
 						player.getName()+" ("+player.getTypeName()+")", player.getColorName(), player.turnCounter.getCount());
+					System.out.println("perspective of player:");
+					double[] perspective = new GameState(game).getMatrix(player);
+					for (int i=0; i < 9; i++) {
+						System.out.print("[ ");
+						for (int j=0; j < 9; j++)
+							System.out.format("% f ", perspective[i*9 + j]);
+						System.out.println("]");
+					}
+				}
 			} else if (e instanceof MoveEvent) {
 				MoveEvent m = (MoveEvent) e;
 				
