@@ -418,8 +418,8 @@ public class GameState {
 	}
 
 
-	public double [] getMatrix(){
-		Player player = original_board.currentPlayer();
+	public double [] getMatrix(Player perspective){
+		Player player = perspective; //original_board.currentPlayer();
 		Player enemy = original_board.getEnemy(player);
 		int playerID = getOriginalBoard().getPlayerIndex(player);
 		List<BoardNode> nodes = original_board.getAllnodes();
@@ -467,13 +467,9 @@ public class GameState {
 			}
 		}
 
-
 //		for(int i = 0; i < matrix.length; i++){
 //			System.out.println(Arrays.toString(matrix[i]));
 //		}
-
-
-
 
 		int index = 0;
 		double [] result = new double[81];
