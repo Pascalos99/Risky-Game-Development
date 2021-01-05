@@ -1,13 +1,11 @@
 package gamerules;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import players.Player;
+import players.bots.utils.NodeDistanceCalc;
 
 public class GameState {
 	
@@ -419,4 +417,126 @@ public class GameState {
 		return false;
 	}
 
+
+	public double [] getMatrix(){
+		Player player = original_board.currentPlayer();
+		Player enemy = original_board.getEnemy(player);
+		int playerID = getOriginalBoard().getPlayerIndex(player);
+		List<BoardNode> nodes = original_board.getAllnodes();
+		List<BoardNode> allready = new ArrayList<>();
+		List<Integer> blackList = player.getOtherPlayersBase(original_board);
+		Queue<BoardNode> queue = new LinkedList<>();
+		System.out.println(nodes.get(56));
+		int corner;
+		int opositecorner;
+		if(enemy.isGoalNode(original_board,nodes.get(0))){
+			corner = 0;
+			opositecorner = 120;
+		}
+		else if(enemy.isGoalNode(original_board,nodes.get(120))){
+			corner = 120;
+			opositecorner = 0;
+		}
+		else if(enemy.isGoalNode(original_board,nodes.get(10))){
+			corner = 10;
+			opositecorner = 110;
+		}
+		else if(enemy.isGoalNode(original_board,nodes.get(110))){
+			corner = 110;
+			opositecorner = 10;
+		}else if(enemy.isGoalNode(original_board,nodes.get(22))){
+			corner = 22;
+			opositecorner = 98;
+		}
+		else{
+			corner = 98;
+			opositecorner = 22;
+		}
+		queue.add(nodes.get(corner));
+		double [][] matrix = new double[9][9];
+		constructMatrix(queue,allready,blackList,playerID,matrix);
+		queue.clear();
+		queue.add(nodes.get(opositecorner));
+		double [][] opositeMatrix = new double[9][9];
+		constructMatrix(queue,allready,blackList,playerID,opositeMatrix);
+		for(int i = 0; i < matrix.length; i++){
+			for(int j = 0; j < matrix[i].length; j++){
+				if(matrix[i][j] == 0){
+					matrix[i][j] = opositeMatrix[8-j][8-i];
+				}
+			}
+		}
+
+
+//		for(int i = 0; i < matrix.length; i++){
+//			System.out.println(Arrays.toString(matrix[i]));
+//		}
+
+
+
+
+		int index = 0;
+		double [] result = new double[81];
+		for(int i = 0; i < matrix.length; i++){
+			for(int j = 0; j < matrix[i].length; j++){
+				if(matrix[i][j]==5)
+					result[index++] = 0;
+				else
+					result[index++] = matrix[i][j];
+			}
+		}
+		return result;
+	}
+
+	private void constructMatrix(Queue<BoardNode> queue,List<BoardNode> allready,List<Integer> blackList,int playerID,double [][] matrix){
+		for(int j = 0;j < 9;j++) {
+			Queue<BoardNode> Requeue = new LinkedList<>();
+			int x = j;
+			int y = 0;
+			while (!queue.isEmpty()) {
+				BoardNode node = queue.poll();
+				boolean conditions = true;
+				for (BoardNode check : allready) {
+					if (check.getID() == node.getID()) {
+						conditions = false;
+						break;
+					}
+				}
+				for (int v : blackList) {
+					if (v == node.getID()) {
+						conditions = false;
+						break;
+					}
+				}
+				if (conditions) {
+					boolean conditions1 = false;
+					boolean conditions2 = false;
+					for (int i = 0; i < 10; i++) {
+						if (((int) getIntegerRepresentation()[i + playerID * 10]) == node.getID()) {
+							matrix[x][y] = 1;
+							conditions1 = true;
+							break;
+						}
+					}
+					if (!conditions1) {
+						for (int i : pawn_positions) {
+							if (i == node.getID()) {
+								matrix[x][y] = -1;
+								conditions2 = true;
+								break;
+							}
+						}
+					}
+					if (!conditions1 && !conditions2) {
+						matrix[x][y] = 5;
+					}
+					x -=1 ;
+					y +=1 ;
+					allready.add(node);
+					Requeue.addAll(node.getNeighbours());
+				}
+			}
+			queue = Requeue;
+		}
+	}
 }
