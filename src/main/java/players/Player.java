@@ -1,6 +1,8 @@
 package players;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import gamerules.Board;
@@ -73,6 +75,29 @@ public abstract class Player {
     public final boolean isGoalNode(Board gameBoard, BoardNode node) {
     	return gameBoard.isGoalNode(this, node);
     }
+
+
+
+	public final List<Integer> getOtherPlayersBase(Board gameBoard){
+		// no need to be the actual board just the board of the game
+		List<BoardNode> nodes = getGoalNodes(gameBoard);
+		if(contains(nodes,0) || contains(nodes,120)){
+			return new ArrayList<Integer>(Arrays.asList(10,11,12,13,23,24,25,35,36,46,65,75,76,86,87,88,98,99,100,101,107,108,109,110,95,96,97,84,85,74,55,44,45,32,33,34,19,20,21,22));
+		}
+		else if(contains(nodes,10) || contains(nodes,110)){
+			return new ArrayList<Integer>(Arrays.asList(0,1,2,3,4,5,6,7,8,9,65,75,76,86,87,88,98,99,100,101,111,113,114,115,116,117,118,119,120,55,44,45,32,33,34,19,20,21,22));
+		}
+		else{
+			return new ArrayList<Integer>(Arrays.asList(10,11,12,13,23,24,25,35,36,46,0,1,2,3,4,5,6,7,8,9,107,108,109,110,95,96,97,84,85,74,111,113,114,115,116,117,118,119,120));
+		}
+	}
+
+	private boolean contains(List<BoardNode> nodes, int id){
+		for(BoardNode node:nodes){
+			if(node.getID() == id) return true;
+		}
+		return false;
+	}
     
     public final Player getEnemy(Board gameBoard) {
     	return gameBoard.getEnemy(this);

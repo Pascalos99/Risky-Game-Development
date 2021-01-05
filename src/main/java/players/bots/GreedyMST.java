@@ -64,7 +64,6 @@ public class GreedyMST extends Player {
                 }
                 all += evaluation.apply(ne.getGameState(),this);
             }
-            //System.out.println(index);
             all /= index;
             eval.put(all,node);
 
@@ -72,7 +71,6 @@ public class GreedyMST extends Player {
         GameTreeNode best= eval.get((Collections.max(eval.keySet())));
         List<Move> sequence = best.getGameState().getMoveSequence();
         if (sequence.size() == 0) return null;
-        //System.out.println(System.currentTimeMillis()-l1);
         return sequence.get(0);
     }
 
@@ -102,7 +100,7 @@ public class GreedyMST extends Player {
 
     @Override
     public Player getNewInstance() {
-        return new GreedyMST();
+        return new GreedyMST(treeSize, depthTree, time, randomSize, minimumEvaluation, evaluation);
     }
 
     public String toString() {

@@ -24,7 +24,7 @@ public class ProtoMST extends Player {
     }
 
     public ProtoMST(){
-        this(5,1,5000,500,new SimpleGoalDistance());
+        this(4,1,500,30,new SimpleGoalDistance());
     }
 
     @Override
