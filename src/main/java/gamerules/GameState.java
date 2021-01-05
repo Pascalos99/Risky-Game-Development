@@ -531,6 +531,7 @@ public class GameState {
 					allready.add(node);
 					Requeue.addAll(node.getNeighbours());
 				}
+				if (x < 0 || y > 9) break;
 			}
 			queue = Requeue;
 		}
