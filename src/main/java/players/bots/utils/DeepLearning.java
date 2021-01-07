@@ -48,7 +48,6 @@ public class DeepLearning {
             } catch (InterruptedException e) {}
             System.out.println("Loss = "+GD.getCurrentLoss());
         }
-        NaivePlayer.ann = ann.clone();
     }
 
     private static double evaluate(GameState gameState, Player player){
