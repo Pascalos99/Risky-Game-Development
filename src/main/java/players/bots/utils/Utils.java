@@ -8,6 +8,17 @@ import java.util.Locale;
  */
 public final class Utils {
 	
+	/**
+	 * @param <U> input-1
+	 * @param <V> input-2
+	 * @param <W> input-3
+	 * @param <Y> output parameter
+	 */
+	@FunctionalInterface
+	public static interface TriFunction<U, V, W, Y> {
+		Y apply(U u, V v, W w);
+	}
+	
 	public static void printMatrix(double[][] m) {
 		System.out.println(matrixToString(m));
 	}

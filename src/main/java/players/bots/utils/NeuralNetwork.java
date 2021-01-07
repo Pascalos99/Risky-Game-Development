@@ -2,7 +2,10 @@ package players.bots.utils;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import players.bots.utils.Utils.TriFunction;
 
 public class NeuralNetwork {
 	
@@ -79,6 +82,20 @@ public class NeuralNetwork {
 		initializeRandomWeights(min, max, System.currentTimeMillis());
 	}
 	
+	public void loadWeights(double[][][] weights) {
+		boolean incorrect_size = false;
+		if (weights.length != hidden_layers.length) incorrect_size = true;
+		else
+			for (int l=0; l < weights.length; l++)
+				if (weights[l].length != hidden_layers[l].weights.length) incorrect_size = true;
+				else if (weights[l][0].length != hidden_layers[l].weights[0].length) incorrect_size = true;
+		if (incorrect_size) throw new IllegalArgumentException(
+				"can't load in weights with non-matching layer structure (consider the existence or absence of bias columns!)");
+		
+		for (int l=0; l < hidden_layers.length; l++)
+			hidden_layers[l].weights = weights[l];
+	}
+	
 	/**
 	 * This method allows modification of the actual weights of this neural network and should thus be used carefully
 	 * @return the weights of every layer in the network, in order of forward propagation
@@ -98,6 +115,42 @@ public class NeuralNetwork {
 		for (int l=0; l < hidden_layers.length; l++)
 			current = hidden_layers[l].forwardProp(current);
 		return current;
+	}
+	
+	public double[][][] calculateLossGradients(LossFunction E, double[] target) {
+		double[][][] gradients = new double[hidden_layers.length][][];
+		double[][] deltas = new double[hidden_layers.length][];
+		for (int l=0; l < gradients.length; l++)
+			gradients[l] = new double[hidden_layers[l].weights.length][hidden_layers[l].weights[0].length];
+		for (int l=0; l < deltas.length; l++)
+			deltas[l] = new double[hidden_layers[l].getOutputSize()];
+		
+		// initialize gradients in output layer (start of back-propagation)
+		// credit [https://en.wikipedia.org/wiki/Backpropagation] for help on formulas
+		int out = hidden_layers.length - 1;
+		Activation last = hidden_layers[out].activation;
+		double[] y = last.activate(hidden_layers[out].stored_raw_outputs);
+		for (int j=0; j < gradients[out].length; j++)
+			for (int i=0; i < gradients[out][j].length; i++) {
+				deltas[out][j] = E.derivate(y[j], j, target) * last.derivate(hidden_layers[out].stored_raw_outputs[j]);
+				gradients[out][j][i] = deltas[out][j] * hidden_layers[out].stored_inputs[i];
+			}
+		
+		// recursion of back propagation (but we can just as easily iterate it instead)
+		// working on weight Wij from i to j
+		for (int l=out-1; l >= 0; l--) {
+			for (int j=0; j < gradients[l].length; j++) {
+				
+				double sum = 0;
+				for (int k=0; k < hidden_layers[l+1].getOutputSize(); k++)
+					sum += hidden_layers[l+1].getWeight(j, k) * deltas[l+1][k]; // backprop step
+				deltas[l][j] = sum * hidden_layers[l].activation.derivate(hidden_layers[l].stored_raw_outputs[j]);
+				
+				for (int i=0; i < gradients[l][j].length; i++)
+					gradients[l][j][i] = deltas[l][j] * hidden_layers[l].stored_inputs[i];
+			}
+		}
+		return gradients;
 	}
 	
 	public int getInputSize() {
@@ -135,6 +188,12 @@ public class NeuralNetwork {
 		
 		private double[][] weights;
 		
+		/** where these weights go from layer i to layer j, this vector is the previous output Oi */
+		double[] stored_inputs;
+		
+		/** where these weights go from layer i to layer j, this vector is the raw output NETj */
+		double[] stored_raw_outputs;
+		
 		private Activation activation;
 		
 		public Activation getActivation() {
@@ -152,18 +211,33 @@ public class NeuralNetwork {
 				else if (bias) input_vector[i] = input[i-1];
 				else input_vector[i] = input[i];
 			
-			return Utils.extractVector(Utils.matrixVectorMul(weights, input_vector));
+			stored_inputs = input_vector;
+			stored_raw_outputs = Utils.extractVector(Utils.matrixVectorMul(weights, input_vector));
+			
+			return stored_raw_outputs;
 		}
 		
 		public double[] forwardProp(double[] input) {
 			return activation.activate(forwardPropRaw(input));
 		}
 		
+		public int getRawInputSize() {
+			return weights[0].length;
+		}
 		public int getInputSize() {
 			return weights[0].length - (bias? 1:0);
 		}
 		public int getOutputSize() {
 			return weights.length;
+		}
+		
+		/**
+		 * @param from a neuron in the previous layer i
+		 * @param to a neuron in the next layer j
+		 * @return the weight Wij assigned to the connection between <b>from</b> and <b>to</b>
+		 */
+		public double getWeight(int from, int to) {
+			return weights[to][from];
 		}
 		
 		/**
@@ -175,6 +249,50 @@ public class NeuralNetwork {
 		}
 		
 	}
+	
+	public static class LossFunction {
+		
+		public final BiFunction<double[], double[], Double> loss;
+		public final TriFunction<Double, Integer, double[], Double> derivative;
+		
+		/**
+		 * @param loss The loss function with as <b>par1</b> the output from the model and as <b>par2</b> the target value for a specific training instance
+		 * @param derivative The derivative of the loss function (with respect to output[j]) with <b>par1</b> as output[j], <b>par2</b> as j and <b>par3</b> as 
+		 * 	the target value for a specific training instance
+		 */
+		public LossFunction(BiFunction<double[], double[], Double> loss, TriFunction<Double, Integer, double[], Double> derivative) {
+			this.loss = loss;
+			this.derivative = derivative;
+		}
+		
+		/**
+		 * @param output the output from the model for the training instance
+		 * @param target the target value for the training instance
+		 * @return the loss on the given parameters
+		 */
+		public double calculate(double[] output, double[] target) {
+			return loss.apply(output, target);
+		}
+		/**
+		 * @param Yj the value of the output from the model for the j-th element (for the training instance)
+		 * @param j the index of the element in which respect the derivative is taken
+		 * @param target the target value for the training instance
+		 * @return the derivative of the loss function for the specific given output element
+		 */
+		public double derivate(double Yj, int j, double[] target) {
+			return derivative.apply(Yj, j, target);
+		}
+	}
+	
+	public static final LossFunction HALF_SQUARE_ERROR = new LossFunction(
+			(out, target) -> {
+				double sum = 0;
+				for (int i=0; i < out.length; i++)
+					sum += Math.pow(out[i] - target[i], 2);
+				return sum/2d;
+			},
+			(Yj, j, target) -> Yj - target[j]
+		);
 	
 	/** should convert a number from <-inf, inf> to some value for activating a neuron (more positive is more activated) */
 	public static class Activation {
