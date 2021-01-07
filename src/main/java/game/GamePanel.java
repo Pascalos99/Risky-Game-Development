@@ -40,8 +40,8 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer(new AStar().getTypeName(), "Melissa", Color.cyan);
-		gs.addPlayer(new AlphaBeta().getTypeName(), "Henry", Color.red);/*
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.cyan);
+		gs.addPlayer(new HumanPlayer().getTypeName(), "Henry", Color.red);/*
 		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.green);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.gray);
 		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.black);
@@ -132,13 +132,13 @@ public class GamePanel extends JPanel {
 					System.out.format("=~=~ Now it's %s [%s]'s (%d) turn! ~=~=\n",
 						player.getName()+" ("+player.getTypeName()+")", player.getColorName(), player.turnCounter.getCount());
 					System.out.println("perspective of player:");
-					double[] perspective = new GameState(game).getMatrix(player);
-					for (int i=0; i < 9; i++) {
-						System.out.print("[ ");
-						for (int j=0; j < 9; j++)
-							System.out.format("% f ", perspective[i*9 + j]);
-						System.out.println("]");
-					}
+//					double[] perspective = new GameState(game).getMatrix(player);
+//					for (int i=0; i < 9; i++) {
+//						System.out.print("[ ");
+//						for (int j=0; j < 9; j++)
+//							System.out.format("% f ", perspective[i*9 + j]);
+//						System.out.println("]");
+//					}
 				}
 			} else if (e instanceof MoveEvent) {
 				MoveEvent m = (MoveEvent) e;
