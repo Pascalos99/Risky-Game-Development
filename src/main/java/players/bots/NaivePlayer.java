@@ -32,12 +32,9 @@ public class NaivePlayer extends Player {
             for (Move move : moves) {
                 double score = evaluation.apply(new GameState(gameState, move),this);
                 if(eval.containsKey(score)){
-                    eval.put(score+Math.random()-0.5,move);
+                   score += Math.random() - 0.5;
                 }
-                else{
-                    eval.put(score, move);
-                }
-
+                eval.put(score, move);
             }
         }
         return eval.get((Collections.max(eval.keySet())));

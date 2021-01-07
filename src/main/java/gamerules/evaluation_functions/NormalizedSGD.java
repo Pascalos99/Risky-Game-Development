@@ -16,9 +16,6 @@ public class NormalizedSGD implements EvaluationFunction {
 	
 	@Override
 	public Double apply(GameState t, Player u) {
-		List<Integer> blackList = u.getOtherPlayersBase(t.getOriginalBoard());
-		if(blackList.contains(t.lastMove().target_node) || blackList.contains(t.lastMove().start_node))
-			return -Double.MAX_VALUE;
 		return (SimpleGoalDistance.SIMPLE_GOAL_DISTANCE.apply(t, u) - min) / (max - min);
 	}
 
