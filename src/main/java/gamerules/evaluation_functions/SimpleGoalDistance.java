@@ -1,6 +1,7 @@
 package gamerules.evaluation_functions;
 
 import java.util.Arrays;
+import java.util.List;
 
 import gamerules.Board;
 import gamerules.EvaluationFunction;
