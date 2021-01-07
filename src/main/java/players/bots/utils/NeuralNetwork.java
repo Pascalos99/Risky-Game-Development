@@ -1,14 +1,28 @@
 package players.bots.utils;
 
-import java.io.Serializable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import graphics.sample.AssetFinder;
 import players.bots.utils.Utils.TriFunction;
 
 public class NeuralNetwork implements Tunable {
+	
+	public static final String networkPath = AssetFinder.assetsPath+"neural_networks"+File.separator;
 	
 	// Testing code
 	public static void main(String[] args) {
@@ -27,6 +41,12 @@ public class NeuralNetwork implements Tunable {
 		NeuralNetwork copy = ann.clone();
 		System.out.println("copy generates output:");
 		Utils.printMatrix(Utils.getColumnVector(copy.forwardProp(input)));
+		try {
+			NeuralNetwork.storeToFile(new NeuralNetwork[] {ann, copy}, new File(networkPath+"test1.network"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	private Layer[] hidden_layers;
@@ -57,6 +77,57 @@ public class NeuralNetwork implements Tunable {
 		NeuralNetwork clone = new NeuralNetwork(getLayerStructure(), getBiasInclusion(), getActivations());
 		clone.loadWeights(getAllWeights());
 		return clone;
+	}
+	
+	public void storeToFile(File file) throws IOException {
+		storeToFile(new NeuralNetwork[] {this}, file);
+	}
+	
+	/**
+	 * Replaces the contents of the file with a string representation of the given networks
+	 * @param networks
+	 * @param file
+	 * @throws IOException
+	 */
+	public static void storeToFile(NeuralNetwork[] networks, File file) throws IOException {
+		if (!file.exists()) file.createNewFile();
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+		for (NeuralNetwork network : networks) {
+			out.print(network+" ");
+		}
+		out.close();
+	}
+	
+	public static NeuralNetwork[] readFromFile(File file) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		List<StringBuilder> blocks = new ArrayList<>();
+		int r = 0;
+		boolean in_block = false;
+		while((r = br.read()) != -1) {
+			char read = (char)r;
+			if (read == '{')
+				if (!in_block) {
+					blocks.add(new StringBuilder());
+					in_block = true;
+			}
+			else if (read == '}') in_block = false;
+			else if (blocks.size() > 0)
+				blocks.get(blocks.size()-1).append(read);
+		}
+		br.close();
+		List<NeuralNetwork> networks = new ArrayList<NeuralNetwork>(blocks.size());
+		for (StringBuilder block : blocks) {
+			if (block.length() <= 0) continue;
+			NeuralNetwork net = parseNetwork(block.toString());
+			if (net != null) networks.add(net);
+		}
+		NeuralNetwork[] result = new NeuralNetwork[networks.size()];
+		for (int i=0; i < result.length; i++) result[i] = networks.get(i);
+		return result;
+	}
+	
+	private static NeuralNetwork parseNetwork(String block) {
+		return null;
 	}
 	
 	/**
@@ -175,6 +246,44 @@ public class NeuralNetwork implements Tunable {
 			}
 		}
 		return gradients;
+	}
+	
+	/**
+	 * string representation of the neural network (same as when writing to a file)
+	 */
+	@Override
+	public String toString() {
+		StringWriter str_wr = new StringWriter();
+		PrintWriter out = new PrintWriter(str_wr);
+		out.println("{");
+		// activations:
+		out.println("  activations = ");
+		boolean first = true;
+		for (Activation act : this.getActivations()) {
+			String act_string = act.name;
+			if (first) {
+				out.print("    "+act_string);
+				first = false;
+			} else out.print(",\n    "+act_string);
+		}
+		out.println(";");
+		// bias:
+		out.print("  bias = ");
+		for (Boolean bool : this.getBiasInclusion())
+			out.print(bool? "1":"0");
+		out.println(";");
+		// weights:
+		out.println("  weights = ");
+		String s = "    ";
+		for (int l=0; l < this.hidden_layers.length; l++) {
+			double[][] weights = this.hidden_layers[l].weights;
+			out.print(s + Utils.matrixToString(weights).replaceAll("\n", "\n"+s));
+			if (l < this.hidden_layers.length - 1) out.println(",");
+		}
+		out.println(";");
+		out.print("}");
+		out.close();
+		return str_wr.toString();
 	}
 	
 	public int getInputSize() {
@@ -335,16 +444,19 @@ public class NeuralNetwork implements Tunable {
 		);
 	
 	/** should convert a number from <-inf, inf> to some value for activating a neuron (more positive is more activated) */
-	public static class Activation implements Serializable {
+	public static class Activation {
 		
-		private static final long serialVersionUID = 1L;
+		private static Map<String, Activation> activations = new HashMap<>();
 		
 		public final Function<Double, Double> activation;
 		public final Function<Double, Double> derivative;
+		public final String name;
 		
-		public Activation(Function<Double, Double> activation, Function<Double, Double> derivative) {
+		public Activation(String name, Function<Double, Double> activation, Function<Double, Double> derivative) {
 			this.activation = activation;
 			this.derivative = derivative;
+			this.name = name;
+			activations.put(name, this);
 		}
 		public double activate(double x) {
 			return activation.apply(x);
@@ -358,29 +470,33 @@ public class NeuralNetwork implements Tunable {
 				r[i] = activate(x[i]);
 			return r;
 		}
+		
+		public Activation getFromName(String name) {
+			return activations.get(name);
+		}
 	}
 	
-	public static final Activation LINEAR = new Activation(x -> x, x -> 1d);
+	public static final Activation LINEAR = new Activation("linear", x -> x, x -> 1d);
 	
-	public static final Activation SIGMOID = new Activation(x -> 1 / (1 + Math.exp(-x)), x -> {
+	public static final Activation SIGMOID = new Activation("sigmoid", x -> 1 / (1 + Math.exp(-x)), x -> {
 		double f = 1 / (1 + Math.exp(-x));
 		return f * (1 - f);
 	});
 	
 	// linear rectifier (ramp-function)
-	public static final Activation RELU = new Activation(x -> Math.max(0, x), x -> (x < 0) ? 0d : 1d );
+	public static final Activation RELU = new Activation("relu", x -> Math.max(0, x), x -> (x < 0) ? 0d : 1d );
 	
 	// heaviside function
-	public static final Activation STEP = new Activation(x -> (x > 0)? 1d : 0d, x -> 0d );
+	public static final Activation STEP = new Activation("step", x -> (x > 0)? 1d : 0d, x -> 0d );
 	
 	// [credit to https://arxiv.org/pdf/1606.08415.pdf and https://arxiv.org/pdf/1702.03118.pdf]
-	public static final Activation SILU = new Activation(x -> x * SIGMOID.activate(x), x -> {
+	public static final Activation SILU = new Activation("silu", x -> x * SIGMOID.activate(x), x -> {
 		double s = SIGMOID.activate(x);
 		return s * (1 + x * (1 - s));
 	});
 	
 	// derivative of SILU, https://arxiv.org/pdf/1702.03118.pdf found this activation function is really good
-	public static final Activation dSILU = new Activation(SILU.derivative, x -> {
+	public static final Activation dSILU = new Activation("dsilu", SILU.derivative, x -> {
 		double s = SIGMOID.activate(x);
 		// σ(x)(1 − σ(x))(2 + x(1 − σ(x)) − x*σ(x)) [credit to https://arxiv.org/pdf/1702.03118.pdf]
 		return s * (1 - s) * (2 + x * (1 - s) - x * s);

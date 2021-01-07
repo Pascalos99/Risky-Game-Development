@@ -18,7 +18,6 @@ import game.events.WinEvent;
 import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.GameRules;
-import gamerules.GameState;
 import gamerules.Move;
 import graphics.BoardGraphics;
 import players.*;
