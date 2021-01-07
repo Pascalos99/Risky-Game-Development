@@ -30,6 +30,11 @@ public class NeuralNetwork implements Tunable {
 		Activation[] activations = {SILU, dSILU, dSILU, LINEAR};
 		NeuralNetwork ann = new NeuralNetwork(structure, activations);
 		ann.initializeRandomWeights(-1, 1);
+		try {
+			ann = NeuralNetwork.readFromFile(new File(networkPath+"test1.network"))[0];
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		double[][][] weights = ann.getAllWeights();
 		for (int l=0; l < ann.getLayerCount(); l++)
 			Utils.printMatrix(weights[l]);
@@ -41,12 +46,6 @@ public class NeuralNetwork implements Tunable {
 		NeuralNetwork copy = ann.clone();
 		System.out.println("copy generates output:");
 		Utils.printMatrix(Utils.getColumnVector(copy.forwardProp(input)));
-		try {
-			NeuralNetwork.storeToFile(new NeuralNetwork[] {ann, copy}, new File(networkPath+"test1.network"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 	}
 	
 	private Layer[] hidden_layers;
@@ -103,16 +102,35 @@ public class NeuralNetwork implements Tunable {
 		List<StringBuilder> blocks = new ArrayList<>();
 		int r = 0;
 		boolean in_block = false;
+		boolean skipping = false;
+		boolean last_slash = false;
 		while((r = br.read()) != -1) {
 			char read = (char)r;
-			if (read == '{')
+			if (read == '/') {
+				if (!last_slash) last_slash = true;
+				else skipping = true;
+				continue;
+			} else {
+				if (!skipping && last_slash && blocks.size() > 0) blocks.get(blocks.size()-1).append("/");
+				last_slash = false;
+			}
+			if (skipping) {
+				if (read == '\n') {
+					skipping = false;
+				} else continue;
+			}
+			if (read == '{') {
 				if (!in_block) {
 					blocks.add(new StringBuilder());
 					in_block = true;
+				}
 			}
-			else if (read == '}') in_block = false;
-			else if (blocks.size() > 0)
+			else if (read == '}') {
+				in_block = false;
+			}
+			else if (blocks.size() > 0 && in_block) {
 				blocks.get(blocks.size()-1).append(read);
+			}
 		}
 		br.close();
 		List<NeuralNetwork> networks = new ArrayList<NeuralNetwork>(blocks.size());
@@ -126,8 +144,65 @@ public class NeuralNetwork implements Tunable {
 		return result;
 	}
 	
-	private static NeuralNetwork parseNetwork(String block) {
-		return null;
+	public static NeuralNetwork parseNetwork(String network_string) {
+		List<Activation> activations = new ArrayList<>();
+		List<Boolean> biases = new ArrayList<>();
+		List<double[][]> layers = new ArrayList<>();
+		List<Integer> structure = new ArrayList<>();
+		
+		String sp = "[\\s\\v\\h]*";
+		String[] parts = network_string.split(sp+";"+sp);
+		if (parts.length < 3) return null;
+		parts[0] = parts[0].strip();
+		for (int p=0; p < parts.length; p++) {
+			String[] breakdown = parts[p].split(sp+"="+sp);
+			String label = breakdown[0];
+			String value = breakdown[1];
+			switch(label) {
+				case ("activation"):;
+				case ("activations"):{
+					String[] names = value.split(sp+","+sp);
+					for (int i=0; i < names.length; i++) {
+						Activation act = Activation.getFromName(names[i]);
+						if (act != null) activations.add(act);
+					}
+				} break;
+				case("bias"):;
+				case("biases"):{
+					String bias = value.replaceAll(sp, "");
+					char[] chars = bias.toCharArray();
+					for (int i=0; i < chars.length; i++) {
+						if (chars[i] == '1') biases.add(true);
+						if (chars[i] == '0') biases.add(false);
+					}
+				} break;
+				case("weight"):;
+				case("weights"):{
+					String[] str_layers = value.split(sp+"\\),"+sp);  
+					for (int i=0; i < str_layers.length; i++) {
+						double[][] m = Utils.parseMatrix(str_layers[i]);
+						layers.add(m);
+						if (i==0) structure.add(m[0].length);
+						structure.add(m.length);
+					}
+				} break;
+				default:;
+			}
+		}
+		if (layers.size() == 0 || layers.size() > biases.size() || layers.size() > activations.size())
+			return null;
+		if (biases.get(0)) structure.set(0, structure.get(0) - 1);
+		
+		int[] struct = new int[structure.size()];
+		for (int i=0; i < struct.length; i++) struct[i] = structure.get(i);
+		boolean[] bias = new boolean[biases.size()];
+		for (int i=0; i < bias.length; i++) bias[i] = biases.get(i);
+		double[][][] weights = new double[layers.size()][][];
+		for (int i=0; i < weights.length; i++) weights[i] = layers.get(i);
+		
+		NeuralNetwork network = new NeuralNetwork(struct, bias, activations.toArray(new Activation[activations.size()]));
+		network.loadWeights(weights);
+		return network;
 	}
 	
 	/**
@@ -471,7 +546,7 @@ public class NeuralNetwork implements Tunable {
 			return r;
 		}
 		
-		public Activation getFromName(String name) {
+		public static final Activation getFromName(String name) {
 			return activations.get(name);
 		}
 	}

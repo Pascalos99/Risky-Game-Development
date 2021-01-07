@@ -23,6 +23,19 @@ public final class Utils {
 		System.out.println(matrixToString(m));
 	}
 	
+	public static double[][] parseMatrix(String string) {
+		String mstr = string.replaceAll("[\\(\\)\\s\\h\\v]", "");
+		String[] raw_rows = mstr.split("\\]\\[");
+		double[][] matrix = new double[raw_rows.length][];
+		for (int i=0; i < raw_rows.length; i++) {
+			String[] numbers = raw_rows[i].replaceAll("[\\[\\]]", "").split(",");
+			matrix[i] = new double[numbers.length];
+			for (int j=0; j < numbers.length; j++)
+				matrix[i][j] = Double.parseDouble(numbers[j]);
+		}
+		return matrix;
+	}
+	
 	public static String matrixToString(double[][] m) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
