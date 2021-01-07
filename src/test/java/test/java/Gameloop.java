@@ -7,7 +7,7 @@ import players.*;
 import players.bots.EvilPlayer;
 import players.bots.NaivePlayer;
 import static gamerules.GameRules.SELECTED_GAMERULES;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class Gameloop {
     @Test
@@ -15,13 +15,13 @@ public class Gameloop {
         Player pl = new NaivePlayer();
         Player pl2 = new NaivePlayer();
         Board game =new Board(GameRules.SELECTED_GAMERULES, null, pl, pl2);
-        assertEquals(SELECTED_GAMERULES.hasWon(game,pl) || SELECTED_GAMERULES.hasWon(game,pl2),false);
+        assertFalse(SELECTED_GAMERULES.hasWon(game, pl) || SELECTED_GAMERULES.hasWon(game, pl2));
         while (game.noWinners()){
-            assertEquals(game.noWinners(),true);
+            assertTrue(game.noWinners());
             game.nextPlayer();
             game.forceRequestMoveAndContinue();
         }
-        assertEquals(SELECTED_GAMERULES.hasWon(game,game.currentPlayer()),true);
+        assertTrue(SELECTED_GAMERULES.hasWon(game, game.currentPlayer()));
     }
 
     @Test
@@ -29,12 +29,12 @@ public class Gameloop {
         Player pl = new EvilPlayer();
         Player pl2 = new EvilPlayer();
         Board game =new Board(GameRules.SELECTED_GAMERULES, null, pl, pl2);
-        assertEquals(SELECTED_GAMERULES.hasWon(game,pl) || SELECTED_GAMERULES.hasWon(game,pl2),false);
+        assertFalse(SELECTED_GAMERULES.hasWon(game, pl) || SELECTED_GAMERULES.hasWon(game, pl2));
         while (game.noWinners()){
-            assertEquals(game.noWinners(),true);
+            assertTrue(game.noWinners());
             game.nextPlayer();
             game.forceRequestMoveAndContinue();
         }
-        assertEquals(SELECTED_GAMERULES.hasWon(game,pl) || SELECTED_GAMERULES.hasWon(game,pl2),true);
+        assertTrue(SELECTED_GAMERULES.hasWon(game, pl) || SELECTED_GAMERULES.hasWon(game, pl2));
     }
 }

@@ -417,8 +417,30 @@ public class GameState {
 		return false;
 	}
 
-
 	public double [] getMatrix(Player perspective){
+		double [][] withenemy= getMatrixEnemy(perspective);
+		int index = 0;
+		double [] result = new double[162];
+		for(int i = 0; i < withenemy.length; i++){
+			for(int j = 0; j < withenemy[i].length; j++){
+				if(withenemy[i][j]==5)
+					result[index++] = 0;
+				else
+					result[index++] = withenemy[i][j];
+			}
+		}
+		for(int i = 0; i < withenemy.length; i++){
+			for(int j = 0; j < withenemy[i].length; j++){
+				if(withenemy[i][j]==5)
+					result[index++] = 0;
+				else
+					result[index++] = Math.abs(withenemy[i][j]);
+			}
+		}
+		return result;
+	}
+
+	public double [][] getMatrixEnemy(Player perspective){
 		Player player = perspective; //original_board.currentPlayer();
 		Player enemy = original_board.getEnemy(player);
 		int playerID = getOriginalBoard().getPlayerIndex(player);
@@ -465,22 +487,7 @@ public class GameState {
 				}
 			}
 		}
-
-//		for(int i = 0; i < matrix.length; i++){
-//			System.out.println(Arrays.toString(matrix[i]));
-//		}
-
-		int index = 0;
-		double [] result = new double[81];
-		for(int i = 0; i < matrix.length; i++){
-			for(int j = 0; j < matrix[i].length; j++){
-				if(matrix[i][j]==5)
-					result[index++] = 0;
-				else
-					result[index++] = matrix[i][j];
-			}
-		}
-		return result;
+		return matrix;
 	}
 
 	private void constructMatrix(Queue<BoardNode> queue,List<BoardNode> allready,List<Integer> blackList,int playerID,double [][] matrix){

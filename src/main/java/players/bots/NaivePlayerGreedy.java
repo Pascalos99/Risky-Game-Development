@@ -9,15 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
-public class NaivePlayer extends Player {
+public class NaivePlayerGreedy extends Player {
 
     EvaluationFunction evaluation;
 
-    public NaivePlayer(){
+    public NaivePlayerGreedy(){
         this(new SimpleGoalDistance());
     }
 
-    public NaivePlayer(EvaluationFunction evaluation){
+    public NaivePlayerGreedy(EvaluationFunction evaluation){
         this.evaluation = evaluation;
     }
 
@@ -32,7 +32,7 @@ public class NaivePlayer extends Player {
             for (Move move : moves) {
                 double score = evaluation.apply(new GameState(gameState, move),this);
                 if(eval.containsKey(score)){
-                    eval.put(score+Math.random()-0.5,move);
+                    eval.put((score+Math.random() * 30) - 15,move);
                 }
                 else{
                     eval.put(score, move);
@@ -53,12 +53,12 @@ public class NaivePlayer extends Player {
         return "A bot that take randomly a pawn and find the move who will get him closer to the goal";
     }
 
-	@Override
-	public Player getNewInstance() {
-		return new NaivePlayer();
-	}
-	
-	public String toString() {
-		return getName()+" ("+getTypeName()+")";
-	}
+    @Override
+    public Player getNewInstance() {
+        return new NaivePlayer();
+    }
+
+    public String toString() {
+        return getName()+" ("+getTypeName()+")";
+    }
 }
