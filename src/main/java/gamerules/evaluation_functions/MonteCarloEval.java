@@ -50,7 +50,7 @@ public class MonteCarloEval implements EvaluationFunction {
             GameTreeNode ne = new GameTreeNode(node,returnMove(node.getGameState(),node.getGameState().currentPlayer()));
             for(int i2=0;i2<(treeSize*numberPlayers)-1;i2++){
                 if(ne.getGameState().hasWinner()){
-                    if(ne.getGameState().hasWon(player)) score += 100/i2;
+                    if(ne.getGameState().hasWon(player)) score += 100.0/i2;
                     break;
                 }
                 ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));

@@ -5,7 +5,7 @@ import players.HumanPlayer;
 import players.Player;
 import players.bots.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerTest {
     @Test
@@ -18,20 +18,20 @@ public class PlayerTest {
     void testPlayerequal2(){
         Player pl = new HumanPlayer();
         Player pl2 = new HumanPlayer();
-        assertEquals(true,pl!=pl2) ;
+        assertNotSame(pl, pl2);
     }
 
     @Test
     void testPlayerequal3(){
         Player pl = new HumanPlayer();
         Player pl2 = new RandomPlayer();
-        assertEquals(true,pl!=pl2) ;
+        assertNotSame(pl, pl2);
     }
 
     @Test
     void testPlayerequal4(){
         Player pl = new HumanPlayer();
-        assertEquals(true,pl.equals(pl)) ;
+        assertEquals(pl, pl);
     }
 
     @Test

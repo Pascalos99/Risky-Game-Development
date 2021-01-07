@@ -9,6 +9,7 @@ import java.util.*;
 
 import static gamerules.GameRules.SELECTED_GAMERULES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RulesTest {
 
@@ -26,7 +27,7 @@ public class RulesTest {
                 movesrules.addAll(SELECTED_GAMERULES.getAllPossibleMoves(pawn));
             }
             for(Move move :movesrules){
-                assertEquals(moves.contains(move),true);
+                assertTrue(moves.contains(move));
             }
             game.forceRequestMoveAndContinue();
         }
@@ -51,17 +52,15 @@ public class RulesTest {
             jumps[y++] = node;
         }
         for(BoardNode node : place.getNeighbours()){
-            for(BoardNode node2 : node.getNeighbours()){
-                two.add(node2);
-            }
+            two.addAll(node.getNeighbours());
         }
         List<Move> moves = new ArrayList<Move>();
-        for (int i = 0; i <jumps.length; i++){
-            if(jumps[i].isOccupied()){
-                for(BoardNode node : jumps[i].getNeighbours()){
-                    if(contains(two,node)==1){
-                        if(!movesfinale.contains(new Move(pawn,node))){
-                            moves.add(new Move(pawn,node));
+        for (BoardNode jump : jumps) {
+            if (jump.isOccupied()) {
+                for (BoardNode node : jump.getNeighbours()) {
+                    if (contains(two, node) == 1) {
+                        if (!movesfinale.contains(new Move(pawn, node))) {
+                            moves.add(new Move(pawn, node));
                         }
                     }
                 }
@@ -69,6 +68,7 @@ public class RulesTest {
         }
         movesfinale.addAll(moves);
         for(Move m : moves){
+            assert m.target != null;
             recursiveMove(m.target, movesfinale, pawn);
         }
     }

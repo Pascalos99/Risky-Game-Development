@@ -3,7 +3,8 @@ package test.java;
 import org.junit.jupiter.api.Test;
 import gamerules.*;
 import players.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PawnTest {
     private Player playerExample1 = new HumanPlayer();
@@ -15,13 +16,13 @@ public class PawnTest {
 
     @Test
     void testequal(){
-        assertEquals(p1!=p2,true);
-        assertEquals(p1==p1,true);
+        assertNotSame(p1, p2);
+        assertTrue(p1 == p1);
     }
 
     @Test
     void testPosition1(){
-        assertEquals(p1.getPosition(),null);
+        assertNull(p1.getPosition());
         assertEquals(p2.getPosition(),node1);
     }
     @Test
