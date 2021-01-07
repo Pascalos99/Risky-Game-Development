@@ -1,5 +1,6 @@
 package players.bots.utils;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -12,7 +13,7 @@ public class NeuralNetwork implements Tunable {
 	// Testing code
 	public static void main(String[] args) {
 		int[] structure = {3, 10, 15, 8, 1};
-		Activation[] activations = {dSILU, dSILU, dSILU, LINEAR};
+		Activation[] activations = {SILU, dSILU, dSILU, LINEAR};
 		NeuralNetwork ann = new NeuralNetwork(structure, activations);
 		ann.initializeRandomWeights(-1, 1);
 		double[][][] weights = ann.getAllWeights();
@@ -23,6 +24,9 @@ public class NeuralNetwork implements Tunable {
 		Utils.printMatrix(Utils.getColumnVector(input));
 		System.out.println("generates output:");
 		Utils.printMatrix(Utils.getColumnVector(ann.forwardProp(input)));
+		NeuralNetwork copy = ann.clone();
+		System.out.println("copy generates output:");
+		Utils.printMatrix(Utils.getColumnVector(copy.forwardProp(input)));
 	}
 	
 	private Layer[] hidden_layers;
@@ -46,6 +50,13 @@ public class NeuralNetwork implements Tunable {
 		
 		for (int a=0, b=1; b < network_structure.length; a++, b++)
 			hidden_layers[a] = new Layer(network_structure[a], network_structure[b], bias_inclusion[a], activation_functions[a]);
+	}
+	
+	@Override
+	public NeuralNetwork clone() {
+		NeuralNetwork clone = new NeuralNetwork(getLayerStructure(), getBiasInclusion(), getActivations());
+		clone.loadWeights(getAllWeights());
+		return clone;
 	}
 	
 	/**
@@ -93,7 +104,9 @@ public class NeuralNetwork implements Tunable {
 				"can't load in weights with non-matching layer structure (consider the existence or absence of bias columns!)");
 		
 		for (int l=0; l < hidden_layers.length; l++)
-			hidden_layers[l].weights = weights[l];
+			for (int i=0; i < hidden_layers[l].weights.length; i++)
+				for (int j=0; j < hidden_layers[l].weights[i].length; j++)
+					hidden_layers[l].weights[i][j] = weights[l][i][j];
 	}
 	
 	/**
@@ -180,6 +193,18 @@ public class NeuralNetwork implements Tunable {
 			structure[l+1] = hidden_layers[l].getOutputSize();
 		return structure;
 	}
+	public boolean[] getBiasInclusion() {
+		boolean[] bias = new boolean[hidden_layers.length];
+		for (int i=0; i < bias.length; i++)
+			bias[i] = hidden_layers[i].hasBias();
+		return bias;
+	}
+	public Activation[] getActivations() {
+		Activation[] activations = new Activation[hidden_layers.length];
+		for (int i=0; i < activations.length; i++)
+			activations[i] = hidden_layers[i].getActivation();
+		return activations;
+	}
 	
 	static class Layer {
 		
@@ -196,6 +221,10 @@ public class NeuralNetwork implements Tunable {
 		}
 		
 		private boolean bias;
+		
+		public boolean hasBias() {
+			return bias;
+		}
 		
 		private double[][] weights;
 		
@@ -306,7 +335,9 @@ public class NeuralNetwork implements Tunable {
 		);
 	
 	/** should convert a number from <-inf, inf> to some value for activating a neuron (more positive is more activated) */
-	public static class Activation {
+	public static class Activation implements Serializable {
+		
+		private static final long serialVersionUID = 1L;
 		
 		public final Function<Double, Double> activation;
 		public final Function<Double, Double> derivative;
