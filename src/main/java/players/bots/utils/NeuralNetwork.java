@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import players.bots.utils.Utils.TriFunction;
 
-public class NeuralNetwork {
+public class NeuralNetwork implements Tunable {
 	
 	// Testing code
 	public static void main(String[] args) {
@@ -117,6 +117,17 @@ public class NeuralNetwork {
 		return current;
 	}
 	
+	@Override
+	public double[] computeOutput(double[] input) {
+		return forwardProp(input);
+	}
+	
+	/**
+	 * Function assumes {@linkplain #forwardProp(double[])} has already been executed on the corresponding input vector, prior to this call.
+	 * @param E the loss function to calculate the gradients of for this network's weights
+	 * @param target the target value of the output vector given the input vector previously put into the model through forward propagation
+	 * @return an ordered array of weight gradients per layer, ordered the same as {@linkplain Layer#weights}
+	 */
 	public double[][][] calculateLossGradients(LossFunction E, double[] target) {
 		double[][][] gradients = new double[hidden_layers.length][][];
 		double[][] deltas = new double[hidden_layers.length][];
