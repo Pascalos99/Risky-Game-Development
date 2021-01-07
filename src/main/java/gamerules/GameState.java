@@ -426,7 +426,6 @@ public class GameState {
 		List<BoardNode> allready = new ArrayList<>();
 		List<Integer> blackList = player.getOtherPlayersBase(original_board);
 		Queue<BoardNode> queue = new LinkedList<>();
-		System.out.println(nodes.get(56));
 		int corner;
 		int opositecorner;
 		if(enemy.isGoalNode(original_board,nodes.get(0))){

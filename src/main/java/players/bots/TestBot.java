@@ -17,13 +17,13 @@ public class TestBot {
     private static void initializeTest(){
         int numberTest = 16;
         HashMap<Player,Player> matches = new HashMap<>();
-        String results = "";
+        StringBuilder results = new StringBuilder();
         List<Player> bots = new ArrayList<>();
         bots.add(new GreedyMST());
         bots.add(new NaivePlayer());
         bots.add(new EvilPlayer());
         bots.add(new AlphaBeta());
-        results +="\n"+  "1 vs 1";
+        results.append("\n" + "1 vs 1");
         for(Player player: bots){
             for(Player player2: bots){
                 if(player != player2){
@@ -31,18 +31,18 @@ public class TestBot {
                     result.put(player.getTypeName(),0);
                     result.put(player2.getTypeName(),0);
                     for(int i=0; i <numberTest;i++){
-                        String winner = simulate(new Player[]{player.getNewInstance(),player2.getNewInstance()});
+                        String winner = simulate(player.getNewInstance(),player2.getNewInstance());
                         if(winner != null) result.replace(winner,result.get(winner)+1);
                         else i--;
                     }
-                    results += transform(result , numberTest);
+                    results.append(transform(result, numberTest));
                 }
-                results +="\n";
+                results.append("\n");
             }
         }
-        print(results);
+        print(results.toString());
         System.out.println(results);
-        results +="\n"+  "2 vs 2";
+        results.append("\n" + "2 vs 2");
         // test 4 players
         for(Player player: bots){
             for(Player player2: bots){
@@ -51,18 +51,18 @@ public class TestBot {
                     result.put(player.getTypeName(),0);
                     result.put(player2.getTypeName(),0);
                     for(int i=0; i <numberTest;i++){
-                        String winner = simulate(new Player[]{player.getNewInstance(),player2.getNewInstance(),player.getNewInstance(),player2.getNewInstance()});
+                        String winner = simulate(player.getNewInstance(),player2.getNewInstance(),player.getNewInstance(),player2.getNewInstance());
                         if(winner != null) result.replace(winner,result.get(winner)+1);
                         else i--;
                     }
-                    results += transform(result , numberTest);
+                    results.append(transform(result, numberTest));
                 }
-                results +="\n";
+                results.append("\n");
             }
         }
         System.out.println(results);
-        print(results);
-        results +="\n"+ "3 vs 3";
+        print(results.toString());
+        results.append("\n" + "3 vs 3");
         // test 4 players
         for(Player player: bots) {
             for (Player player2 : bots) {
@@ -71,17 +71,17 @@ public class TestBot {
                     result.put(player.getTypeName(), 0);
                     result.put(player2.getTypeName(), 0);
                     for (int i = 0; i < numberTest; i++) {
-                        String winner = simulate(new Player[]{player.getNewInstance(), player2.getNewInstance(), player.getNewInstance(), player2.getNewInstance(),player.getNewInstance(), player2.getNewInstance()});
+                        String winner = simulate(player.getNewInstance(), player2.getNewInstance(), player.getNewInstance(), player2.getNewInstance(),player.getNewInstance(), player2.getNewInstance());
                         if (winner != null) result.replace(winner, result.get(winner) + 1);
                         else i--;
                     }
-                    results += transform(result , numberTest);
+                    results.append(transform(result, numberTest));
                 }
-                results +="\n";
+                results.append("\n");
             }
         }
         System.out.println(results);
-        print(results);
+        print(results.toString());
     }
 
     private static String simulate(Player...players){
@@ -90,7 +90,7 @@ public class TestBot {
         while (game.noWinners()){
             game.nextPlayer();
             game.forceRequestMoveAndContinue();
-            if(index++>2000) return null;
+            if(index++ > 2000) return null;
         }
         return game.currentPlayer().getTypeName();
     }
