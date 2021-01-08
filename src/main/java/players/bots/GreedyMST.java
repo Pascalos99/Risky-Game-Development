@@ -26,8 +26,8 @@ public class GreedyMST extends Player {
         this.depthTree = depth;
         this.time = time;
         this.randomSize = randomSize;
-        this.evaluation = evaluation;
         this.minimumEvaluation = minimumEvaluation;
+        this.evaluation = evaluation;
     }
 
     @Override

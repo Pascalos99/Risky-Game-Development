@@ -22,8 +22,15 @@ public class Move {
 		this(pawn.getPosition(), target);
 	}
 	
-	public final int start_node;
-	public final int target_node;
+	/**
+	 * @return the move that is the reverse move of this move
+	 */
+	public Move reverse() {
+		return new Move(target_node, start_node, playerID);
+	}
+	
+	public final byte start_node;
+	public final byte target_node;
 	
 	private final Player pawn_owner;
 	private final int playerID;
@@ -54,7 +61,7 @@ public class Move {
 	public boolean equals(Object o) {
 		if (!(o instanceof Move)) return false;
 		Move m = (Move)o;
-		return m.start_node == start_node && m.target_node == target_node && m.pawn_owner == pawn_owner;
+		return m.start_node == start_node && m.target_node == target_node && m.playerID == playerID;
 	}
 
 	/**
@@ -80,7 +87,7 @@ public class Move {
 	 * @return {@code true} if the reverse move could be executed
 	 */
 	protected boolean reverse(Board board) {
-		return board.getNode(start_node).addPawn(board.getNode(target_node).getCurrentPawn());
+		return reverse().execute(board);
 	}
 	
 	public double calculateScore(Board board) {

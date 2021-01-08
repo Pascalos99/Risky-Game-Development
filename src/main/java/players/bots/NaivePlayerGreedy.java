@@ -53,7 +53,7 @@ public class NaivePlayerGreedy extends Player {
 
     @Override
     public Player getNewInstance() {
-        return new NaivePlayer();
+        return new NaivePlayerGreedy(evaluation);
     }
 
     public String toString() {

@@ -20,6 +20,8 @@ public class NaivePlayer extends Player {
     public NaivePlayer(EvaluationFunction evaluation){
         this.evaluation = evaluation;
     }
+    
+    private Move last_move = null;
 
     @Override
     public Move returnMove(Board gameBoard) {
@@ -37,7 +39,14 @@ public class NaivePlayer extends Player {
                 eval.put(score, move);
             }
         }
-        return eval.get((Collections.max(eval.keySet())));
+        Double max = Collections.max(eval.keySet());
+        Move move = eval.get(max);
+        if (last_move != null && move.equals(last_move.reverse())) {
+        	eval.remove(max);
+        	move = eval.get(Collections.max(eval.keySet()));
+        }
+        last_move = move;
+        return move;
     }
 
     @Override
@@ -52,7 +61,7 @@ public class NaivePlayer extends Player {
 
 	@Override
 	public Player getNewInstance() {
-		return new NaivePlayer();
+		return new NaivePlayer(evaluation);
 	}
 	
 	public String toString() {

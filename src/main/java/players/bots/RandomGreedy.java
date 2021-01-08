@@ -17,8 +17,12 @@ public class RandomGreedy extends Player {
 
 	private EvaluationFunction heuristic;
 	
-	public RandomGreedy(EvaluationFunction heuristic) {
+	public RandomGreedy(EvaluationFunction heuristic, double optimal_play) {
 		this.heuristic = heuristic;
+		this.optimal_play_factor = optimal_play;
+	}
+	public RandomGreedy(EvaluationFunction heuristic) {
+		this(heuristic, 5);
 	}
 	
 	public void setSeed(long seed) {
@@ -32,7 +36,7 @@ public class RandomGreedy extends Player {
 		optimal_play_factor = x;
 	}
 	
-	private double optimal_play_factor = 5;
+	private double optimal_play_factor;
 	private Random random;
 	
 	@Override
@@ -66,7 +70,7 @@ public class RandomGreedy extends Player {
 
 	@Override
 	public Player getNewInstance() {
-		return new RandomGreedy(heuristic);
+		return new RandomGreedy(heuristic, optimal_play_factor);
 	}
 	
 	private static ValueState of(GameState state, double value) {
