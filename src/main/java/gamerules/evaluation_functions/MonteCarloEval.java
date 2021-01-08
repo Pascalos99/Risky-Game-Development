@@ -3,12 +3,14 @@ package gamerules.evaluation_functions;
 import gamerules.*;
 import players.Player;
 import players.bots.utils.NeuralNetwork;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static players.bots.utils.NeuralNetwork.SIGMOID;
-import static players.bots.utils.NeuralNetwork.dSILU;
+import static players.bots.utils.NeuralNetwork.*;
 
 public class MonteCarloEval implements EvaluationFunction {
 
@@ -16,28 +18,24 @@ public class MonteCarloEval implements EvaluationFunction {
     private final double minNumberEvaluation;
     private final int treeSize;
     private final int randomSize;
-    private final NeuralNetwork ann;
+    private NeuralNetwork ann;
 
     public MonteCarloEval() {
-        this(8, 10,3,15);
+        this(8, 1,1,15);
     }
 
     public MonteCarloEval(double maxTime, double minNumberEvaluation,int treeSize,int randomSize) {
+        NeuralNetwork ann1;
         this.maxTime = maxTime;
         this.minNumberEvaluation = minNumberEvaluation;
         this.treeSize = treeSize;
         this.randomSize = randomSize;
-        // The final structure of the ANN
-        int[] structure = {162, 81, 20, 20, 1};
-        // The different activation function use in the ANN
-        NeuralNetwork.Activation[] activations = {dSILU, dSILU, dSILU, SIGMOID};
-        this.ann = new NeuralNetwork(structure, activations);
-        // the different weight
-        double[][][] weights = {};
-//        this.ann.loadWeights(weights);
-        // for being able to test it
-        this.ann.initializeRandomWeights(-1,1);
-
+        this.ann = null;
+        try {
+            this.ann = NeuralNetwork.readFromFile(new File(networkPath+"FirstTrain.network"))[0].clone();
+        } catch (IOException e) {
+            e.printStackTrace();
+        };
     }
     @Override
     public Double apply(GameState gameState, Player player) {
@@ -61,7 +59,6 @@ public class MonteCarloEval implements EvaluationFunction {
                 ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
             }
             score += ann.forwardProp(ne.getGameState().getMatrix(player))[0];
-            System.out.println(score);
         }
         return score;
     }

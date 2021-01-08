@@ -1,6 +1,7 @@
 package players.bots;
 
 import gamerules.*;
+import gamerules.evaluation_functions.MonteCarloEval;
 import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 
@@ -30,13 +31,11 @@ public class NaivePlayerGreedy extends Player {
         for (Pawn pawn : pawns) {
             List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
             for (Move move : moves) {
-                double score = evaluation.apply(new GameState(gameState, move),this) + Math.random()*30 -15;
-                if(eval.containsKey(score))
+                double score = evaluation.apply(new GameState(gameState, move),this);
+                /*if(eval.containsKey(score)){
                     score += Math.random() - 0.5;
-
+                }*/
                 eval.put(score, move);
-
-
             }
         }
         return eval.get((Collections.max(eval.keySet())));

@@ -43,7 +43,7 @@ public final class Utils {
 			if (i > 0) sb.append(" ");
 			sb.append("[");
 			for (int j=0; j < m[i].length; j++) {
-				sb.append(String.format(Locale.CANADA, "% .3f", m[i][j]));
+				sb.append(String.format(Locale.CANADA, "% .15f", m[i][j]));
 				if (j < m[i].length - 1) sb.append(", ");
 			}
 			sb.append("]");

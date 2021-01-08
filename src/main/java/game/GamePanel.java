@@ -19,7 +19,6 @@ import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.GameRules;
 import gamerules.Move;
-import gamerules.evaluation_functions.NormalizedSGD;
 import graphics.BoardGraphics;
 import players.*;
 import players.bots.*;
@@ -40,16 +39,13 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer(new RandomGreedy(new NormalizedSGD()), "Melissa", Color.cyan);
-		gs.addPlayer(new RandomGreedy(new NormalizedSGD()), "Henry", Color.red);/*
+		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.cyan);
+		gs.addPlayer(new AlphaBeta().getTypeName(), "Henry", Color.red);/*
 		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.green);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.gray);
 		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.black);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.blue);*/
-		startGame(gs);
-	}
-	
-	public static void startGame(GameSetup gs) {
+		
 		JPanel panel = gs.build();
 		JFrame frame = new JFrame("Risky Checkers v.0.004");
 		frame.setSize(600, 600);
