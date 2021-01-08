@@ -39,7 +39,7 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 				Pawn selected_pawn = previousSelect.getCurrentPawn();
 				BoardNode selected_node = currentSelect;
 				if (calculated_moves_for != selected_pawn) {
-					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(selected_pawn);
+					available_moves = SELECTED_GAMERULES.getAllPossibleMoves(gameBoard, selected_pawn);
 					calculated_moves_for = selected_pawn;
 				}
 				if (!available_moves.contains(new Move(selected_pawn, selected_node))) {

@@ -5,9 +5,6 @@ import players.Player;
 public class Move {
 	
 	public Move(BoardNode start, BoardNode target) {
-		this.pawn = start.getCurrentPawn();
-		this.target = target;
-		this.start = start;
 		start_node = (byte)start.getID();
 		target_node = (byte)target.getID();
 		pawn_owner = start.getCurrentPawn().getOwner();
@@ -15,9 +12,6 @@ public class Move {
 	}
 	
 	public Move(byte startID, byte targetID, int playerID) {
-		this.pawn = null;
-		this.target = null;
-		this.start = null;
 		start_node = startID;
 		target_node = targetID;
 		pawn_owner = null;
@@ -55,14 +49,6 @@ public class Move {
 	protected int getPlayerIndex() {
 		return playerID;
 	}
-	
-	@Deprecated
-	public final BoardNode start;
-	/** Beware that this pawn may move around and thus change position */
-	@Deprecated
-	public final Pawn pawn;
-	@Deprecated
-	public final BoardNode target;
 
 	@Override
 	public boolean equals(Object o) {
@@ -70,32 +56,13 @@ public class Move {
 		Move m = (Move)o;
 		return m.start_node == start_node && m.target_node == target_node && m.pawn_owner == pawn_owner;
 	}
-	
-	@Deprecated
-	/**
-	 * This method breaks if the pawn and target are not from the same board
-	 * @return {@code true} if this move is valid in the original board on which it was instantiated.
-	 */
-	public boolean isValid() {
-		return GameRules.SELECTED_GAMERULES.allowMove(pawn, target);
-	}
 
 	/**
 	 * @param board the board on which to check validity
 	 * @return {@code true} if this move is valid in the specified board.
 	 */
 	public boolean isValid(Board board) {
-		return GameRules.SELECTED_GAMERULES.allowMove(board.getNode(start_node).getCurrentPawn(), board.getNode(target_node));
-	}
-	
-	@Deprecated
-	/**
-	 * This method assumes the move is valid and executes this move on the board from which the pawn and target originate. <br>
-	 * Breaks everything if they are not from the same board.
-	 * @return {@code true} if the move could be executed
-	 */
-	protected boolean execute() {
-		return target.addPawn(pawn);
+		return GameRules.SELECTED_GAMERULES.allowMove(board, board.getNode(start_node).getCurrentPawn(), board.getNode(target_node));
 	}
 	
 	/**
@@ -105,17 +72,6 @@ public class Move {
 	 */
 	protected boolean execute(Board board) {
 		return board.getNode(target_node).addPawn(board.getNode(start_node).getCurrentPawn());
-	}
-	
-	@Deprecated
-	/**
-	 * This method assumes the reverse of this move is valid and executes this move in reverse on the board from which 
-	 * the pawn and target originate. <br>
-	 * Breaks everything if they are not from the same board.
-	 * @return {@code true} if the reverse move could be executed
-	 */
-	protected boolean reverse() {
-		return start.addPawn(pawn);
 	}
 	
 	/**

@@ -8,14 +8,16 @@ import players.Player;
 public class DefaultGameRules extends GameRules {
 
 	@Override
-	public boolean allowMove(Pawn pawn, BoardNode target) {
+	public boolean allowMove(Board board, Pawn _pawn, BoardNode target) {
+		Pawn pawn = board.getEquivalent(_pawn);
 		if (pawn.getPosition().getNeighbours().contains(target)) return true;
-		return (getAllPossibleMoves(pawn).contains(new Move(pawn, target)));
+		return (getAllPossibleMoves(board, pawn).contains(new Move(pawn, target)));
 	}
 	
 	@Override
-	public List<Move> getAllPossibleMoves(Pawn pawn) {
+	public List<Move> getAllPossibleMoves(Board board, Pawn _pawn) {
 		//System.out.println("get all moves");
+		Pawn pawn = board.getEquivalent(_pawn);
 		HashSet<Move> moves = new HashSet<>();
 		HashSet<BoardNode> visited = new HashSet<>(121);
 		visited.add(pawn.getPosition());

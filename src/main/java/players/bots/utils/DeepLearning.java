@@ -48,7 +48,7 @@ public class DeepLearning {
         GameEvent.clearAll();
         Player newANN = new NaivePlayer(new NeuralNetworkEval(ann));
         newANN.setName("new ANN"); newANN.setColor(Color.green);
-        Player oldANN = new NaivePlayer(new NeuralNetworkEval(old));
+        Player oldANN = new HumanPlayer();
         oldANN.setName("old ANN"); oldANN.setColor(Color.red);
         runGame(oldANN, newANN);
         runGame(newANN, oldANN);
@@ -69,8 +69,8 @@ public class DeepLearning {
         } else {
         	System.out.println("loaded ANN from memory");
         }
-        System.out.println("Starting up gradient descent...");
-        GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, 0.0003, 5000);
+        System.out.println("Generating data for gradient descent...");
+        GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, 0.0003, 10);
         GD.start(problem);
         try {
             Thread.sleep(10);

@@ -13,18 +13,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RulesTest {
 
+	private static Board board;
+	
     @Test
     void testDefaultRules(){
         Player pl = new NaivePlayer();
         Player pl2 = new NaivePlayer();
         Board game =new Board(GameRules.SELECTED_GAMERULES, null, pl, pl2);
+        board = game;
         while (game.noWinners()){
             game.nextPlayer();
             List<Move> moves = new ArrayList<Move>();
             List<Move> movesrules = new ArrayList<Move>();
             for(Pawn pawn :game.getAllPawnsOf(game.currentPlayer())){
                 moves.addAll(getAllPossibleMoves(pawn));
-                movesrules.addAll(SELECTED_GAMERULES.getAllPossibleMoves(pawn));
+                movesrules.addAll(SELECTED_GAMERULES.getAllPossibleMoves(game, pawn));
             }
             for(Move move :movesrules){
                 assertTrue(moves.contains(move));
@@ -68,8 +71,8 @@ public class RulesTest {
         }
         movesfinale.addAll(moves);
         for(Move m : moves){
-            assert m.target != null;
-            recursiveMove(m.target, movesfinale, pawn);
+            assert m.getTarget(board) != null;
+            recursiveMove(m.getTarget(board), movesfinale, pawn);
         }
     }
 

@@ -18,7 +18,7 @@ public class RandomPlayer extends Player {
 		List<Pawn> pawns = board.getAllPawnsOf(this);
     	Collections.shuffle(pawns);
     	for (Pawn pawn : pawns) {
-    		List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+    		List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(board, pawn);
     		if (moves.size() > 0) {
     			Collections.shuffle(moves);
     			return moves.get(0);

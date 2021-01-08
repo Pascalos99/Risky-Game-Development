@@ -101,7 +101,7 @@ public class GameState {
 	 */
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		setDummyBoard();
-		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board.getEquivalent(pawn));
+		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board, dummy_board.getEquivalent(pawn));
 	};
 
 

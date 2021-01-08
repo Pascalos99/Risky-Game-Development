@@ -170,7 +170,7 @@ public class GamePanel extends JPanel {
 		if (at == previousMoveDisplay || at.isEmpty()) return;
 		selectedNodes = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics g = selectedNodes.getGraphics();
-		for(Move move: GameRules.SELECTED_GAMERULES.getAllPossibleMoves(at.getCurrentPawn())){
+		for(Move move: GameRules.SELECTED_GAMERULES.getAllPossibleMoves(game, at.getCurrentPawn())){
 			BoardNode node = move.getTarget(game);
 			Point pos = graphics.getScreenPositionOfNode(node);
 			g.setColor(show_move_color);

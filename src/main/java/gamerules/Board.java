@@ -157,7 +157,7 @@ public class Board {
 				break move_calculation;
 			}
 			for (Pawn pawn : pawns)
-				result.addAll(SELECTED_GAMERULES.getAllPossibleMoves(pawn));
+				result.addAll(SELECTED_GAMERULES.getAllPossibleMoves(this, pawn));
 		}
 		for (int i=0; i < moves_done_until; i++) moves[i].reverse(this);
 		return result;
@@ -366,7 +366,7 @@ public class Board {
 		List<Pawn> pawns = getAllPawnsOf(currentPlayer());
 		Collections.shuffle(pawns);
 		for (Pawn pawn : pawns) {
-			List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+			List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(this, pawn);
 			if (moves.size() > 0) {
 				Collections.shuffle(moves);
 				moves.get(0).execute(this);

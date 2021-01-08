@@ -75,7 +75,7 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 				}
 			}
 			
-			List<Move> moves = rules.getAllPossibleMoves(pawn);
+			List<Move> moves = rules.getAllPossibleMoves(board, pawn);
 			for (Move move : moves) {
 				WeightedMove weight = null;
 				if (!goal_pawn) weight = normalWeights(move, board, rules);
@@ -84,7 +84,7 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 					if (longest_distance <= 4 || not_goal_pawns.size() < 4) {
 						List<Move> moves_after = board.getPossibleMovesAfterMove(not_goal_pawns, move);
 						for (Move m : moves_after) {
-							if (m.start_node == move.target_node || m.pawn == move.pawn) // idk what this is doing
+							if (m.start_node == move.target_node/* || m.pawn == move.pawn*/) // idk what this is doing
 							 if (m.getTarget(board).getOwner() == getEnemy(board)) {
 								weight = new WeightedMove(move, 1000000 + board.calculateScoreAfterMove(this, move, m));
 								break;
@@ -127,7 +127,7 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 			for (Player player : board.getPlayers()) {
 				if (player == this) continue;
 				if (!max_move_scores.containsKey(player)) {
-					List<Move> player_moves_before = rules.getAllPossibleMoves(board.getAllPawnsOf(player));
+					List<Move> player_moves_before = rules.getAllPossibleMoves(board, board.getAllPawnsOf(player));
 					double max_score = Double.NEGATIVE_INFINITY;
 					for (Move player_move : player_moves_before) {
 						double score = player_move.calculateScore(board);

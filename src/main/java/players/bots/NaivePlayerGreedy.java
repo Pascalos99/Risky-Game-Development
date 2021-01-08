@@ -29,7 +29,7 @@ public class NaivePlayerGreedy extends Player {
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
         Collections.shuffle(pawns);
         for (Pawn pawn : pawns) {
-            List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(pawn);
+            List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(gameBoard, pawn);
             for (Move move : moves) {
                 double score = evaluation.apply(new GameState(gameState, move),this);
                 /*if(eval.containsKey(score)){
