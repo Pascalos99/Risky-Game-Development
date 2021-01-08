@@ -32,8 +32,12 @@ public class DeepLearning {
 
     private static boolean smart_learn = false;
     public static int limit = 2000;
-    public static int iterations = 500000;
+    public static int iterations = -1; // don't limit
     public static double learning_rate = 0.0003;
+    /** should be lower than save_time and stop_time */
+    public static long info_time_ms = 300000l; // 5 minutes
+    public static long save_time_ms = 900000l; // 15 minutes
+    public static long stop_time_ms = 10000;//21600000l; // 6 hours
     
     private static String network_name = "DL-simple";
 
@@ -66,15 +70,29 @@ public class DeepLearning {
         } else {
         	System.out.println("loaded ANN from memory");
         }
-        System.out.println("Generating data for gradient descent...");
+        System.out.println("Training through gradient descent...");
         GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, learning_rate, iterations);
+        long time = System.currentTimeMillis();
+        long start_time = time;
         GD.start(problem);
         try {
             Thread.sleep(10);
         } catch (InterruptedException e1) {}
         while (GD.isBusy()) {
+        	if (System.currentTimeMillis() - time >= save_time_ms) {
+        		saveNetwork(ann, network_name);
+        		ann = loadNetwork(network_name);
+        		time = System.currentTimeMillis();
+        		System.gc();
+        		System.out.println("Saved Network to version "+getLatestVersion(network_name));
+        	}
+        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
+        		saveNetwork(ann, network_name);
+        		GD.stop();
+        		System.out.println("Stopped gradient descent after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
+        	}
             try {
-                Thread.sleep(100);
+                Thread.sleep(info_time_ms);
             } catch (InterruptedException e) {}
             if (GD.hasNewData()) {
             	System.out.println("calculated "+GD.getIterations()+" iterations");

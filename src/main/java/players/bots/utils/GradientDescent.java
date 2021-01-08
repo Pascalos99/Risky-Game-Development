@@ -154,7 +154,7 @@ public class GradientDescent {
 		public void run() {
 			iteration_count = 0;
 			is_busy = true;
-			while (!stop && iteration_count <= max_iterations) {
+			while (!stop && (iteration_count <= max_iterations || max_iterations < 0)) {
 				double[][] data_entry = data.get();
 				adjustWeights(data_entry[0], data_entry[1]);
 				iteration_count++;
