@@ -20,9 +20,12 @@ import gamerules.BoardNode;
 import gamerules.GameRules;
 import gamerules.Move;
 import gamerules.evaluation_functions.NormalizedSGD;
+import gamerules.evaluation_functions.NeuralNetworkEval;
 import graphics.BoardGraphics;
 import players.*;
 import players.bots.*;
+
+import static players.bots.utils.EveryoneShouldHaveMachineLearning.*;
 
 public class GamePanel extends JPanel {
 
@@ -40,8 +43,8 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer(new RandomGreedy(new NormalizedSGD()), "Melissa", Color.cyan);
-		gs.addPlayer(new RandomGreedy(new NormalizedSGD()), "Henry", Color.red);/*
+		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-simple"))), "Melissa", Color.cyan);
+		gs.addPlayer(new NaivePlayer(), "Henry", Color.red);/*
 		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.green);
 		gs.addPlayer(new NaivePlayer().getTypeName(), "Melissa", Color.gray);
 		gs.addPlayer(new AstarTest().getTypeName(), "Henry", Color.black);

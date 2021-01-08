@@ -48,7 +48,7 @@ public class DeepLearning {
         Player oldANN = new NaivePlayer(new NeuralNetworkEval(old));
         oldANN.setName("old ANN"); oldANN.setColor(Color.red);
         runGame(oldANN, newANN);
-        //runGame(newANN, oldANN);
+        runGame(newANN, oldANN);
     }
 
     public static void associatedWithEuristic(){
