@@ -23,6 +23,7 @@ public class DeepLearning {
     private static double [] input;
     private static final double [] expected = new double[1];
     private static final NormalizedSGD heuristic = new NormalizedSGD();
+    public static int limit = 10;
 
     public static void main(String[] args) throws IOException {
         associatedWithEuristic();
@@ -33,7 +34,8 @@ public class DeepLearning {
             test();
             return new double[][] {input, expected};
         };
-        for(int i = 0; i < 10;i++){
+        for(int i = 0; i < 100;i++){
+            if(i%2 == 0) i++;
             ann  = NeuralNetwork.readFromFile(new File(networkPath+"FirstTrain.network"))[0].clone();
             GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, 0.006, 10000);
             GD.start(problem);
@@ -46,6 +48,7 @@ public class DeepLearning {
                 } catch (InterruptedException e) {}
                 System.out.println("Loss = "+GD.getCurrentLoss());
             }
+            System.out.println();
             ann.storeToFile(new File(networkPath+"FirstTrain.network"));
         }
 
@@ -65,11 +68,11 @@ public class DeepLearning {
             expected[0] = heuristic.apply(gs,game.currentPlayer());
             game.nextPlayer();
             game.forceRequestMoveAndContinue();
-//            if(index++ > 2000){
-//                game = new Board(GameRules.SELECTED_GAMERULES, null, new NaivePlayerGreedy(),new NaivePlayerGreedy());
-//                index = 0;
-//                test();
-//            }
+            if(index++ > limit){
+                game = new Board(GameRules.SELECTED_GAMERULES, null, new NaivePlayerGreedy(),new NaivePlayerGreedy());
+                index = 0;
+                test();
+            }
         }
         else {
             game = new Board(GameRules.SELECTED_GAMERULES, null, new NaivePlayerGreedy(),new NaivePlayerGreedy());
