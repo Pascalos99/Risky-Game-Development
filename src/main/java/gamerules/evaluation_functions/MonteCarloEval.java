@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import static players.bots.utils.NeuralNetwork.*;
 
@@ -25,12 +26,10 @@ public class MonteCarloEval implements EvaluationFunction {
     }
 
     public MonteCarloEval(double maxTime, double minNumberEvaluation,int treeSize,int randomSize) {
-        NeuralNetwork ann1;
         this.maxTime = maxTime;
         this.minNumberEvaluation = minNumberEvaluation;
         this.treeSize = treeSize;
         this.randomSize = randomSize;
-        this.ann = null;
         try {
             this.ann = NeuralNetwork.readFromFile(new File(networkPath+"FirstTrain.network"))[0].clone();
         } catch (IOException e) {
@@ -70,9 +69,11 @@ public class MonteCarloEval implements EvaluationFunction {
         Collections.shuffle(pawns);
         for (Pawn pawn : pawns) {
             List<Move> moves = board.getAllPossibleMoves(pawn);
-            for (Move move : moves){
-                if(!blackList.contains(move.target_node))
-                    eval.put(ann.forwardProp(new GameState(board,move).getMatrix(player))[0] + (Math.random()*randomSize) - (randomSize/2),move);
+            for (Move move : moves) {
+                if (!blackList.contains(move.target_node)) {
+                    Random rd = new Random();
+                    eval.put(ann.forwardProp(new GameState(board, move).getMatrix(player))[0] + rd.nextGaussian() * randomSize, move);
+                }
             }
         }
         return eval.get((Collections.max(eval.keySet())));

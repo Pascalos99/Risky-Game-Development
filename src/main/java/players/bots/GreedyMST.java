@@ -7,6 +7,7 @@ import players.Player;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class GreedyMST extends Player {
     private final EvaluationFunction evaluation;
@@ -82,7 +83,8 @@ public class GreedyMST extends Player {
         for (Pawn pawn : pawns) {
             List<Move> moves = board.getAllPossibleMoves(pawn);
             for (Move move : moves) {
-                eval.put(evaluation.apply(new GameState(gameState, move), this) + (Math.random() * randomSize) - (randomSize/2), move);
+                Random rd = new Random();
+                eval.put(evaluation.apply(new GameState(gameState, move), this) + rd.nextGaussian()*randomSize, move);
             }
         }
         return eval.get((Collections.max(eval.keySet())));
