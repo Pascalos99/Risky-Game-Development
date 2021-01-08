@@ -128,7 +128,7 @@ public class DeepLearning {
     }
     
     public static void storeANN() throws IOException {
-    	storeANN(getLatestID());
+    	storeANN(getLatestID()+1);
     }
     
     private static int getLatestID() {
