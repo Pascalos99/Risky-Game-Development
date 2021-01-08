@@ -18,5 +18,9 @@ public class NormalizedSGD implements EvaluationFunction {
 	public Double apply(GameState t, Player u) {
 		return (SimpleGoalDistance.SIMPLE_GOAL_DISTANCE.apply(t, u) - min) / (max - min);
 	}
+	
+	public String toString() {
+		return "normSGD";
+	}
 
 }

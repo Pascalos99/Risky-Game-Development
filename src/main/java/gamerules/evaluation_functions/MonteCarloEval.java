@@ -80,4 +80,8 @@ public class MonteCarloEval implements EvaluationFunction {
         }
         return eval.get((Collections.max(eval.keySet())));
     }
+    
+    public String toString() {
+    	return "MCEval";
+    }
 }

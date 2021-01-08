@@ -1,5 +1,6 @@
 package players.bots.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -67,7 +68,8 @@ public class GradientDescent {
 	private LossFunction loss;
 	private int max_iterations;
 	
-	private double current_loss;
+	private List<Double> loss_values;
+	private int last_loss_index;
 	private boolean is_busy = false;
 	private boolean stop = false;
 	private int iteration_count;
@@ -85,6 +87,8 @@ public class GradientDescent {
 		this.learning_rate = learning_rate;
 		this.loss = loss;
 		this.max_iterations = max_iterations;
+		loss_values = new ArrayList<>();
+		last_loss_index = 0;
 	}
 	public GradientDescent(Tunable ann, LossFunction loss, double learning_rate) {
 		this(ann, loss, learning_rate, -1);
@@ -106,7 +110,7 @@ public class GradientDescent {
 	
 	private void adjustWeights(double[] input, double[] target) {
 		double[] output = model.computeOutput(input);
-		current_loss = loss.calculate(output, target);
+		loss_values.add(loss.calculate(output, target));
 		double[][][] gradients = model.calculateLossGradients(loss, target);
 		double[][][] weights = model.getAllWeights();
 		
@@ -159,8 +163,21 @@ public class GradientDescent {
 		}
 	}
 	
-	public double getCurrentLoss() {
-		return current_loss;
+	public boolean hasNewData() {
+		return last_loss_index < loss_values.size();
+	}
+	
+	public int getIterations() {
+		return iteration_count;
+	}
+	
+	public synchronized double getCurrentLoss() {
+		double sum = 0;
+		int size = loss_values.size();
+		for (int i=last_loss_index; i < size; i++)
+			sum += loss_values.get(i);
+		last_loss_index = size;
+		return sum / size;
 	}
 	
 	public boolean isBusy() {

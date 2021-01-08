@@ -71,4 +71,8 @@ public class SimpleGoalDistance implements EvaluationFunction {
 		return Double.valueOf(bonus - distance_weight * sum);
 	}
 	
+	public String toString() {
+		return "SGD";
+	}
+	
 }

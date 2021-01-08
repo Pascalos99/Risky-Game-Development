@@ -42,7 +42,7 @@ public class NaivePlayer extends Player {
 
     @Override
     public String getTypeName() {
-        return "Naive Player";
+        return "Naive Player ["+evaluation+"]";
     }
 
     @Override
