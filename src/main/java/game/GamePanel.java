@@ -31,8 +31,8 @@ public class GamePanel extends JPanel {
 
 	private static final long serialVersionUID = -5452925014639836146L;
 	
-	private BoardGraphics graphics;
-	private Board game;
+	protected BoardGraphics graphics;
+	protected Board game;
 	private InputHandler input;
 	
 	public static int turn_time = 500; // in ms
