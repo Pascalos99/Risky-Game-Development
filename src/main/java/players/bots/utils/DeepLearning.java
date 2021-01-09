@@ -37,7 +37,7 @@ public class DeepLearning {
     /** should be lower than save_time and stop_time */
     public static long info_time_ms = 300000l; // 5 minutes
     public static long save_time_ms = 900000l; // 15 minutes
-    public static long stop_time_ms = 10000;//21600000l; // 6 hours
+    public static long stop_time_ms = 21600000l; // 6 hours
     
     private static String network_name = "DL-simple";
 
@@ -113,7 +113,7 @@ public class DeepLearning {
             game.forceRequestMoveAndContinue();
             if(index++ <= limit) return;
         }
-        game = new Board(GameRules.SELECTED_GAMERULES, null, new RandomGreedy(new NeuralNetworkEval(ann), 6), new NaivePlayer());
+        game = new Board(GameRules.SELECTED_GAMERULES, null, new RandomGreedy(new NeuralNetworkEval(ann), 6), new RandomGreedy(new NormalizedSGD(), 6));
         index = 0;
         test();
     }
