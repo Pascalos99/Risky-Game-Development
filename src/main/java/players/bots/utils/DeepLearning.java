@@ -32,13 +32,13 @@ public class DeepLearning {
     private static boolean loaded = false;
 
     private static boolean smart_learn = false;
-    public static int max_turns_per_game = 2000;
+    public static int max_turns_per_game = 500;
     public static int iterations = -1; // don't limit
-    public static double learning_rate = 0.0003;
+    public static double learning_rate = 0.0001;
     /** should be lower than save_time and stop_time */
-    public static long info_time_ms = 1000;//300000l; // 5 minutes
-    public static long save_time_ms = 900000l / 3l; // 15 minutes
-    public static long stop_time_ms = 21600000l / 3; // 6 hours
+    public static long info_time_ms = 300000l; // 5 minutes
+    public static long save_time_ms = 900000l; // 15 minutes
+    public static long stop_time_ms = 21600000l * 2; // 6 hours * 2 = 12 hours
     public static BoardRep board_rep = BoardRep.TwoNoNegatives;
     
     private static String network_name = "DL-smallTNN";
