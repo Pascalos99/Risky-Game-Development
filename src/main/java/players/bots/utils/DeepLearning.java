@@ -16,13 +16,14 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Supplier;
 
 import static players.bots.utils.EveryoneShouldHaveMachineLearning.*;
 import static players.bots.utils.NeuralNetwork.*;
 
 public class DeepLearning {
-    private static NeuralNetwork ann;
+    private static NeuralNetwork ann = null;
     private static Board game;
     private static int index = 0;
     private static double [] input;
@@ -31,18 +32,35 @@ public class DeepLearning {
     private static boolean loaded = false;
 
     private static boolean smart_learn = false;
-    public static int limit = 2000;
+    public static int max_turns_per_game = 2000;
     public static int iterations = -1; // don't limit
     public static double learning_rate = 0.0003;
     /** should be lower than save_time and stop_time */
-    public static long info_time_ms = 300000l; // 5 minutes
-    public static long save_time_ms = 900000l; // 15 minutes
-    public static long stop_time_ms = 21600000l; // 6 hours
+    public static long info_time_ms = 1000;//300000l; // 5 minutes
+    public static long save_time_ms = 900000l / 3l; // 15 minutes
+    public static long stop_time_ms = 21600000l / 3; // 6 hours
+    public static BoardRep board_rep = BoardRep.TwoNoNegatives;
     
-    private static String network_name = "DL-simple";
+    private static String network_name = "DL-smallTNN";
 
     public static void main(String[] args) throws IOException {
-    	ann = loadNetwork(network_name); loaded = true;
+    	try {
+    		ann = loadNetwork(network_name);
+    		loaded = true;
+    	} catch (NetworkIOException e) {
+    		System.out.println("could not load network "+network_name);
+    		e.printStackTrace();
+    	}
+    	if (!loaded) {
+	        int[] structure = {162, 40, 1};
+	        // The different activation function use in the ANN
+	        NeuralNetwork.Activation[] activations = {SILU, SIGMOID};
+	        ann = new NeuralNetwork(structure, activations);
+	        ann.initializeRandomWeights(-1, 1);
+	        System.out.println("Generated new ANN weights");
+        } else {
+        	System.out.println("loaded ANN from memory");
+        }
     	NeuralNetwork old = ann.clone();
         associatedWithEuristic();
         saveNetwork(ann, network_name);
@@ -60,16 +78,6 @@ public class DeepLearning {
             test();
             return new double[][] {input, expected};
         };
-        if (!loaded) {
-	        int[] structure = {162, 81, 20, 20, 1};
-	        // The different activation function use in the ANN
-	        NeuralNetwork.Activation[] activations = {dSILU, dSILU, dSILU, SIGMOID};
-	        ann = new NeuralNetwork(structure, activations);
-	        ann.initializeRandomWeights(-1, 1);
-	        System.out.println("Generated new ANN weights");
-        } else {
-        	System.out.println("loaded ANN from memory");
-        }
         System.out.println("Training through gradient descent...");
         GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, learning_rate, iterations);
         long time = System.currentTimeMillis();
@@ -95,8 +103,8 @@ public class DeepLearning {
                 Thread.sleep(info_time_ms);
             } catch (InterruptedException e) {}
             if (GD.hasNewData()) {
-            	System.out.println("calculated "+GD.getIterations()+" iterations");
-            	System.out.println("Loss = "+GD.getCurrentLoss());
+            	System.out.format("calculated %d iterations\n", GD.getIterations());
+            	System.out.format("  Loss = % .3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
             }
         }
     }
@@ -108,14 +116,61 @@ public class DeepLearning {
     	}
         if (game != null && game.noWinners()){
             GameState gs = new GameState(game);
-            input = gs.getMatrixUnrolled(game.currentPlayer());
+            input = gs.getMatrixUnrolled(game.currentPlayer(), board_rep);
             expected[0] = heuristic.apply(gs,game.currentPlayer());
             game.forceRequestMoveAndContinue();
-            if(index++ <= limit) return;
+            if(index++ <= max_turns_per_game) return;
         }
-        game = new Board(GameRules.SELECTED_GAMERULES, null, new RandomGreedy(new NeuralNetworkEval(ann), 6), new RandomGreedy(new NormalizedSGD(), 6));
+        game = getRandomGameSetup();
         index = 0;
         test();
+    }
+    
+    private static Player[] randomgameplayers = { new AlphaBeta(), new RandomGreedy(new NormalizedSGD(), 5.5), new GreedyMST() };
+    private static Color[] playerColors = {Color.red, Color.green, Color.blue, Color.magenta, Color.cyan, Color.yellow};
+    
+    /** Generates a random game setup:<br>
+     * 50% chance for 1v1<br>
+     * 25% chance for 2v2<br>
+     * 25% chance for 3v3<br>
+     * for any player:<br>
+     *  ~25% chance for RG(ANN)<br>
+     *  ~25% chance for RG(SGD)<br>
+     *  ~25% chance for random-MCTS<br>
+     *  ~25% chance for AlphaBeta (but 0% chance for AlphaBeta v AlphaBeta on 1v1, 2v2 or 3v3; since AB is deterministic)
+     */
+    private static Board getRandomGameSetup() {
+    	Random random = new Random();
+    	GameSetup gs = new GameSetup();
+    	Player[] players;
+    	if (random.nextBoolean())
+    		players = pick_random_players(2);
+    	else if (random.nextBoolean())
+    		players = pick_random_players(4);
+    	else
+    		players = pick_random_players(6);
+    	for (int i=0; i < players.length; i++)
+    		gs.addPlayer(players[i], "testplayer"+(i+1), playerColors[i]);
+    	return gs.getBoard();
+    }
+    
+    private static Random random;
+    
+    private static Player[] pick_random_players(int amount) {
+    	if (random == null) random = new Random();
+    	Player[] result = new Player[amount];
+    	int[] temp = new int[amount];
+    	while (filledWith(temp, 0))
+    		for (int i=0; i < temp.length; i++) temp[i] = random.nextInt(4);
+    	for (int i=0; i < temp.length; i++)
+    		if (temp[i] == 3) result[i] = new RandomGreedy(new NeuralNetworkEval(ann, board_rep), 5.5);
+    		else result[i] = randomgameplayers[temp[i]];
+    	return result;
+    }
+    private static boolean filledWith(int[] a, int x) {
+    	for (int i=0; i < a.length; i++)
+    		if (a[i] != x) return false;
+    	return true;
     }
 
     private static List<Double> state_outputs = new LinkedList<>();
@@ -132,13 +187,13 @@ public class DeepLearning {
 			List<double[]> state1_inputs = new LinkedList<>();
 			List<double[]> state2_inputs = new LinkedList<>();
 			int iter = 0;
-			int max_iter = limit;
+			int max_iter = max_turns_per_game;
 			if (player_order) game = new Board(GameRules.SELECTED_GAMERULES, null, player1, player2);
 			else game = new Board(GameRules.SELECTED_GAMERULES, null, player2, player1);
 			while (game.noWinners() && iter++ <= max_iter) {
 				gs = new GameState(game);
-	            if (game.currentPlayer() == player1) state1_inputs.add(gs.getMatrixUnrolled(player1));
-	            if (game.currentPlayer() == player2) state2_inputs.add(gs.getMatrixUnrolled(player2));
+	            if (game.currentPlayer() == player1) state1_inputs.add(gs.getMatrixUnrolled(player1, board_rep));
+	            if (game.currentPlayer() == player2) state2_inputs.add(gs.getMatrixUnrolled(player2, board_rep));
 	            game.forceRequestMoveAndContinue();
 			} gs = new GameState(game);
 			//System.out.println("winner = "+game.getWinner());

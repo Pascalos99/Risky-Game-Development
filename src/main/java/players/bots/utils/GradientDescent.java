@@ -11,57 +11,6 @@ import players.bots.utils.NeuralNetwork.Activation;
 import static players.bots.utils.NeuralNetwork.*;
 
 public class GradientDescent {
-
-	public static void main(String[] args) {
-		Random randomizer = new Random();
-		int dimension = 2;
-		List<double[]> goal_points = List.of(new double[][] {
-			{0, 0},
-			{2, 2}
-		});
-		// the dummy problem is:
-		//  given your current position V, output a vector U such that the result
-		//  V + U is as close as possible to the closest goal point
-		Supplier<double[][]> problem = () -> {
-			double[] input = new double[dimension];
-			for (int i=0; i < input.length; i++)
-				input[i] = randomizer.nextDouble() * 4 - 2;
-			double[] distances = new double[goal_points.size()];
-			double min = Double.POSITIVE_INFINITY;
-			int best = -1;
-			for (int i=0; i < goal_points.size(); i++) {
-				distances[i] = HALF_SQUARE_ERROR.calculate(input, goal_points.get(i));
-				if (distances[i] < min) {
-					min = distances[i];
-					best = i;
-				}}
-			double[] result = new double[dimension];
-			for (int i=0; i < result.length; i++)
-				result[i] = goal_points.get(best)[i] - input[i];
-			/*System.out.println("input = "+Utils.matrixToString(Utils.getRowVector(input))+" gives "+
-				Utils.matrixToString(Utils.getRowVector(result)));*/
-			return new double[][] {input, result};
-		};
-		
-		NeuralNetwork model = new NeuralNetwork(new int[] {2, 5, 2}, new Activation[] {RELU, LINEAR});
-		model.initializeRandomWeights(-1, 1);
-		GradientDescent GD = new GradientDescent(model, HALF_SQUARE_ERROR, 0.0003, 10000000);
-		GD.start(problem);
-		try {
-			Thread.sleep(10);
-		} catch (InterruptedException e1) {}
-		while (GD.isBusy()) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {}
-			System.out.println("Loss = "+GD.getCurrentLoss());
-		}
-		System.out.println("weights after all that training:");
-		double[][][] w = model.getAllWeights();
-		for (int l=0; l < w.length; l++) {
-			Utils.printMatrix(w[l]);
-		}
-	}
 	
 	private Tunable model;
 	private double learning_rate;
@@ -73,6 +22,8 @@ public class GradientDescent {
 	private boolean is_busy = false;
 	private boolean stop = false;
 	private int iteration_count;
+	
+	public static int min_data_interval = 250;
 	
 	private DescentThread thread;
 	
@@ -171,13 +122,36 @@ public class GradientDescent {
 		return iteration_count;
 	}
 	
-	public synchronized double getCurrentLoss() {
+	private synchronized void updateLatestData() {
+		if (!hasNewData()) return;
 		double sum = 0;
 		int size = loss_values.size();
-		for (int i=last_loss_index; i < size; i++)
+		int start_index = last_loss_index;
+		if (size - start_index < min_data_interval)
+			start_index = size - min_data_interval;
+		if (start_index < 0) start_index = 0;
+		for (int i=start_index; i < size; i++)
 			sum += loss_values.get(i);
+		double avg = sum / size;
+		double var = 0;
+		for (int i=start_index; i < size; i++)
+			var += Math.pow(loss_values.get(i) - avg, 2);
+		var /= size;
+		latest_loss_avg = avg;
+		latest_loss_sd = Math.sqrt(var);
 		last_loss_index = size;
-		return sum / size;
+	}
+	
+	private double latest_loss_avg;
+	private double latest_loss_sd;
+	
+	public synchronized double getCurrentLoss() {
+		updateLatestData();
+		return latest_loss_avg;
+	}
+	public synchronized double getCurrentLossSD() {
+		updateLatestData();
+		return latest_loss_sd;
 	}
 	
 	public boolean isBusy() {
