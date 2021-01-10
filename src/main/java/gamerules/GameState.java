@@ -426,6 +426,10 @@ public class GameState {
 		return Utils.unrollMatrix(getMatrix(perspective, boardRep));
 	}
 	
+	public double[][][] getMatrix(Player perspective) {
+		return getMatrix(perspective, BoardRep.Original);
+	}
+	
 	public double[][][] getMatrix(Player perspective, BoardRep board_rep) {
 		double [][] withenemy= getMatrixEnemy(perspective);
 		double [][][] result = new double[2][9][9];
