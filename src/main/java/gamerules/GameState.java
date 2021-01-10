@@ -5,7 +5,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import players.Player;
-import players.bots.utils.NodeDistanceCalc;
+import players.bots.utils.BoardRep;
+import players.bots.utils.Utils;
 
 public class GameState {
 	
@@ -417,26 +418,30 @@ public class GameState {
 		return false;
 	}
 
-	public double [] getMatrix(Player perspective){
+	public double [] getMatrixUnrolled(Player perspective){
+		return getMatrixUnrolled(perspective, BoardRep.Original);
+	}
+	
+	public double[] getMatrixUnrolled(Player perspective, BoardRep boardRep) {
+		return Utils.unrollMatrix(getMatrix(perspective, boardRep));
+	}
+	
+	public double[][][] getMatrix(Player perspective, BoardRep board_rep) {
 		double [][] withenemy= getMatrixEnemy(perspective);
-		int index = 0;
-		double [] result = new double[162];
-		for(int i = 0; i < withenemy.length; i++){
-			for(int j = 0; j < withenemy[i].length; j++){
-				if(withenemy[i][j]==5)
-					result[index++] = 0;
-				else
-					result[index++] = withenemy[i][j];
-			}
-		}
-		for(int i = 0; i < withenemy.length; i++){
-			for(int j = 0; j < withenemy[i].length; j++){
-				if(withenemy[i][j]==5)
-					result[index++] = 0;
-				else
-					result[index++] = Math.abs(withenemy[i][j]);
-			}
-		}
+		double [][][] result = new double[2][9][9];
+		for (int k=0; k < result.length; k++) {
+			for(int i = 0; i < withenemy.length; i++){
+				for(int j = 0; j < withenemy[i].length; j++){
+					switch(board_rep) {
+					case TwoNoNegatives:
+						if(withenemy[i][j] == ((k==0)? 1:-1) ) result[k][i][j] = 1;
+						break;
+					default:
+						if(withenemy[i][j]!=0) {
+							if (k==0) {
+								result[k][i][j] = withenemy[i][j];
+							} else result[k][i][j] = Math.abs(withenemy[i][j]);
+						}}}}}
 		return result;
 	}
 
@@ -530,7 +535,7 @@ public class GameState {
 						}
 					}
 					if (!conditions1 && !conditions2) {
-						matrix[x][y] = 5;
+						matrix[x][y] = 0;
 					}
 					x -=1 ;
 					y +=1 ;

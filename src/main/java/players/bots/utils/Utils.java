@@ -1,5 +1,7 @@
 package players.bots.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -19,8 +21,30 @@ public final class Utils {
 		Y apply(U u, V v, W w);
 	}
 	
-	public static void printMatrix(double[][] m) {
-		System.out.println(matrixToString(m));
+	public static void printMatrix(double[][] m, int precision) {
+		System.out.println(matrixToString(m, precision));
+	}
+	
+	public static void printMatrix(double[][]... m) {
+		for (int i=0; i < m.length; i++)
+			System.out.println(matrixToString(m[i]));
+	}
+	public static void printMatrix(int precision, double[][]... m) {
+		for (int i=0; i < m.length; i++)
+			System.out.println(matrixToString(m[i], precision));
+	}
+	
+	public static void printVector(double[] v, int precision) {
+		printMatrix(getColumnVector(v), precision);
+	}
+	public static void printArray(double[] h, int precision) {
+		printMatrix(getRowVector(h), precision);
+	}
+	public static void printVector(double[] v) {
+		printMatrix(getColumnVector(v));
+	}
+	public static void printArray(double[] h) {
+		printMatrix(getRowVector(h));
 	}
 	
 	public static double[][] parseMatrix(String string) {
@@ -36,14 +60,14 @@ public final class Utils {
 		return matrix;
 	}
 	
-	public static String matrixToString(double[][] m) {
+	public static String matrixToString(double[][] m, int precision) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		for (int i=0; i < m.length; i++) {
 			if (i > 0) sb.append(" ");
 			sb.append("[");
 			for (int j=0; j < m[i].length; j++) {
-				sb.append(String.format(Locale.CANADA, "% .15f", m[i][j]));
+				sb.append(String.format(Locale.CANADA, "% ."+precision+"f", m[i][j]));
 				if (j < m[i].length - 1) sb.append(", ");
 			}
 			sb.append("]");
@@ -51,6 +75,22 @@ public final class Utils {
 			else sb.append(")");
 		}
 		return sb.toString();
+	}
+	
+	public static String matrixToString(double[][] m) {
+		return matrixToString(m, 3);
+	}
+	public static String vectorToString(double[] v, int precision) {
+		return matrixToString(getColumnVector(v), precision);
+	}
+	public static String arrayToString(double[] h, int precision) {
+		return matrixToString(getRowVector(h), precision);
+	}
+	public static String vectorToString(double[] v) {
+		return matrixToString(getColumnVector(v));
+	}
+	public static String arrayToString(double[] h) {
+		return matrixToString(getRowVector(h));
 	}
 	
 	public static double[][] transpose(double[][] m) {
@@ -118,6 +158,17 @@ public final class Utils {
 			for (int j=0; j < colsB; j++)
 				for (int z=0; z < colsA; z++)
 					result[i][j] += a[i][z] * b[z][j];
+		return result;
+	}
+	
+	public static double[] unrollMatrix(double[][]... matrix) {
+		List<Double> l = new ArrayList<>();
+		for (int i=0; i < matrix.length; i++)
+			for (int j=0; j < matrix[i].length; j++)
+				for (int k=0; k < matrix[i][j].length; k++)
+					l.add(matrix[i][j][k]);
+		double[] result = new double[l.size()];
+		for (int i=0; i < result.length; i++) result[i] = l.get(i);
 		return result;
 	}
 	

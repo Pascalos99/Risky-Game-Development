@@ -6,11 +6,14 @@ import gamerules.Board;
 import gamerules.EvaluationFunction;
 import gamerules.GameState;
 import players.Player;
+import players.bots.utils.BoardRep;
 import players.bots.utils.NeuralNetwork;
 
 public class NeuralNetworkEval implements EvaluationFunction {
 
 	private NeuralNetwork ann;
+	
+	private BoardRep boardrep = BoardRep.Original;
 	
 	/**
 	 * @param net a network with an input vector of 162 and an output vector of 1
@@ -34,7 +37,7 @@ public class NeuralNetworkEval implements EvaluationFunction {
 					return Double.NEGATIVE_INFINITY;
 			}
 		}
-		return ann.forwardProp(t.getMatrix(u))[0];
+		return ann.forwardProp(t.getMatrixUnrolled(u))[0];
 	}
 	
 	public String toString() {

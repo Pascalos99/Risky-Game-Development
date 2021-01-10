@@ -45,7 +45,7 @@ public class RandomGreedy extends Player {
 		GameState state = new GameState(game);
 		List<Pawn> pawns = state.getAllPawnsOf(this);
 		Stream<ValueState> next = state.getAllPossibleMoves(pawns).stream().map(move -> new GameState(state, move))
-				.map(s -> of(s, heuristic.eval(s, this) + 0.01 * Math.random()));
+				.map(s -> of(s, heuristic.eval(s, this) + 0.01 * random.nextDouble()));
 		Comparator<ValueState> comp = (s1, s2) -> {
 			if (s1.value == s2.value) return 0;
 			if (s1.value > s2.value) return -1;
@@ -70,7 +70,9 @@ public class RandomGreedy extends Player {
 
 	@Override
 	public Player getNewInstance() {
-		return new RandomGreedy(heuristic, optimal_play_factor);
+		RandomGreedy copy = new RandomGreedy(heuristic, optimal_play_factor);
+		copy.random = random;
+		return copy;
 	}
 	
 	private static ValueState of(GameState state, double value) {

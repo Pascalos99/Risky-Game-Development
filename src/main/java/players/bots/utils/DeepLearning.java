@@ -108,7 +108,7 @@ public class DeepLearning {
     	}
         if (game != null && game.noWinners()){
             GameState gs = new GameState(game);
-            input = gs.getMatrix(game.currentPlayer());
+            input = gs.getMatrixUnrolled(game.currentPlayer());
             expected[0] = heuristic.apply(gs,game.currentPlayer());
             game.forceRequestMoveAndContinue();
             if(index++ <= limit) return;
@@ -137,8 +137,8 @@ public class DeepLearning {
 			else game = new Board(GameRules.SELECTED_GAMERULES, null, player2, player1);
 			while (game.noWinners() && iter++ <= max_iter) {
 				gs = new GameState(game);
-	            if (game.currentPlayer() == player1) state1_inputs.add(gs.getMatrix(player1));
-	            if (game.currentPlayer() == player2) state2_inputs.add(gs.getMatrix(player2));
+	            if (game.currentPlayer() == player1) state1_inputs.add(gs.getMatrixUnrolled(player1));
+	            if (game.currentPlayer() == player2) state2_inputs.add(gs.getMatrixUnrolled(player2));
 	            game.forceRequestMoveAndContinue();
 			} gs = new GameState(game);
 			//System.out.println("winner = "+game.getWinner());
