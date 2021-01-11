@@ -57,7 +57,7 @@ public class MonteCarloEval implements EvaluationFunction {
                 }
                 ne = new GameTreeNode(ne,returnMove(ne.getGameState(),ne.getGameState().currentPlayer()));
             }
-            score += ann.forwardProp(ne.getGameState().getMatrix(player))[0];
+            score += ann.forwardProp(ne.getGameState().getMatrixUnrolled(player))[0];
         }
         return score;
     }
@@ -72,7 +72,7 @@ public class MonteCarloEval implements EvaluationFunction {
             for (Move move : moves) {
                 if (!blackList.contains(move.target_node)) {
                     Random rd = new Random();
-                    eval.put(ann.forwardProp(new GameState(board, move).getMatrix(player))[0] + rd.nextGaussian() * randomSize, move);
+                    eval.put(ann.forwardProp(new GameState(board, move).getMatrixUnrolled(player))[0] + rd.nextGaussian() * randomSize, move);
                 }
             }
         }

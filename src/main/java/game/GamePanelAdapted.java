@@ -1,7 +1,6 @@
 package game;
 
 import java.awt.image.BufferedImage;
-import java.io.Serial;
 
 import game.events.GameEvent;
 import game.events.MoveEvent;
@@ -29,7 +28,6 @@ public class GamePanelAdapted extends GamePanel {
             "Paola"};
     private static final Color[] pieceColors = new Color[]{Color.cyan, Color.red, Color.green, Color.gray, Color.black, Color.blue};
 
-    @Serial
     private static final long serialVersionUID = -5452925014639836146L;
 
     public static void main(String[] args) {

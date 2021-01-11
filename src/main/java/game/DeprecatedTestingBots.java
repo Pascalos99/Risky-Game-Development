@@ -2,7 +2,7 @@ package game;
 
 public class DeprecatedTestingBots {
     private static final int TESTS_NUMBER = 200;
-    private static final String[] players = new String[]{"np","npnndls","np"};
+    private static final String[] players = new String[]{"np","npnndls","np", "np"};
     private static final Object waiting = new Object();
     public static void main(String[] args) throws InterruptedException {
         GamePanelAdapted.main(players);

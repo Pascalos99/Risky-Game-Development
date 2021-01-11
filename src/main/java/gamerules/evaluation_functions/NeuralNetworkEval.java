@@ -6,19 +6,26 @@ import gamerules.Board;
 import gamerules.EvaluationFunction;
 import gamerules.GameState;
 import players.Player;
+import players.bots.utils.BoardRep;
 import players.bots.utils.NeuralNetwork;
 
 public class NeuralNetworkEval implements EvaluationFunction {
 
 	private NeuralNetwork ann;
 	
+	private BoardRep boardrep;
+	
+	public NeuralNetworkEval(NeuralNetwork net, BoardRep board_rep) {
+		boardrep = board_rep;
+		if (net.getInputSize() != boardrep.input_size || net.getOutputSize() != boardrep.output_size)
+			throw new IllegalArgumentException(String.format("network must be [%d] in and [%d] out", boardrep.input_size, boardrep.output_size));
+		ann = net;
+	}
 	/**
 	 * @param net a network with an input vector of 162 and an output vector of 1
 	 */
 	public NeuralNetworkEval(NeuralNetwork net) {
-		if (net.getInputSize() != 162 || net.getOutputSize() != 1)
-			throw new IllegalArgumentException("network must be [162] in and [1] out");
-		ann = net;
+		this(net, BoardRep.Original);
 	}
 
 	@Override
@@ -34,7 +41,7 @@ public class NeuralNetworkEval implements EvaluationFunction {
 					return Double.NEGATIVE_INFINITY;
 			}
 		}
-		return ann.forwardProp(t.getMatrix(u))[0];
+		return ann.forwardProp(t.getMatrixUnrolled(u, boardrep))[0];
 	}
 	
 	public String toString() {

@@ -323,11 +323,7 @@ public class NeuralNetwork implements Tunable {
 		return gradients;
 	}
 	
-	/**
-	 * string representation of the neural network (same as when writing to a file)
-	 */
-	@Override
-	public String toString() {
+	public String toString(int precision) {
 		StringWriter str_wr = new StringWriter();
 		PrintWriter out = new PrintWriter(str_wr);
 		out.println("{");
@@ -352,13 +348,21 @@ public class NeuralNetwork implements Tunable {
 		String s = "    ";
 		for (int l=0; l < this.hidden_layers.length; l++) {
 			double[][] weights = this.hidden_layers[l].weights;
-			out.print(s + Utils.matrixToString(weights).replaceAll("\n", "\n"+s));
+			out.print(s + Utils.matrixToString(weights, precision).replaceAll("\n", "\n"+s));
 			if (l < this.hidden_layers.length - 1) out.println(",");
 		}
 		out.println(";");
 		out.print("}");
 		out.close();
 		return str_wr.toString();
+	}
+	
+	/**
+	 * string representation of the neural network (same as when writing to a file)
+	 */
+	@Override
+	public String toString() {
+		return toString(15);
 	}
 	
 	public int getInputSize() {
