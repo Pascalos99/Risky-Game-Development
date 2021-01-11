@@ -31,7 +31,7 @@ public class MonteCarloEval implements EvaluationFunction {
         this.treeSize = treeSize;
         this.randomSize = randomSize;
         try {
-            this.ann = NeuralNetwork.readFromFile(new File(networkPath+"FirstTrain.network"))[0].clone();
+            this.ann = NeuralNetwork.readFromFile(new File("C:\\Users\\arthu\\Desktop\\Project 2020-2021 Maas\\Risky-Game-Development\\assets\\neural_networks\\DL-simple\\version-000036.network"))[0].clone();
         } catch (IOException e) {
             e.printStackTrace();
         };

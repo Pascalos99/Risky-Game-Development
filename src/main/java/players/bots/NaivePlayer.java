@@ -1,8 +1,10 @@
 package players.bots;
 
 import gamerules.*;
+import gamerules.evaluation_functions.MonteCarloEval;
 import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
+import players.bots.utils.NodeDistanceCalc;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,11 +34,7 @@ public class NaivePlayer extends Player {
         for (Pawn pawn : pawns) {
             List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(gameBoard, pawn);
             for (Move move : moves) {
-                double score = evaluation.apply(new GameState(gameState, move),this);
-                if(eval.containsKey(score)){
-                   score += Math.random() - 0.5;
-                }
-                eval.put(score, move);
+                eval.put(evaluation.apply(new GameState(gameState, move), this), move);
             }
         }
         Double max = Collections.max(eval.keySet());

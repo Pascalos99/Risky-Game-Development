@@ -30,18 +30,19 @@ public class DeepLearning {
     private static final double [] expected = new double[1];
     private static final NormalizedSGD heuristic = new NormalizedSGD();
     private static boolean loaded = false;
+    private static boolean endGame = true;
 
     private static boolean smart_learn = false;
-    public static int max_turns_per_game = 500;
+    public static int max_turns_per_game = 200;
     public static int iterations = -1; // don't limit
     public static double learning_rate = 0.0001;
     /** should be lower than save_time and stop_time */
-    public static long info_time_ms = 300000l; // 5 minutes
-    public static long save_time_ms = 900000l; // 15 minutes
-    public static long stop_time_ms = 21600000l * 2; // 6 hours * 2 = 12 hours
+    public static long info_time_ms = 300000L; // 5 minutes
+    public static long save_time_ms = 900000L; // 15 minutes
+    public static long stop_time_ms = 21600000L * 2; // 6 hours * 2 = 12 hours
     public static BoardRep board_rep = BoardRep.TwoNoNegatives;
     
-    private static String network_name = "DL-smallTNN";
+    private static String network_name = "DL-simple";
 
     public static void main(String[] args) throws IOException {
     	try {
@@ -110,7 +111,7 @@ public class DeepLearning {
     }
 
     private static void test(){
-    	if (smart_learn) {
+    	if (smart_learn){
     		smartLearn();
     		return;
     	}
@@ -151,7 +152,17 @@ public class DeepLearning {
     		players = pick_random_players(6);
     	for (int i=0; i < players.length; i++)
     		gs.addPlayer(players[i], "testplayer"+(i+1), playerColors[i]);
-    	return gs.getBoard();
+    	Board board = gs.getBoard();
+    	if(endGame){
+    		// if it don't work use version 39 has backup
+    		while (++index <= 70 && board.noWinners()){
+    			board.nextPlayer();
+    			board.forceRequestMoveAndContinue();
+			}
+    		if(index != 70)
+    			return getRandomGameSetup();
+		}
+    	return board;
     }
     
     private static Random random;
