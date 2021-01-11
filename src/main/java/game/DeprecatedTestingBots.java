@@ -1,6 +1,6 @@
 package game;
 
-public class TestingBots {
+public class DeprecatedTestingBots {
     private static final int TESTS_NUMBER = 200;
     private static final String[] players = new String[]{"np","npnndls","np", "np"};
     private static final Object waiting = new Object();
