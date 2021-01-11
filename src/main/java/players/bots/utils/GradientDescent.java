@@ -3,12 +3,9 @@ package players.bots.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 import players.bots.utils.NeuralNetwork.LossFunction;
-import players.bots.utils.NeuralNetwork.Activation;
-import static players.bots.utils.NeuralNetwork.*;
 
 public class GradientDescent {
 	
@@ -59,12 +56,24 @@ public class GradientDescent {
 		return true;
 	}
 	
-	private void adjustWeights(double[] input, double[] target) {
+	private void trainingStep(double[] input, double[] target) {
 		double[] output = model.computeOutput(input);
 		loss_values.add(loss.calculate(output, target));
 		double[][][] gradients = model.calculateLossGradients(loss, target);
 		double[][][] weights = model.getAllWeights();
-		
+		adjustWeights(weights, gradients, learning_rate);
+		double min = Double.POSITIVE_INFINITY;
+		double max = Double.NEGATIVE_INFINITY;
+		for (int i=0; i < weights.length; i++)
+			for (int j=0; j < weights[i].length; j++)
+				for (int k=0; k < weights[i][j].length; k++) {
+					double val = Math.abs(weights[i][j][k]);
+					if (val < min) min = val;
+					if (val > max) max = val;
+				}
+	}
+	
+	private void adjustWeights(double[][][] weights, double[][][] gradients, double learning_rate) {
 		double[][][] old_weights = new double[weights.length][][];
 		for (int i=0; i < weights.length; i++) {
 			old_weights[i] = new double[weights[i].length][];
@@ -80,9 +89,10 @@ public class GradientDescent {
 		boolean problem = false;
 		for (int l=0; l < weights.length; l++)
 			for (int i=0; i < weights[l].length; i++)
-				for (int j=0; j < weights[l][i].length; j++)
+				for (int j=0; j < weights[l][i].length; j++) {
 					if (Double.isNaN(weights[l][i][j]))
 						problem = true;
+				}
 		if (problem) {
 			System.out.println("Model got out of bounds! try a smaller learning rate!");
 			System.exit(0);
@@ -107,7 +117,7 @@ public class GradientDescent {
 			is_busy = true;
 			while (!stop && (iteration_count <= max_iterations || max_iterations < 0)) {
 				double[][] data_entry = data.get();
-				adjustWeights(data_entry[0], data_entry[1]);
+				trainingStep(data_entry[0], data_entry[1]);
 				iteration_count++;
 			}
 			is_busy = false;
