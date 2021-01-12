@@ -112,8 +112,10 @@ public class GameState {
 	}
 
 	public Player currentPlayer() {
-		return getOriginalBoard().getPlayers().get(
-				(depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount());
+		return getOriginalBoard().getPlayers().get(currentPlayerID());
+	}
+	public int currentPlayerID() {
+		return (depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount();
 	}
 	
 	public GameState getRoot() {
