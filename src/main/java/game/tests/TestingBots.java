@@ -17,13 +17,19 @@ import static players.bots.utils.EveryoneShouldHaveMachineLearning.loadNetwork;
  */
 public class TestingBots {
 
-    private static final int TESTS_NUMBER = 15;
-    private static final ArrayList<String> playerNames = new ArrayList<>(Arrays.asList("Henry", "Melissa", "Frank", "Jessica", "Dave", "Paola"));
-    private static final Color[] pieceColors = new Color[]{Color.cyan, Color.red, Color.green, Color.gray, Color.black,
+    protected static final Object waitingObject = new Object();
+    protected static final int TESTS_NUMBER = 200;
+    protected static int tests_completed = 0;
+    protected static final ArrayList<String> playerNames = new ArrayList<>(Arrays.asList("Henry", "Melissa", "Frank", "Jessica", "Dave", "Paola"));
+    protected static final Color[] pieceColors = new Color[]{Color.cyan, Color.red, Color.green, Color.gray, Color.black,
             Color.blue};
-    private static final String[] players = new String[]{"np","npnndls","ep"};
+    protected static final String[] players = new String[]{"np","npnndls","ep"};
+    protected static final int[] wins = new int[players.length];
 
-    public static void main(String[] args){
+    //Initial main without threading
+
+    /*public static void main(String[] args){
+        long startTime = System.nanoTime();
         int[] wins = new int[players.length];
         Board gameBoard = null;
         for(int game=0; game<TESTS_NUMBER; game++) {
@@ -37,13 +43,43 @@ public class TestingBots {
             }
             wins[playerNames.indexOf(gameBoard.getWinner().getName())]++;
         }
+        long finishTime = System.nanoTime();
+        System.out.println("Time taken: "+(finishTime-startTime));
         System.out.println("GAMES WON:");
         for(int i=0; i<players.length;i++){
             System.out.println(gameBoard.getPlayer(i)+": "+wins[i]);
         }
+    }*/
+
+    public static void main(String[] args) throws InterruptedException {
+        long startTime = System.nanoTime();
+        GameSetup gameSetup = new GameSetup();
+        for (int i = 0; i < players.length; i++) {
+            gameSetup.addPlayer(str2p(players[i]), playerNames.get(i), pieceColors[i]);
+        }
+        Board gameBoard = gameSetup.getBoard();
+        for(int game=0; game<TESTS_NUMBER; game++){
+            Thread gameThread = new Thread(new MTRunnable());
+            gameThread.start();
+        }
+
+        synchronized (waitingObject){
+            try{
+                waitingObject.wait();
+            }
+            catch(InterruptedException e){
+                System.out.println(e.getMessage());
+            }
+        }
+        long finishTime = System.nanoTime();
+        System.out.println("GAMES WON:");
+        for(int i=0; i<players.length;i++){
+            System.out.println(gameBoard.getPlayer(i)+": "+wins[i]);
+        }
+        System.out.println("Time taken:"+(finishTime-startTime)+" nanoseconds");
     }
 
-    private static Player str2p(String playerAsString){
+    protected static Player str2p(String playerAsString){
         return switch (playerAsString) {
             case "np" -> new NaivePlayer();
             case "npnndls" -> new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-simple")));
