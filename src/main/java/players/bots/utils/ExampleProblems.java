@@ -1,0 +1,49 @@
+package players.bots.utils;
+
+import static players.bots.utils.NeuralNetwork.*;
+
+import java.util.Random;
+
+public class ExampleProblems {
+
+	public static void main(String[] args) {
+		xor();
+	}
+	
+	public static void xor() { xor(System.currentTimeMillis()); }
+	public static void xor(long seed) {
+		Random random = new Random(seed);
+		int[] structure = {2, 5, 1};
+		Activation[] act = {SILU, SILU};
+		NeuralNetwork net = new NeuralNetwork(structure, act);
+		net.initializeRandomWeights(-1, 1, seed);
+		GradientDescent GD = new GradientDescent(net, HALF_SQUARE_ERROR, 0.1, 10000);
+		GD.start(() -> {
+			boolean x1 = random.nextBoolean();
+			boolean x2 = random.nextBoolean();
+			boolean y = (x1 && !x2) || (!x1 && x2);
+			return new double[][] {{ x1 ? 1:0, x2 ? 1:0 }, {y ? 1:0}};
+		});
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		while (GD.isBusy()) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println("done "+GD.getIterations()+" iterations");
+			System.out.format("Loss = %.3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
+		}
+		double[][] inputs = {
+			{1, 1}, {1, 0}, {0, 1}, {0, 0}
+		};
+		for (int i=0; i < inputs.length; i++) {
+			System.out.format("in: [%.0f, %.0f]; out: [%.15f]\n", inputs[i][0], inputs[i][1], net.forwardProp(inputs[i])[0]);
+		}
+	}
+	
+}

@@ -518,4 +518,10 @@ public class Board {
 		return winner;
 	}
 
+
+	public static final Board empty_board;
+	static {
+		empty_board = new Board(SELECTED_GAMERULES, null);
+	}
+
 }
