@@ -396,7 +396,7 @@ public class GameTree {
 
     public int copy_prune_count = 0;
     
-    private void addChild(GameTreeNode node, boolean setExpanded) {
+    public void addChild(GameTreeNode node, boolean setExpanded) {
     	if (node.getParent() == null) {
     		throw new RuntimeException("can't add child to GameTree which does not have a parent");
     	}

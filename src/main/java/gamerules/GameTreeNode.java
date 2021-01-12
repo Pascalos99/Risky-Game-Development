@@ -65,4 +65,8 @@ public class GameTreeNode {
     	return addedToParent;
     }
 
+    public void addChild(GameTreeNode childNode) {
+        this.children.add(childNode);
+    }
+
 }
