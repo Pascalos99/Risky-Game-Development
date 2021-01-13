@@ -53,7 +53,7 @@ public class Controller implements Initializable {
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
     public JFXButton SetNameBtn;
-    public String[] names = new String[]{"Donald Trump","Daniel Pink","Alex Pentland","Eric Schmidt","Neil deGrasse Tyson","Bill Gates"};
+    public String[] names = new String[]{"Daniel Pink","Alex Pentland","Eric Schmidt","Donald Trump","Neil deGrasse Tyson","Bill Gates"};
 
     @FXML
     private JFXTextField name1;
