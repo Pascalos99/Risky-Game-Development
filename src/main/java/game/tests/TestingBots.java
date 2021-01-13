@@ -62,7 +62,7 @@ public class TestingBots {
         }
         Board gameBoard = gameSetup.getBoard();
         for(int game=0; game<TESTS_NUMBER; game++){
-            Thread gameThread = new Thread(new MTRunnable());
+            Thread gameThread = new Thread(new MTRunnable(game));
             gameThread.start();
             current_threads++;
             if(current_threads==LOGICAL_THREADS) {

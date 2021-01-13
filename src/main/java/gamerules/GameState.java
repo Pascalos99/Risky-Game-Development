@@ -20,8 +20,11 @@ public class GameState {
 	 * Please inform me (@pascal) if you intend to directly use this field for anything, as there is likely a way to solve your
 	 *  problem in a safer way.
 	 */
-	public static Board dummy_board;
-	public static GameState dummy_state;
+	private static Map<Integer, Board> dummy_boards;
+	private static Map<Integer, GameState> dummy_states;
+	
+	public static Map<Thread, Integer> thread_dummy_ids;
+	private static int last_dummy_id = 0;
 	
 	/*         /a---b---*p*
 	 *    /r--<
@@ -53,16 +56,41 @@ public class GameState {
 	
 	private final int player_count;
 	
+	private synchronized Integer getDummyKey() {
+		Integer key = thread_dummy_ids.get(Thread.currentThread());
+		if (key == null) {
+			thread_dummy_ids.put(Thread.currentThread(), ++last_dummy_id);
+			return last_dummy_id;
+		}
+		return key;
+	}
+	
+	public Board getDummyBoard() {
+		return dummy_boards.get(getDummyKey());
+	}
+
+	public void setDummyBoard(Board dummy_board) {
+		GameState.dummy_boards.put(getDummyKey(), dummy_board);
+	}
+
+	public GameState getDummyState() {
+		return dummy_states.get(getDummyKey());
+	}
+
+	public void setDummyState(GameState dummy_state) {
+		GameState.dummy_states.put(getDummyKey(), dummy_state);
+	}
+
 	/**
 	 * Makes sure the data in the dummy board matches this GameState
 	 */
 	public void setDummyBoard() {
-		if (dummy_board != null && this.equals(dummy_state)) return;
+		if (getDummyBoard() != null && this.equals(getDummyState())) return;
 		
-		if (dummy_board == null || !dummy_state.root.contentEquals(root)) dummy_board = getOriginalBoard().clone();
-		else for (GameState state = dummy_state; state != null; state = state.parent) {
-				if (state == this) { dummy_state = this; return; }
-				if (state.last_move != null) dummy_board.reverseMove(state.last_move);
+		if (getDummyBoard() == null || !getDummyState().root.contentEquals(root)) setDummyBoard(getOriginalBoard().clone());
+		else for (GameState state = getDummyState(); state != null; state = state.parent) {
+				if (state == this) { setDummyState(this); return; }
+				if (state.last_move != null) getDummyBoard().reverseMove(state.last_move);
 		}
 		
 		LinkedList<Move> moves = new LinkedList<>();
@@ -70,9 +98,9 @@ public class GameState {
 		for (GameState state = this; state != null; state = state.parent)
 			if (state.last_move != null) moves.addFirst(state.last_move);
 		
-		for (Move move : moves) move.execute(dummy_board);
+		for (Move move : moves) move.execute(getDummyBoard());
 		
-		dummy_state = this;
+		setDummyState(this);
 	}
 	
 	/**
@@ -102,13 +130,13 @@ public class GameState {
 	 */
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		setDummyBoard();
-		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board, dummy_board.getEquivalent(pawn));
+		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(getDummyBoard(), getDummyBoard().getEquivalent(pawn));
 	};
 
 
 	public double currentScore(Player player){
 		setDummyBoard();
-		return dummy_board.currentScore(player);
+		return getDummyBoard().currentScore(player);
 	}
 
 	public Player currentPlayer() {
@@ -155,7 +183,7 @@ public class GameState {
 	 */
 	public List<BoardNode> getAllnodes() {
 		setDummyBoard();
-		return dummy_board.getAllnodes();
+		return getDummyBoard().getAllnodes();
 	};
 	
 	/**
@@ -176,7 +204,7 @@ public class GameState {
 	 */
 	public List<BoardNode> getAllNodesOf(Player player) {
 		setDummyBoard();
-		return dummy_board.getAllNodesOf(player);
+		return getDummyBoard().getAllNodesOf(player);
 	};
 	
 	/**
@@ -197,7 +225,7 @@ public class GameState {
 	 */
 	public List<Pawn> getAllPawns() {
 		setDummyBoard();
-		return dummy_board.getAllPawns();
+		return getDummyBoard().getAllPawns();
 	};
 
 	/**
@@ -218,7 +246,7 @@ public class GameState {
 	 */
 	public List<Pawn> getAllPawnsOf(Player owner) {
 		setDummyBoard();
-		return dummy_board.getAllPawnsOf(owner);
+		return getDummyBoard().getAllPawnsOf(owner);
 	};
 
 	public Player getEnemy(Player player) {
@@ -226,7 +254,7 @@ public class GameState {
 	}
 
 	public List<BoardNode> getGoal(Player player) {
-		return getOriginalBoard().getGoal(player).stream().map(dummy_board.getNodeMapper()).collect(Collectors.toList());
+		return getOriginalBoard().getGoal(player).stream().map(getDummyBoard().getNodeMapper()).collect(Collectors.toList());
 	}
 	
 	public final boolean isGoalNode(Player player, BoardNode node) {
@@ -249,7 +277,7 @@ public class GameState {
 	 */
 	public boolean allowMove(Move move) {
 		setDummyBoard();
-		return move.isValid(dummy_board);
+		return move.isValid(getDummyBoard());
 	}
 
 	/**
@@ -257,7 +285,7 @@ public class GameState {
 	 */
     public boolean hasWon(Player Player) {
     	setDummyBoard();
-    	return GameRules.SELECTED_GAMERULES.hasWon(dummy_board, Player);
+    	return GameRules.SELECTED_GAMERULES.hasWon(getDummyBoard(), Player);
 	};
     
 	/**
@@ -355,7 +383,7 @@ public class GameState {
 	 */
 	public synchronized void backupBoard() {
 		setDummyBoard();
-		original_board = dummy_board.clone();
+		original_board = getDummyBoard().clone();
 		depth = 0;
 	}
 	
