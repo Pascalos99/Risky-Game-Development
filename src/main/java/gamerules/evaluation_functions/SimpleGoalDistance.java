@@ -21,9 +21,11 @@ public class SimpleGoalDistance implements EvaluationFunction {
 		this.distance_weight = distance_weight;
 		this.goal_weight = goal_weight;
 	}
-	
+
 	@Override
 	public Double apply(GameState state, Player player) {
+		long startTime = System.nanoTime();
+
 		int playerID = state.getOriginalBoard().getPlayerIndex(player);
 		byte[] state_rep = state.getIntegerRepresentation();
 		byte[] goal_nodes = Board.nodes_owned_per_player[Board.player_pairings[playerID]];
@@ -68,6 +70,11 @@ public class SimpleGoalDistance implements EvaluationFunction {
 			}
 			sum += distance;
 		}
+
+		long endTime = System.nanoTime();
+
+//		System.out.printf("%.20f\n", (float) (endTime - startTime));
+
 		return Double.valueOf(bonus - distance_weight * sum);
 	}
 	

@@ -562,4 +562,17 @@ public class GameState {
 			queue = Requeue;
 		}
 	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public void setParent(GameState parent) {
+		this.parent = parent;
+	}
+
+	public void setRoot(GameState root) {
+		this.root = root;
+	}
+
 }
