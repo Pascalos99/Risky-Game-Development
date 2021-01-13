@@ -1,8 +1,6 @@
 package players.bots;
 
 import gamerules.*;
-import gamerules.evaluation_functions.PaperEval;
-import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 import players.bots.utils.AlphaBetaTree;
 import players.bots.utils.AlphaBetaTreeNode;
@@ -15,14 +13,222 @@ public class AlphaBeta extends Player {
     private GameState winning;
     private int numberOfPlayers;
     private AlphaBetaTree tree;
-    private final boolean debug = false;
+    private final boolean debug = true;
     private int nodes;
     private long timeAlphaBeta;
+    private long timeDuplicateChildPrevention;
     private long timeOptimalOrder;
     private long timeDuplicateChecking;
-    private int i;
 
-    private AlphaBetaTreeNode alphaBeta(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+    // Bare bones
+    private AlphaBetaTreeNode alphaBetaV1(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+        nodes++;
+        // Depth-1 winning node
+        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+            winning = node.getGameState();
+        }
+        // Leaf node
+        if (depth == 0) {
+            return node;
+        }
+        AlphaBetaTreeNode bestValue;
+        // Maximizing
+        if (player == 1) {
+            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+
+            for (Move move : node.getAllPossibleMoves()) {
+                GameState childState = node.getGameState().getStateAfterMove(move);
+                double childScore = tree.computeEvaluationScore(childState);
+                AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+
+                bestValue = bestValue.max(alphaBetaV1(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                if (alpha >= beta) {
+                    break;
+                }
+            }
+        }
+        // Minimizing
+        else {
+            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+
+            for (Move move : node.getAllPossibleMoves()) {
+                GameState childState = node.getGameState().getStateAfterMove(move);
+                double childScore = tree.computeEvaluationScore(childState);
+                AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+
+                bestValue = bestValue.min(alphaBetaV1(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                beta = Math.min(beta, bestValue.getEvaluationScore());
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return bestValue;
+    }
+
+    // Bare bones
+    // + duplicate child prevention
+    private AlphaBetaTreeNode alphaBetaV2(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+        nodes++;
+        // Depth-1 winning node
+        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+            winning = node.getGameState();
+        }
+        // Leaf node
+        if (depth == 0) {
+            return node;
+        }
+        AlphaBetaTreeNode bestValue;
+        // Maximizing
+        if (player == 1) {
+            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+
+            if (node.getChildren().isEmpty()) {
+                // Not expanded
+                for (Move move : node.getAllPossibleMoves()) {
+                    GameState childState = node.getGameState().getStateAfterMove(move);
+                    double childScore = tree.computeEvaluationScore(childState);
+                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+
+                    bestValue = bestValue.max(alphaBetaV2(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+                // Partially expanded
+                for (Move move : node.getAllPossibleMoves()) {
+                    GameState childState = node.getGameState().getStateAfterMove(move);
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
+                        double childScore = tree.computeEvaluationScore(childState);
+                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                    }
+
+                    bestValue = bestValue.max(alphaBetaV2(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+            else {
+                // Fully expanded
+                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                    bestValue = bestValue.max(alphaBetaV2(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+        }
+        // Minimizing
+        else {
+            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+
+            if (node.getChildren().isEmpty()) {
+                // Not expanded
+                for (Move move : node.getAllPossibleMoves()) {
+                    GameState childState = node.getGameState().getStateAfterMove(move);
+                    double childScore = tree.computeEvaluationScore(childState);
+                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+
+                    bestValue = bestValue.min(alphaBetaV2(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+                // Partially expanded
+                for (Move move : node.getAllPossibleMoves()) {
+                    GameState childState = node.getGameState().getStateAfterMove(move);
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
+                        double childScore = tree.computeEvaluationScore(childState);
+                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                    }
+
+                    bestValue = bestValue.min(alphaBetaV2(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            else {
+                // Fully expanded
+                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                    bestValue = bestValue.min(alphaBetaV2(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+        }
+        return bestValue;
+    }
+
+    // Bare bones
+    // + optimal ordering
+    private AlphaBetaTreeNode alphaBetaV3(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+        nodes++;
+        // Depth-1 winning node
+        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+            winning = node.getGameState();
+        }
+        // Leaf node
+        if (depth == 0) {
+            return node;
+        }
+        AlphaBetaTreeNode bestValue;
+        // Maximizing
+        if (player == 1) {
+            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+
+            List<Move> moves = node.getAllPossibleMoves();
+            while (!moves.isEmpty()) {
+                GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+                double childScore = tree.computeEvaluationScore(childState);
+                AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+
+                bestValue = bestValue.max(alphaBetaV3(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                if (alpha >= beta) {
+                    break;
+                }
+            }
+        }
+        // Minimizing
+        else {
+            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+
+            List<Move> moves = node.getAllPossibleMoves();
+            while (!moves.isEmpty()) {
+                GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+                double childScore = tree.computeEvaluationScore(childState);
+                AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+
+                bestValue = bestValue.min(alphaBetaV3(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                beta = Math.min(beta, bestValue.getEvaluationScore());
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return bestValue;
+    }
+
+    // Bare bones
+    // + duplicate child prevention
+    // + optimal ordering
+    private AlphaBetaTreeNode alphaBetaV4(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
         nodes++;
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
@@ -40,15 +246,12 @@ public class AlphaBeta extends Player {
             if (node.getChildren().isEmpty()) {
                 // Not expanded
                 List<Move> moves = node.getAllPossibleMoves();
-
-                while(!moves.isEmpty()) {
+                while (!moves.isEmpty()) {
                     GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
                     double childScore = tree.computeEvaluationScore(childState);
-
                     AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                    tree.addNodeToLayer(childNode, childState.getDepth());
 
-                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    bestValue = bestValue.max(alphaBetaV4(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     alpha = Math.max(alpha, bestValue.getEvaluationScore());
                     if (alpha >= beta) {
                         break;
@@ -58,25 +261,15 @@ public class AlphaBeta extends Player {
             else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
                 // Partially expanded
                 List<Move> moves = node.getAllPossibleMoves();
-
-                while(!moves.isEmpty()) {
+                while (!moves.isEmpty()) {
                     GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
-
-                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
-                    for (AlphaBetaTreeNode child : node.getChildren()) {
-                        if (child.getGameState().contentEquals(childState)) {
-                            childNode = child;
-                            break;
-                        }
-                    }
-
-                    if (childNode.getGameState() == null) {
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
                         double childScore = tree.computeEvaluationScore(childState);
                         childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                        tree.addNodeToLayer(childNode, childState.getDepth());
                     }
 
-                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    bestValue = bestValue.max(alphaBetaV4(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     alpha = Math.max(alpha, bestValue.getEvaluationScore());
                     if (alpha >= beta) {
                         break;
@@ -86,7 +279,7 @@ public class AlphaBeta extends Player {
             else {
                 // Fully expanded
                 for (AlphaBetaTreeNode childNode : node.getChildren()) {
-                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    bestValue = bestValue.max(alphaBetaV4(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     alpha = Math.max(alpha, bestValue.getEvaluationScore());
                     if (alpha >= beta) {
                         break;
@@ -101,15 +294,12 @@ public class AlphaBeta extends Player {
             if (node.getChildren().isEmpty()) {
                 // Not expanded
                 List<Move> moves = node.getAllPossibleMoves();
-
-                while(!moves.isEmpty()) {
+                while (!moves.isEmpty()) {
                     GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
                     double childScore = tree.computeEvaluationScore(childState);
-
                     AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                    tree.addNodeToLayer(childNode, childState.getDepth());
 
-                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    bestValue = bestValue.min(alphaBetaV4(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     beta = Math.min(beta, bestValue.getEvaluationScore());
                     if (beta <= alpha) {
                         break;
@@ -119,25 +309,15 @@ public class AlphaBeta extends Player {
             else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
                 // Partially expanded
                 List<Move> moves = node.getAllPossibleMoves();
-
-                while(!moves.isEmpty()) {
+                while (!moves.isEmpty()) {
                     GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
-
-                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
-                    for (AlphaBetaTreeNode child : node.getChildren()) {
-                        if (child.getGameState().contentEquals(childState)) {
-                            childNode = child;
-                            break;
-                        }
-                    }
-
-                    if (childNode.getGameState() == null) {
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
                         double childScore = tree.computeEvaluationScore(childState);
                         childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                        tree.addNodeToLayer(childNode, childState.getDepth());
                     }
 
-                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    bestValue = bestValue.min(alphaBetaV4(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     beta = Math.min(beta, bestValue.getEvaluationScore());
                     if (beta <= alpha) {
                         break;
@@ -147,7 +327,7 @@ public class AlphaBeta extends Player {
             else {
                 // Fully expanded
                 for (AlphaBetaTreeNode childNode : node.getChildren()) {
-                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    bestValue = bestValue.min(alphaBetaV4(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     beta = Math.min(beta, bestValue.getEvaluationScore());
                     if (beta <= alpha) {
                         break;
@@ -157,6 +337,397 @@ public class AlphaBeta extends Player {
         }
         return bestValue;
     }
+
+    // Bare bones
+    // + duplicate child prevention
+    // + optimal ordering
+    // + subtrees
+    private AlphaBetaTreeNode alphaBetaV5(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+        nodes++;
+        // Depth-1 winning node
+        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+            winning = node.getGameState();
+        }
+        // Leaf node
+        if (depth == 0) {
+            return node;
+        }
+        AlphaBetaTreeNode bestValue;
+        // Maximizing
+        if (player == 1) {
+            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+
+            if (node.getChildren().isEmpty()) {
+                // Not expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                while (!moves.isEmpty()) {
+                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+                    double childScore = tree.computeEvaluationScore(childState);
+                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                    tree.addNodeToLayer(childNode, childState.getDepth());
+
+                    bestValue = bestValue.max(alphaBetaV5(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+                // Partially expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                while (!moves.isEmpty()) {
+                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
+                        double childScore = tree.computeEvaluationScore(childState);
+                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                        tree.addNodeToLayer(childNode, childState.getDepth());
+                    }
+
+                    bestValue = bestValue.max(alphaBetaV5(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+            else {
+                // Fully expanded
+                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                    bestValue = bestValue.max(alphaBetaV5(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+        }
+        // Minimizing
+        else {
+            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+
+            if (node.getChildren().isEmpty()) {
+                // Not expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                while (!moves.isEmpty()) {
+                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+                    double childScore = tree.computeEvaluationScore(childState);
+                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                    tree.addNodeToLayer(childNode, childState.getDepth());
+
+                    bestValue = bestValue.min(alphaBetaV5(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+                // Partially expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                while (!moves.isEmpty()) {
+                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
+                        double childScore = tree.computeEvaluationScore(childState);
+                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                        tree.addNodeToLayer(childNode, childState.getDepth());
+                    }
+
+                    bestValue = bestValue.min(alphaBetaV5(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            else {
+                // Fully expanded
+                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                    bestValue = bestValue.min(alphaBetaV5(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+        }
+        return bestValue;
+    }
+
+//
+//    private AlphaBetaTreeNode alphaBetaV3(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+//        nodes++;
+//        // Depth-1 winning node
+//        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+//            winning = node.getGameState();
+//        }
+//        // Leaf node
+//        if (depth == 0) {
+//            return node;
+//        }
+//        AlphaBetaTreeNode bestValue;
+//        // Maximizing
+//        if (player == 1) {
+//            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+//
+//            if (node.getChildren().isEmpty()) {
+//                // Not expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+//                    double childScore = tree.computeEvaluationScore(childState);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                    tree.addNodeToLayer(childNode, childState.getDepth());
+//
+//                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+//                    if (alpha >= beta) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+//                // Partially expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+//                    for (AlphaBetaTreeNode child : node.getChildren()) {
+//                        if (child.getGameState().contentEquals(childState)) {
+//                            childNode = child;
+//                            break;
+//                        }
+//                    }
+//
+//                    if (childNode.getGameState() == null) {
+//                        double childScore = tree.computeEvaluationScore(childState);
+//                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                        tree.addNodeToLayer(childNode, childState.getDepth());
+//                    }
+//
+//                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+//                    if (alpha >= beta) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else {
+//                // Fully expanded
+//                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+//                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+//                    if (alpha >= beta) {
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        // Minimizing
+//        else {
+//            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+//
+//            if (node.getChildren().isEmpty()) {
+//                // Not expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+//                    double childScore = tree.computeEvaluationScore(childState);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                    tree.addNodeToLayer(childNode, childState.getDepth());
+//
+//                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    beta = Math.min(beta, bestValue.getEvaluationScore());
+//                    if (beta <= alpha) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+//                // Partially expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+//                    for (AlphaBetaTreeNode child : node.getChildren()) {
+//                        if (child.getGameState().contentEquals(childState)) {
+//                            childNode = child;
+//                            break;
+//                        }
+//                    }
+//
+//                    if (childNode.getGameState() == null) {
+//                        double childScore = tree.computeEvaluationScore(childState);
+//                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                        tree.addNodeToLayer(childNode, childState.getDepth());
+//                    }
+//
+//                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    beta = Math.min(beta, bestValue.getEvaluationScore());
+//                    if (beta <= alpha) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else {
+//                // Fully expanded
+//                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+//                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    beta = Math.min(beta, bestValue.getEvaluationScore());
+//                    if (beta <= alpha) {
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        return bestValue;
+//    }
+//
+//    private AlphaBetaTreeNode alphaBetaV4(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+//        nodes++;
+//        // Depth-1 winning node
+//        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+//            winning = node.getGameState();
+//        }
+//        // Leaf node
+//        if (depth == 0) {
+//            return node;
+//        }
+//        AlphaBetaTreeNode bestValue;
+//        // Maximizing
+//        if (player == 1) {
+//            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+//
+//            if (node.getChildren().isEmpty()) {
+//                // Not expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+//                    double childScore = tree.computeEvaluationScore(childState);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                    tree.addNodeToLayer(childNode, childState.getDepth());
+//
+//                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+//                    if (alpha >= beta) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+//                // Partially expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), true);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+//                    for (AlphaBetaTreeNode child : node.getChildren()) {
+//                        if (child.getGameState().contentEquals(childState)) {
+//                            childNode = child;
+//                            break;
+//                        }
+//                    }
+//
+//                    if (childNode.getGameState() == null) {
+//                        double childScore = tree.computeEvaluationScore(childState);
+//                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                        tree.addNodeToLayer(childNode, childState.getDepth());
+//                    }
+//
+//                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+//                    if (alpha >= beta) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else {
+//                // Fully expanded
+//                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+//                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+//                    if (alpha >= beta) {
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        // Minimizing
+//        else {
+//            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+//
+//            if (node.getChildren().isEmpty()) {
+//                // Not expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+//                    double childScore = tree.computeEvaluationScore(childState);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                    tree.addNodeToLayer(childNode, childState.getDepth());
+//
+//                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    beta = Math.min(beta, bestValue.getEvaluationScore());
+//                    if (beta <= alpha) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+//                // Partially expanded
+//                List<Move> moves = node.getAllPossibleMoves();
+//
+//                while(!moves.isEmpty()) {
+//                    GameState childState = fetchNextBestChildState(moves, node.getGameState(), false);
+//
+//                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+//                    for (AlphaBetaTreeNode child : node.getChildren()) {
+//                        if (child.getGameState().contentEquals(childState)) {
+//                            childNode = child;
+//                            break;
+//                        }
+//                    }
+//
+//                    if (childNode.getGameState() == null) {
+//                        double childScore = tree.computeEvaluationScore(childState);
+//                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+//                        tree.addNodeToLayer(childNode, childState.getDepth());
+//                    }
+//
+//                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    beta = Math.min(beta, bestValue.getEvaluationScore());
+//                    if (beta <= alpha) {
+//                        break;
+//                    }
+//                }
+//            }
+//            else {
+//                // Fully expanded
+//                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+//                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+//                    beta = Math.min(beta, bestValue.getEvaluationScore());
+//                    if (beta <= alpha) {
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        return bestValue;
+//    }
 
 //    private AlphaBetaTreeNode alphaBeta(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
 //        nodes++;
@@ -516,7 +1087,7 @@ public class AlphaBeta extends Player {
             initialCall = false;
             this.numberOfPlayers = gameBoard.getPlayerCount();
             AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(new GameState(gameBoard), Double.NEGATIVE_INFINITY);
-            this.tree = new AlphaBetaTree(rootNode, 1, 13, 4, this);
+            this.tree = new AlphaBetaTree(rootNode, 5, this);
         }
         else {
             AlphaBetaTreeNode rootNode = findNewRoot(new GameState(gameBoard));
@@ -529,12 +1100,15 @@ public class AlphaBeta extends Player {
             timeAlphaBeta = 0;
             timeOptimalOrder = 0;
             timeDuplicateChecking = 0;
+            timeDuplicateChildPrevention = 0;
         }
 
         AlphaBetaTreeNode bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
         long startTime = System.currentTimeMillis();
-        for (i = 1; i <= tree.getMaxDepth(); i++) {
-            AlphaBetaTreeNode bestNode = alphaBeta(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, i);
+        for (int i = 1; i <= tree.getMaxDepth(); i++) {
+//            AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(tree.getRoot().getGameState(), Double.NEGATIVE_INFINITY);
+//            tree = new AlphaBetaTree(rootNode, tree.getMaxDepth(), this);
+            AlphaBetaTreeNode bestNode = alphaBetaV5(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, i);
             bestValue = bestValue.max(bestNode);
         }
         long endTime = System.currentTimeMillis();
@@ -545,6 +1119,7 @@ public class AlphaBeta extends Player {
             System.out.println("AlphaBeta took " + timeAlphaBeta + " milliseconds");
             System.out.println("OptimalOrder took " + timeOptimalOrder + " milliseconds");
             System.out.println("DuplicateChecking took " + timeDuplicateChecking + " milliseconds");
+            System.out.println("DuplicateChildPrevention took " + timeDuplicateChildPrevention + " milliseconds");
         }
 
         // Extract move

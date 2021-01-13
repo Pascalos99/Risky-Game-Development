@@ -95,4 +95,13 @@ public class AlphaBetaTreeNode {
         return false;
     }
 
+    public AlphaBetaTreeNode fetchChildWithState(GameState state) {
+        for (AlphaBetaTreeNode childNode : children) {
+            if (childNode.getGameState().contentEquals(state)) {
+                return childNode;
+            }
+        }
+        return null;
+    }
+
 }

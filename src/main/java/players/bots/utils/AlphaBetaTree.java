@@ -18,9 +18,9 @@ public class AlphaBetaTree {
     private final AlphaBeta maximizingPlayer;
     private final List<List<AlphaBetaTreeNode>> layers;
 
-    public AlphaBetaTree(AlphaBetaTreeNode root, double distanceWeight, double goalWeight, int maxDepth, AlphaBeta maximizingPlayer) {
+    public AlphaBetaTree(AlphaBetaTreeNode root, int maxDepth, AlphaBeta maximizingPlayer) {
         this.root = root;
-//        this.evaluationFunction = new SimpleGoalDistance(distanceWeight, goalWeight);
+//        this.evaluationFunction = new SimpleGoalDistance();
         this.evaluationFunction = new PaperEval();
         this.maxDepth = maxDepth;
         this.maximizingPlayer = maximizingPlayer;

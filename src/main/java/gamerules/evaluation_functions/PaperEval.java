@@ -7,7 +7,7 @@ import gamerules.Move;
 import gamerules.Pawn;
 import players.Player;
 
-import java.util.ArrayList;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,7 +60,6 @@ public class PaperEval implements EvaluationFunction {
     };
     private final float[][] lookupTable;
     private final int[] furthestGoalNodesPerPlayer = {120, 0, 98, 22, 10, 110};
-    private final int[] verticalCentralLineNodes = {0, 4, 16, 40, 60, 80, 104, 116, 120};
 
     public PaperEval() {
 //        this(0.911f, 0.140f, 0.388f); // Optimized values for depth=2 from paper = (0.911, 0.140, 0.388)
@@ -91,129 +90,76 @@ public class PaperEval implements EvaluationFunction {
         return (float) Math.sqrt(Math.pow(differenceInX, 2) + Math.pow(differenceInY, 2));
     }
 
+    private final HashMap<BigInteger, Double> scores = new HashMap<>();
     @Override
     public Double apply(GameState state, Player player) {
-        Board originalBoard = state.getOriginalBoard();
-        List<Pawn> playerPawns = state.getAllPawnsOf(player);
-        List<Pawn> enemyPlayerPawns = state.getAllPawnsOf(state.getEnemy(player));
-        int playerID = originalBoard.getPlayerIndex(playerPawns.get(0).getOwner());
-        int enemyID = originalBoard.getPlayerIndex(enemyPlayerPawns.get(0).getOwner());
-        List<Move> playerMoves = state.getAllPossibleMoves(playerPawns);
-        List<Move> enemyPlayerMoves = state.getAllPossibleMoves(enemyPlayerPawns);
+        Double V = scores.get(state.gameStateID());
 
-        float[] A = new float[2];
-        float[] B = new float[2];
-        float[] C = new float[2];
+        if (V == null) {
+            Board originalBoard = state.getOriginalBoard();
+            List<Pawn> playerPawns = state.getAllPawnsOf(player);
+            List<Pawn> enemyPlayerPawns = state.getAllPawnsOf(state.getEnemy(player));
+            int playerID = originalBoard.getPlayerIndex(playerPawns.get(0).getOwner());
+            int enemyPlayerID = originalBoard.getPlayerIndex(enemyPlayerPawns.get(0).getOwner());
 
-        long totalTimeA = 0;
-        long totalTimeB = 0;
-        long totalTimeC = 0;
+            float[] A = new float[2];
+            float[] B = new float[2];
+            float[] C = new float[2];
 
-        // Maximizing player
-        for (Pawn pawn : playerPawns) {
-            int boardNodeID = pawn.getPosition().getID();
+            // Friendly player
+            for (Pawn pawn : playerPawns) {
+                int pawnPosition = pawn.getPosition().getID();
 
-            // Calculate A
-            long startTime = System.nanoTime();
+                // Calculate A
+                float distance = lookupTable[pawnPosition][furthestGoalNodesPerPlayer[playerID]];
+                A[0] += (distance * distance);
 
-            float distance = lookupTable[boardNodeID][furthestGoalNodesPerPlayer[playerID]];
-            A[0] += (distance * distance);
+                // Calculate B
+                distance = Math.abs(nodeCoordinates[pawnPosition][0] - 6);
+                B[0] += (distance * distance);
 
-            long endTime = System.nanoTime();
-            totalTimeA += (endTime - startTime);
-
-            // Calculate B
-            startTime = System.nanoTime();
-
-            distance = Float.POSITIVE_INFINITY;
-            for (int i = 0; i < verticalCentralLineNodes.length; i++) {
-                distance = Math.min(distance, lookupTable[boardNodeID][verticalCentralLineNodes[i]]);
-            }
-            B[0] += (distance * distance);
-
-            endTime = System.nanoTime();
-            totalTimeB += (endTime - startTime);
-
-            // Calculate C
-            startTime = System.nanoTime();
-
-            List<Move> moves = fetchMovesForPawn(pawn, playerMoves, originalBoard);
-            if (!moves.isEmpty()) {
-                float maxVerticalAdvance = Float.NEGATIVE_INFINITY;
-                for (Move move : moves) {
-                    int node1 = move.getStart(originalBoard).getID();
-                    int node2 = move.getTarget(originalBoard).getID();
-                    maxVerticalAdvance = Math.max(maxVerticalAdvance, nodeCoordinates[node2][1] - nodeCoordinates[node1][1]);
+                // Calculate C
+                List<Move> moves = state.getAllPossibleMoves(pawn);
+                if (!moves.isEmpty()) {
+                    float maxVerticalAdvance = Float.NEGATIVE_INFINITY;
+                    for (Move move : moves) {
+                        int target = move.getTarget(originalBoard).getID();
+                        maxVerticalAdvance = Math.max(maxVerticalAdvance, nodeCoordinates[target][1] - nodeCoordinates[pawnPosition][1]);
+                    }
+                    C[0] += maxVerticalAdvance;
                 }
-                C[0] += maxVerticalAdvance;
             }
 
-            endTime = System.nanoTime();
-            totalTimeC += (endTime - startTime);
-        }
+            // Enemy player
+            for (Pawn pawn : enemyPlayerPawns) {
+                int pawnPosition = pawn.getPosition().getID();
 
-        // Minimizing player
-        for (Pawn pawn : enemyPlayerPawns) {
-            int boardNodeID = pawn.getPosition().getID();
+                // Calculate A
+                float distance = lookupTable[pawnPosition][furthestGoalNodesPerPlayer[enemyPlayerID]];
+                A[1] += (distance * distance);
 
-            // Calculate A
-            long startTime = System.nanoTime();
+                // Calculate B
+                distance = Math.abs(nodeCoordinates[pawnPosition][0] - 6);
+                B[1] += (distance * distance);
 
-            float distance = lookupTable[boardNodeID][furthestGoalNodesPerPlayer[enemyID]];
-            A[1] += (distance * distance);
-
-            long endTime = System.nanoTime();
-            totalTimeA += (endTime - startTime);
-
-            // Calculate B
-            startTime = System.nanoTime();
-
-            distance = Float.POSITIVE_INFINITY;
-            for (int i = 0; i < verticalCentralLineNodes.length; i++) {
-                distance = Math.min(distance, lookupTable[boardNodeID][verticalCentralLineNodes[i]]);
-            }
-            B[1] += (distance * distance);
-
-            endTime = System.nanoTime();
-            totalTimeB += (endTime - startTime);
-
-            // Calculate C
-            startTime = System.nanoTime();
-
-            List<Move> moves = fetchMovesForPawn(pawn, enemyPlayerMoves, originalBoard);
-            if (!moves.isEmpty()) {
-                float maxVerticalAdvance = Float.POSITIVE_INFINITY;
-                for (Move move : moves) {
-                    int node1 = move.getStart(originalBoard).getID();
-                    int node2 = move.getTarget(originalBoard).getID();
-                    maxVerticalAdvance = Math.min(maxVerticalAdvance, nodeCoordinates[node2][1] - nodeCoordinates[node1][1]);
+                // Calculate C
+                List<Move> moves = state.getAllPossibleMoves(pawn);
+                if (!moves.isEmpty()) {
+                    float maxVerticalAdvance = Float.POSITIVE_INFINITY;
+                    for (Move move : moves) {
+                        int target = move.getTarget(originalBoard).getID();
+                        maxVerticalAdvance = Math.min(maxVerticalAdvance, nodeCoordinates[target][1] - nodeCoordinates[pawnPosition][1]);
+                    }
+                    C[1] -= maxVerticalAdvance;
                 }
-                C[1] -= maxVerticalAdvance;
             }
 
-            endTime = System.nanoTime();
-            totalTimeC += (endTime - startTime);
+            // Compute V
+            V = (double) weightA * (A[1] - A[0]) + weightB * (B[1] - B[0]) + weightC * (C[0] - C[1]);
+            scores.put(state.gameStateID(), V);
         }
 
-        System.out.println("A: " + totalTimeA);
-        System.out.println("B: " + totalTimeB);
-        System.out.println("C: " + totalTimeC);
-        System.out.println("T: " + (totalTimeA + totalTimeB + totalTimeC));
-        System.out.println();
-
-        // Compute V
-        return (double) weightA*(A[1] - A[0]) + weightB*(B[1] - B[0]) + weightC*(C[0] - C[1]);
-    }
-
-    private List<Move> fetchMovesForPawn(Pawn pawn, List<Move> allMoves, Board originalBoard) {
-        List<Move> pawnMoves = new ArrayList<>();
-        for (Move move : allMoves) {
-            if (move.getPawn(originalBoard) == pawn) {
-                pawnMoves.add(move);
-                allMoves.remove(move);
-            }
-        }
-        return pawnMoves;
+        return V;
     }
 
 }
