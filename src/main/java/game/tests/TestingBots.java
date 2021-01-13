@@ -18,6 +18,7 @@ import static players.bots.utils.EveryoneShouldHaveMachineLearning.loadNetwork;
 public class TestingBots {
 
     protected static final Object waitingObject = new Object();
+    protected static final Object threadWait = new Object();
     protected static final int TESTS_NUMBER = 200;
     protected static int tests_completed = 0;
     protected static final ArrayList<String> playerNames = new ArrayList<>(Arrays.asList("Henry", "Melissa", "Frank", "Jessica", "Dave", "Paola"));
@@ -25,6 +26,8 @@ public class TestingBots {
             Color.blue};
     protected static final String[] players = new String[]{"np","npnndls","ep"};
     protected static final int[] wins = new int[players.length];
+    private static final int LOGICAL_THREADS = Runtime.getRuntime().availableProcessors();
+    protected static int current_threads = 0;
 
     //Initial main without threading
 
@@ -61,6 +64,16 @@ public class TestingBots {
         for(int game=0; game<TESTS_NUMBER; game++){
             Thread gameThread = new Thread(new MTRunnable());
             gameThread.start();
+            current_threads++;
+            if(current_threads==LOGICAL_THREADS) {
+                synchronized (threadWait) {
+                    try {
+                        threadWait.wait();
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            }
         }
 
         synchronized (waitingObject){
@@ -94,4 +107,6 @@ public class TestingBots {
             default -> null;
         };
     }
+
+
 }
