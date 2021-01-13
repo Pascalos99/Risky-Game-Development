@@ -20,8 +20,11 @@ public class GameState {
 	 * Please inform me (@pascal) if you intend to directly use this field for anything, as there is likely a way to solve your
 	 *  problem in a safer way.
 	 */
-	public static Board dummy_board;
-	public static GameState dummy_state;
+	private static Map<Integer, Board> dummy_boards;
+	private static Map<Integer, GameState> dummy_states;
+	
+	public static Map<Thread, Integer> thread_dummy_ids;
+	private static int last_dummy_id = 0;
 	
 	/*         /a---b---*p*
 	 *    /r--<
@@ -53,16 +56,41 @@ public class GameState {
 	
 	private final int player_count;
 	
+	private synchronized Integer getDummyKey() {
+		Integer key = thread_dummy_ids.get(Thread.currentThread());
+		if (key == null) {
+			thread_dummy_ids.put(Thread.currentThread(), ++last_dummy_id);
+			return last_dummy_id;
+		}
+		return key;
+	}
+	
+	public Board getDummyBoard() {
+		return dummy_boards.get(getDummyKey());
+	}
+
+	public void setDummyBoard(Board dummy_board) {
+		GameState.dummy_boards.put(getDummyKey(), dummy_board);
+	}
+
+	public GameState getDummyState() {
+		return dummy_states.get(getDummyKey());
+	}
+
+	public void setDummyState(GameState dummy_state) {
+		GameState.dummy_states.put(getDummyKey(), dummy_state);
+	}
+
 	/**
 	 * Makes sure the data in the dummy board matches this GameState
 	 */
 	public void setDummyBoard() {
-		if (dummy_board != null && this.equals(dummy_state)) return;
+		if (getDummyBoard() != null && this.equals(getDummyState())) return;
 		
-		if (dummy_board == null || !dummy_state.root.contentEquals(root)) dummy_board = getOriginalBoard().clone();
-		else for (GameState state = dummy_state; state != null; state = state.parent) {
-				if (state == this) { dummy_state = this; return; }
-				if (state.last_move != null) dummy_board.reverseMove(state.last_move);
+		if (getDummyBoard() == null || !getDummyState().root.contentEquals(root)) setDummyBoard(getOriginalBoard().clone());
+		else for (GameState state = getDummyState(); state != null; state = state.parent) {
+				if (state == this) { setDummyState(this); return; }
+				if (state.last_move != null) getDummyBoard().reverseMove(state.last_move);
 		}
 		
 		LinkedList<Move> moves = new LinkedList<>();
@@ -70,9 +98,9 @@ public class GameState {
 		for (GameState state = this; state != null; state = state.parent)
 			if (state.last_move != null) moves.addFirst(state.last_move);
 		
-		for (Move move : moves) move.execute(dummy_board);
+		for (Move move : moves) move.execute(getDummyBoard());
 		
-		dummy_state = this;
+		setDummyState(this);
 	}
 	
 	/**
@@ -102,13 +130,13 @@ public class GameState {
 	 */
 	public List<Move> getAllPossibleMoves(Pawn pawn) {
 		setDummyBoard();
-		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(dummy_board, dummy_board.getEquivalent(pawn));
+		return GameRules.SELECTED_GAMERULES.getAllPossibleMoves(getDummyBoard(), getDummyBoard().getEquivalent(pawn));
 	};
 
 
 	public double currentScore(Player player){
 		setDummyBoard();
-		return dummy_board.currentScore(player);
+		return getDummyBoard().currentScore(player);
 	}
 
 	public Player currentPlayer() {
@@ -155,7 +183,7 @@ public class GameState {
 	 */
 	public List<BoardNode> getAllnodes() {
 		setDummyBoard();
-		return dummy_board.getAllnodes();
+		return getDummyBoard().getAllnodes();
 	};
 	
 	/**
@@ -176,7 +204,7 @@ public class GameState {
 	 */
 	public List<BoardNode> getAllNodesOf(Player player) {
 		setDummyBoard();
-		return dummy_board.getAllNodesOf(player);
+		return getDummyBoard().getAllNodesOf(player);
 	};
 	
 	/**
@@ -197,7 +225,7 @@ public class GameState {
 	 */
 	public List<Pawn> getAllPawns() {
 		setDummyBoard();
-		return dummy_board.getAllPawns();
+		return getDummyBoard().getAllPawns();
 	};
 
 	/**
@@ -218,7 +246,7 @@ public class GameState {
 	 */
 	public List<Pawn> getAllPawnsOf(Player owner) {
 		setDummyBoard();
-		return dummy_board.getAllPawnsOf(owner);
+		return getDummyBoard().getAllPawnsOf(owner);
 	};
 
 	public Player getEnemy(Player player) {
@@ -226,7 +254,7 @@ public class GameState {
 	}
 
 	public List<BoardNode> getGoal(Player player) {
-		return getOriginalBoard().getGoal(player).stream().map(dummy_board.getNodeMapper()).collect(Collectors.toList());
+		return getOriginalBoard().getGoal(player).stream().map(getDummyBoard().getNodeMapper()).collect(Collectors.toList());
 	}
 	
 	public final boolean isGoalNode(Player player, BoardNode node) {
@@ -249,7 +277,7 @@ public class GameState {
 	 */
 	public boolean allowMove(Move move) {
 		setDummyBoard();
-		return move.isValid(dummy_board);
+		return move.isValid(getDummyBoard());
 	}
 
 	/**
@@ -257,7 +285,7 @@ public class GameState {
 	 */
     public boolean hasWon(Player Player) {
     	setDummyBoard();
-    	return GameRules.SELECTED_GAMERULES.hasWon(dummy_board, Player);
+    	return GameRules.SELECTED_GAMERULES.hasWon(getDummyBoard(), Player);
 	};
     
 	/**
@@ -355,7 +383,7 @@ public class GameState {
 	 */
 	public synchronized void backupBoard() {
 		setDummyBoard();
-		original_board = dummy_board.clone();
+		original_board = getDummyBoard().clone();
 		depth = 0;
 	}
 	
@@ -443,7 +471,7 @@ public class GameState {
 		List<BoardNode> allready = new ArrayList<>();
 		Queue<BoardNode> queue = new LinkedList<>();
 		for(int i = 0;i < 6; i++){
-			if(i != playerID && i != Board.player_pairings[i]){
+			if(i != playerID && i != Board.player_pairings[playerID]){
 				for (int y = 0;y<Board.nodes_owned_per_player[i].length;y++){
 					blackList.add(Board.nodes_owned_per_player[i][y]);
 				}
@@ -476,11 +504,11 @@ public class GameState {
 		}
 		queue.add(nodes.get(corner));
 		double [][] matrix = new double[9][9];
-		constructMatrix(queue,allready,blackList,playerID,matrix,integer_rep);
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep);
 		queue.clear();
 		queue.add(nodes.get(opositecorner));
 		double [][] opositeMatrix = new double[9][9];
-		constructMatrix(queue,allready,blackList,playerID,opositeMatrix,integer_rep);
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,opositeMatrix,integer_rep);
 		for(int i = 0; i < matrix.length; i++){
 			for(int j = 0; j < matrix[i].length; j++){
 				if(matrix[i][j] == 0){
@@ -494,10 +522,10 @@ public class GameState {
 				for(int j = 0; j < matrix[i].length; j++){
 					switch(board_rep) {
 						case TwoNoNegatives:
-							if(matrix[i][j] == ((k==0)? 1:-1) ) result[k][i][j] = 1;
+							if(matrix[i][j] == ((k==0)? 1:-1)) result[k][i][j] = 1;
 							break;
 						default:
-							if(matrix[i][j]!=0) {
+							if(matrix[i][j] != 0) {
 								if (k==0) {
 									result[k][i][j] = matrix[i][j];
 								} else result[k][i][j] = Math.abs(matrix[i][j]);
@@ -505,7 +533,7 @@ public class GameState {
 		return result;
 	}
 
-	private static void constructMatrix(Queue<BoardNode> queue,List<BoardNode> allready,List<Byte> blackList,int playerID,double [][] matrix, byte [] getIntegerRepresentation){
+	private static void constructMatrix(Queue<BoardNode> queue,List<Byte> allready,List<Byte> blackList,int playerID,double [][] matrix, byte [] getIntegerRepresentation){
 		for(int j = 0;j < 9;j++) {
 			Queue<BoardNode> Requeue = new LinkedList<>();
 			int x = j;
@@ -513,8 +541,8 @@ public class GameState {
 			while (!queue.isEmpty()) {
 				BoardNode node = queue.poll();
 				boolean conditions = true;
-				for (BoardNode check : allready) {
-					if (check.getID() == node.getID()) {
+				for (Byte check : allready) {
+					if (check == node.getID()) {
 						conditions = false;
 						break;
 					}
@@ -529,7 +557,7 @@ public class GameState {
 					boolean conditions1 = false;
 					boolean conditions2 = false;
 					for (int i = 0; i < 10; i++) {
-						if (((int) getIntegerRepresentation[i + playerID * 10]) == node.getID()) {
+						if ((getIntegerRepresentation[i + playerID * 10]) == node.getID()) {
 							matrix[x][y] = 1;
 							conditions1 = true;
 							break;
@@ -540,7 +568,7 @@ public class GameState {
 							if (pid != playerID && !conditions2) {
 								for (int i = 0; i < 10; i++) {
 									if (i + pid * 10 < getIntegerRepresentation.length &&
-											((int) getIntegerRepresentation[i + pid * 10]) == node.getID()) {
+											(getIntegerRepresentation[i + pid * 10]) == node.getID()) {
 										matrix[x][y] = -1;
 										conditions2 = true;
 										break;
@@ -554,7 +582,7 @@ public class GameState {
 					}
 					x -=1 ;
 					y +=1 ;
-					allready.add(node);
+					allready.add((byte)node.getID());
 					Requeue.addAll(node.getNeighbours());
 				}
 				if (x < 0 || y > 9) break;
