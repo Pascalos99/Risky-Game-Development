@@ -84,7 +84,7 @@ public class GameState {
 	/**
 	 * Makes sure the data in the dummy board matches this GameState
 	 */
-	public void setDummyBoard() {
+	public synchronized void setDummyBoard() {
 		if (getDummyBoard() != null && this.equals(getDummyState())) return;
 		
 		if (getDummyBoard() == null || !getDummyState().root.contentEquals(root)) setDummyBoard(getOriginalBoard().clone());

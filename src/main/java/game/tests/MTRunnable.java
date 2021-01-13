@@ -33,6 +33,7 @@ public class MTRunnable implements Runnable {
             }
             TestingBots.wins[TestingBots.playerNames.indexOf(gameBoard.getWinner().getName())]++;
             TestingBots.tests_completed++;
+            TestingBots.occupied.remove(Integer.valueOf(state_id));
             //For checking if the number of threads ran is correct
             //System.out.println("Finished thread"+Thread.currentThread().getId());
 

@@ -6,9 +6,13 @@ import gamerules.evaluation_functions.NeuralNetworkEval;
 import players.HumanPlayer;
 import players.Player;
 import players.bots.*;
-import java.awt.*;
+import java.util.List;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import static players.bots.utils.EveryoneShouldHaveMachineLearning.loadNetwork;
 
@@ -54,6 +58,8 @@ public class TestingBots {
         }
     }*/
 
+    public static List<Integer> occupied;
+    
     public static void main(String[] args) throws InterruptedException {
         long startTime = System.nanoTime();
         GameSetup gameSetup = new GameSetup();
@@ -61,8 +67,16 @@ public class TestingBots {
             gameSetup.addPlayer(str2p(players[i]), playerNames.get(i), pieceColors[i]);
         }
         Board gameBoard = gameSetup.getBoard();
+        occupied = new ArrayList<>();
         for(int game=0; game<TESTS_NUMBER; game++){
-            Thread gameThread = new Thread(new MTRunnable(game));
+        	int id = game;
+        	for (int i=0; i < TESTS_NUMBER; i++)
+        		if (!occupied.contains(i)) {
+        			id = i;
+        			break;
+        		}
+            Thread gameThread = new Thread(new MTRunnable(id));
+            occupied.add(id);
             gameThread.start();
             current_threads++;
             if(current_threads==LOGICAL_THREADS) {
