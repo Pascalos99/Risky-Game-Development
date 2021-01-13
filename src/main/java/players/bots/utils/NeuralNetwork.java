@@ -362,7 +362,7 @@ public class NeuralNetwork implements Tunable {
 	 */
 	@Override
 	public String toString() {
-		return toString(15);
+		return toString(20);
 	}
 	
 	public int getInputSize() {

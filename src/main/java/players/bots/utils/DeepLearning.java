@@ -7,10 +7,7 @@ import gamerules.*;
 import gamerules.evaluation_functions.NeuralNetworkEval;
 import gamerules.evaluation_functions.NormalizedSGD;
 import players.Player;
-import players.bots.AlphaBeta;
-import players.bots.GreedyMST;
-import players.bots.NaivePlayer;
-import players.bots.RandomGreedy;
+import players.bots.*;
 
 import java.awt.Color;
 import java.io.IOException;
@@ -34,7 +31,7 @@ public class DeepLearning {
     private static boolean smart_learn = false;
     public static int max_turns_per_game = 500;
     public static int iterations = -1; // don't limit
-    public static double learning_rate = 0.0001;
+    public static double learning_rate = 0.1;
     /** should be lower than save_time and stop_time */
     public static long info_time_ms = 300000l; // 5 minutes
     public static long save_time_ms = 900000l; // 15 minutes
@@ -42,7 +39,7 @@ public class DeepLearning {
     public static BoardRep board_rep = BoardRep.TwoNoNegatives;
     public static boolean save_on_stop = false;
     
-    private static String network_name = "DL-smallTNN";
+    private static String network_name = "DL-working test";
 
     public static void main(String[] args) throws IOException {
     	try {
@@ -87,7 +84,7 @@ public class DeepLearning {
         long start_time = time;
         GD.start(problem);
         try {
-            Thread.sleep(10);
+            Thread.sleep(15);
         } catch (InterruptedException e1) {}
         while (GD.isBusy()) {
         	if (System.currentTimeMillis() - time >= save_time_ms) {
@@ -109,6 +106,10 @@ public class DeepLearning {
             if (GD.hasNewData()) {
             	System.out.format("calculated %d iterations\n", GD.getIterations());
             	System.out.format("  Loss = % .3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
+//				GameSetup gs = new GameSetup();
+//				gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(ann)), "Melissa", Color.cyan);
+//				gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(ann)), "Henry", Color.red);
+//				GamePanel.startGame(gs);
             }
         }
     }
@@ -147,12 +148,12 @@ public class DeepLearning {
     	Random random = new Random();
     	GameSetup gs = new GameSetup();
     	Player[] players;
-    	if (random.nextBoolean())
+//    	if (random.nextBoolean())
     		players = pick_random_players(2);
-    	else if (random.nextBoolean())
-    		players = pick_random_players(4);
-    	else
-    		players = pick_random_players(6);
+//    	else if (random.nextBoolean())
+//    		players = pick_random_players(4);
+//    	else
+//    		players = pick_random_players(6);
     	for (int i=0; i < players.length; i++)
     		gs.addPlayer(players[i], "testplayer"+(i+1), playerColors[i]);
     	return gs.getBoard();
@@ -168,7 +169,7 @@ public class DeepLearning {
     		for (int i=0; i < temp.length; i++) temp[i] = random.nextInt(4);
     	for (int i=0; i < temp.length; i++)
     		if (temp[i] == 3) result[i] = new RandomGreedy(new NeuralNetworkEval(ann, board_rep), 5.5);
-    		else result[i] = randomgameplayers[temp[i]];
+    		else result[i] = new NaivePlayerGreedy();//randomgameplayers[temp[i]];
     	return result;
     }
     private static boolean filledWith(int[] a, int x) {
