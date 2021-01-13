@@ -36,7 +36,7 @@ import java.io.IOException;
 
 public class Controller implements Initializable {
 
-	static class PlayerSelect {
+    static class PlayerSelect {
 		public String name = null;
 		public String type = null;
 		public Color color = null;
@@ -52,6 +52,8 @@ public class Controller implements Initializable {
     public static Stage gameStage = new Stage();
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
+    public JFXButton SetNameBtn;
+    public String[] names = new String[]{"Donald Trump","Daniel Pink","Alex Pentland","Eric Schmidt","Neil deGrasse Tyson","Bill Gates"};
 
     @FXML
     private JFXTextField name1;
@@ -209,5 +211,14 @@ public class Controller implements Initializable {
     	Image img = SwingFXUtils.toFXImage(trial.getGraphics(trial.getBoard()).getImage(), null);
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     	Board.preview_settings = false;
+    }
+
+    public void SetNames(ActionEvent actionEvent) {
+
+        for(int i=0;i<6;i++){
+            int num = (int) (Math.round(Math.random()*5));
+            namefields.get(i).setPromptText(names[num]);
+            namefields.get(i).setText(names[num]);
+        }
     }
 }
