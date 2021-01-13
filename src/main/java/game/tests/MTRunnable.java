@@ -20,6 +20,7 @@ public class MTRunnable implements Runnable {
 	public Integer state_id = null;
 	
 	public static int max_turns = 2000;
+	public static String data_name = "new_testing";
 
     @Override
     public void run() {
@@ -38,14 +39,18 @@ public class MTRunnable implements Runnable {
             Board gameBoard = gameSetup.getBoard();
             List<DataPoint> data = new ArrayList<>();
             int iter = 0;
-            while (gameBoard.noWinners() || ++iter > max_turns) {
-            	data.add(new DataPoint(new GameState(gameBoard)));
+            data.add(new DataPoint(new GameState(gameBoard)));
+            while (gameBoard.noWinners() && ++iter <= max_turns) {
                 gameBoard.forceRequestMoveAndContinue();
+                data.add(new DataPoint(new GameState(gameBoard)));
             }
-            TestingBots.wins[TestingBots.playerNames.indexOf(gameBoard.getWinner().getName())]++;
+            if (gameBoard.getWinner() != null) TestingBots.wins[TestingBots.playerNames.indexOf(gameBoard.getWinner().getName())]++;
+            else TestingBots.ties++;
             TestingBots.tests_completed++;
             
-            storeData(data, gameBoard.currentPlayerID());
+            int winning_player = gameBoard.currentPlayerID();
+            if (gameBoard.noWinners()) winning_player = -1;
+            storeData(data, winning_player);
             
             TestingBots.occupied.remove(Integer.valueOf(state_id));
             //For checking if the number of threads ran is correct
@@ -73,6 +78,6 @@ public class MTRunnable implements Runnable {
     		data.get(i).winning_player = winning_player;
     		resulting_data.addData(data.get(i));
     	}
-    	DataLoader.saveData("general_testing", resulting_data);
+    	DataLoader.saveData(data_name, resulting_data);
     }
 }

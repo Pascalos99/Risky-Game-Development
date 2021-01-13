@@ -32,6 +32,8 @@ public class DataLoader {
 		);
 		saveData("test", data1);
 		saveData("test", data2);
+		Data[] result = loadData("test");
+		System.out.println(Arrays.toString(result));
 	}
 	
 	public static void saveData(String name, GameState...all_states_of_game) {
@@ -55,29 +57,34 @@ public class DataLoader {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-		Data loaded = new Data();
-		for (int i=0; i < data.length; i++) loaded.addData(data[i]);
+		StringBuilder output = new StringBuilder();
+		for (int i=0; i < data.length; i++)
+			output.append(data[i]+";\n");
 		try {
-			Files.writeString(data_file.toPath(), loaded.toString(), StandardOpenOption.APPEND);
+			Files.writeString(data_file.toPath(), output.toString(), StandardOpenOption.APPEND);
 		} catch (IOException e) {
 			System.out.println("something went wrong when writing data");
 			e.printStackTrace();
 		}
 	}
 	
-	public static Data loadData(String name) {
+	public static Data[] loadData(String name) {
 		File folder = new File(datapath);
 		folder.mkdirs();
 		File data_file = new File(datapath + name + ".training_data");
 		if (!data_file.exists()) throw new RuntimeException("could not find data \""+name+"\"");
 		try {
 			String data = Files.readString(data_file.toPath()).strip().replaceAll("//.*\n", "\n").replaceAll("//.*", "");
-			return Data.parseData(data);
+			String[] data_parts = data.split(";");
+			Data[] result = new Data[data_parts.length];
+			for (int i=0; i < result.length; i++)
+				result[i] = Data.parseData(data_parts[i]);
+			return result;
 		} catch (IOException e) {
 			System.out.println("something went wrong when reading data");
 			e.printStackTrace();
 		}
-		return null;
+		return new Data[0];
 	}
 	
 	public static class Data {
@@ -152,9 +159,9 @@ public class DataLoader {
 		
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			for (DataPoint dp : data) {
-				sb.append(dp);
-				sb.append("\n");
+			for (int i=0; i < data.size(); i++) {
+				sb.append(data.get(i));
+				if (i < data.size()-1) sb.append("\n");
 			}
 			return sb.toString();
 		}
