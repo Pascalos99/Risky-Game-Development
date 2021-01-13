@@ -1,7 +1,6 @@
 package gamerules.evaluation_functions;
 
 import java.util.Arrays;
-import java.util.List;
 
 import gamerules.Board;
 import gamerules.EvaluationFunction;
@@ -24,8 +23,6 @@ public class SimpleGoalDistance implements EvaluationFunction {
 
 	@Override
 	public Double apply(GameState state, Player player) {
-		long startTime = System.nanoTime();
-
 		int playerID = state.getOriginalBoard().getPlayerIndex(player);
 		byte[] state_rep = state.getIntegerRepresentation();
 		byte[] goal_nodes = Board.nodes_owned_per_player[Board.player_pairings[playerID]];
@@ -34,7 +31,7 @@ public class SimpleGoalDistance implements EvaluationFunction {
 		boolean any_empty = false;
 		boolean has_won = true;
 		double bonus = 0;
-		
+
 		for (int i=0; i < goal_nodes.length; i++) {
 			boolean found = false;
 			for (int p=0; p < state.getOriginalBoard().getPlayerCount() && !found; p++) {
@@ -50,9 +47,9 @@ public class SimpleGoalDistance implements EvaluationFunction {
 			if (!found) any_empty = true;
 			occupied_goals[i] = found;
 		}
-		
+
 		if (has_won) return 0D;
-		
+
 		int sum = 0;
 		int distance;
 		for (int i=0; i < 10; i++) {
@@ -70,10 +67,6 @@ public class SimpleGoalDistance implements EvaluationFunction {
 			}
 			sum += distance;
 		}
-
-		long endTime = System.nanoTime();
-
-//		System.out.printf("%.20f\n", (float) (endTime - startTime));
 
 		return Double.valueOf(bonus - distance_weight * sum);
 	}
