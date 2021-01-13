@@ -488,7 +488,6 @@ public class GameState {
 				}
 			}
 		}
-		Utils.printMatrix(matrix);
 		double [][][] result = new double[2][9][9];
 		for (int k=0; k < result.length; k++) {
 			for(int i = 0; i < matrix.length; i++){
@@ -556,7 +555,6 @@ public class GameState {
 					x -=1 ;
 					y +=1 ;
 					allready.add((byte)node.getID());
-					System.out.println(node.getNeighbours().size());
 					Requeue.addAll(node.getNeighbours());
 				}
 				if (x < 0 || y > 9) break;
