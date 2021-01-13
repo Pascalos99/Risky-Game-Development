@@ -20,10 +20,10 @@ public class GameState {
 	 * Please inform me (@pascal) if you intend to directly use this field for anything, as there is likely a way to solve your
 	 *  problem in a safer way.
 	 */
-	private static Map<Integer, Board> dummy_boards;
-	private static Map<Integer, GameState> dummy_states;
+	private static Map<Integer, Board> dummy_boards = new HashMap<>();
+	private static Map<Integer, GameState> dummy_states = new HashMap<>();
 	
-	public static Map<Thread, Integer> thread_dummy_ids;
+	public static Map<Thread, Integer> thread_dummy_ids = new HashMap<>();
 	private static int last_dummy_id = 0;
 	
 	/*         /a---b---*p*
