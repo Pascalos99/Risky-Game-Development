@@ -1,11 +1,9 @@
 package players.bots.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +18,22 @@ public class DataLoader {
 	
 	public static final String datapath = AssetFinder.assetsPath+"training_data"+File.separator;
 	
+	public static void main(String[] args) {
+		Data data1 = new Data();
+		data1.addData(
+			new DataPoint(new byte[] {1,2,3,4}, 9, 8),
+			new DataPoint(new byte[] {5,7,2,1}, 1, 2),
+			new DataPoint(new byte[] {18,9,4,0}, 4, 5)
+		);
+		Data data2 = new Data();
+		data2.addData(
+			new DataPoint(new byte[] {4,4,4,4}, 0, 1),
+			new DataPoint(new byte[] {0,22,3,4}, 9, 9)
+		);
+		saveData("test", data1);
+		saveData("test", data2);
+	}
+	
 	public static void saveData(String name, GameState...all_states_of_game) {
 		Data data = new Data();
 		data.addData(all_states_of_game);
@@ -31,14 +45,20 @@ public class DataLoader {
 	 * @param name the file to save to (just the name, path and extension not needed)
 	 * @param data the data to append to the file
 	 */
-	public static void saveData(String name, Data...data) {
+	public static synchronized void saveData(String name, Data...data) {
 		File folder = new File(datapath);
 		folder.mkdirs();
 		File data_file = new File(datapath + name + ".training_data");
+		if (!data_file.exists())
+			try {
+				data_file.createNewFile();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		Data loaded = new Data();
 		for (int i=0; i < data.length; i++) loaded.addData(data[i]);
 		try {
-			Files.writeString(data_file.toPath(), loaded.toString());
+			Files.writeString(data_file.toPath(), loaded.toString(), StandardOpenOption.APPEND);
 		} catch (IOException e) {
 			System.out.println("something went wrong when writing data");
 			e.printStackTrace();
@@ -152,8 +172,17 @@ public class DataLoader {
 	public static class DataPoint {
 		public static final int UNKNOWN = -1;
 		
+		/**
+		 * The gamestate of the game at this moment in the game (before the move of currentplayer is executed)
+		 */
 		public final byte[] gamestate;
+		/**
+		 * The current player who is about to make a move (move has not yet been made)
+		 */
 		public final int current_player;
+		/**
+		 * The player who ended up winning this game
+		 */
 		public int winning_player;
 		
 		private Map<BoardRep, double[][][]> matrixReps = null;

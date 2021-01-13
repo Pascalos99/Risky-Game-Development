@@ -28,7 +28,7 @@ public class TestingBots {
     protected static final ArrayList<String> playerNames = new ArrayList<>(Arrays.asList("Henry", "Melissa", "Frank", "Jessica", "Dave", "Paola"));
     protected static final Color[] pieceColors = new Color[]{Color.cyan, Color.red, Color.green, Color.gray, Color.black,
             Color.blue};
-    protected static final String[] players = new String[]{"np","npnndls","ep"};
+    protected static final String[] players = new String[]{"np","npnndls","ep", "rp"};
     protected static final int[] wins = new int[players.length];
     private static final int LOGICAL_THREADS = Runtime.getRuntime().availableProcessors();
     protected static int current_threads = 0;
@@ -109,7 +109,7 @@ public class TestingBots {
     protected static Player str2p(String playerAsString){
         return switch (playerAsString) {
             case "np" -> new NaivePlayer();
-            case "npnndls" -> new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-simple")));
+            case "npnndls" -> new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test")));
             case "rp" -> new RandomPlayer();
             case "ep" -> new EvilPlayer();
             case "lbfsp" -> new LBFSPlayer();
