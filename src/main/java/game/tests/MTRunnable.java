@@ -37,6 +37,7 @@ public class MTRunnable implements Runnable {
             TestingBots.current_threads--;
             TestingBots.threadWait.notify();
         }
+        Thread.currentThread().interrupt();
     }
 
     private void storeData(){
