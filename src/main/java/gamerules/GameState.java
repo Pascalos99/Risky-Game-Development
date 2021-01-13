@@ -53,7 +53,6 @@ public class GameState {
 	private GameState parent;
 	private GameState root;
 	private int depth;
-	private int turn_count;
 	
 	private final int player_count;
 	
@@ -145,10 +144,6 @@ public class GameState {
 	}
 	public int currentPlayerID() {
 		return (depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount();
-	}
-	
-	public int getTurnCount() {
-		return turn_count;
 	}
 	
 	public GameState getRoot() {
@@ -338,7 +333,6 @@ public class GameState {
 		parent = null;
 		last_move = null;
 		depth = 0;
-		turn_count = copyFrom.getTurnCount();
 		player_count = copyFrom.getPlayerCount();
 		pawn_positions = new byte[player_count * PLAYER_PAWNS];
 		for (int i=0; i < pawn_positions.length; i++) pawn_positions[i] = -1;
@@ -359,7 +353,6 @@ public class GameState {
 		this.root = parent.root;
 		last_move = move;
 		depth = parent.depth + 1;
-		turn_count = parent.turn_count + 1;
 		player_count = parent.player_count;
 		pawn_positions = Arrays.copyOf(parent.pawn_positions, parent.pawn_positions.length);
 		int player = move.getPlayerIndex(getOriginalBoard());

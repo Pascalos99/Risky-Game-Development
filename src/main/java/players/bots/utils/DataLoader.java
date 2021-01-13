@@ -19,21 +19,11 @@ public class DataLoader {
 	public static final String datapath = AssetFinder.assetsPath+"training_data"+File.separator;
 	
 	public static void main(String[] args) {
-		Data data1 = new Data();
-		data1.addData(
-			new DataPoint(new byte[] {1,2,3,4}, 9, 8),
-			new DataPoint(new byte[] {5,7,2,1}, 1, 2),
-			new DataPoint(new byte[] {18,9,4,0}, 4, 5)
-		);
-		Data data2 = new Data();
-		data2.addData(
-			new DataPoint(new byte[] {4,4,4,4}, 0, 1),
-			new DataPoint(new byte[] {0,22,3,4}, 9, 9)
-		);
-		saveData("test", data1);
-		saveData("test", data2);
-		Data[] result = loadData("test");
-		System.out.println(Arrays.toString(result));
+		Data[] load = loadData("new_testing");
+		System.out.println(load.length);
+		int[] lengths = new int[load.length];
+		for (int i=0; i < lengths.length; i++) lengths[i] = load[i].getData().size();
+		System.out.println(Arrays.toString(lengths));
 	}
 	
 	public static void saveData(String name, GameState...all_states_of_game) {
@@ -168,7 +158,7 @@ public class DataLoader {
 		
 		public static Data parseData(String str) {
 			String[] points = str.strip().split("[\\s\\h\\v]*\n[\\s\\h\\v]*");
-			Data result = new Data();
+			Data result = new Data(points.length);
 			for (int i=0; i < points.length; i++)
 				result.addData(DataPoint.parseDataPoint(points[i]));
 			return result;
