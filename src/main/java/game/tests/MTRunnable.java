@@ -8,7 +8,8 @@ public class MTRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("Firing Thread"+Thread.currentThread().getId());
+            //For checking if the number of threads ran is correct
+            // System.out.println("Firing Thread"+Thread.currentThread().getId());
             GameSetup gameSetup = new GameSetup();
             for (int i = 0; i < TestingBots.players.length; i++) {
                 gameSetup.addPlayer(TestingBots.str2p(TestingBots.players[i]), TestingBots.playerNames.get(i), TestingBots.pieceColors[i]);
@@ -21,6 +22,8 @@ public class MTRunnable implements Runnable {
             TestingBots.tests_completed++;
             //For checking if the number of threads ran is correct
             //System.out.println("Finished thread"+Thread.currentThread().getId());
+
+            storeData();
         }
         catch(Exception e){
             System.out.println ("Exception is caught");
@@ -30,5 +33,12 @@ public class MTRunnable implements Runnable {
                 TestingBots.waitingObject.notify();
             }
         }
+        synchronized (TestingBots.threadWait){
+            TestingBots.current_threads--;
+            TestingBots.threadWait.notify();
+        }
+    }
+
+    private void storeData(){
     }
 }
