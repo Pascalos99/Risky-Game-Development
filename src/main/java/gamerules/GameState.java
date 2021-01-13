@@ -443,7 +443,7 @@ public class GameState {
 		List<BoardNode> allready = new ArrayList<>();
 		Queue<BoardNode> queue = new LinkedList<>();
 		for(int i = 0;i < 6; i++){
-			if(i != playerID && i != Board.player_pairings[i]){
+			if(i != playerID && i != Board.player_pairings[playerID]){
 				for (int y = 0;y<Board.nodes_owned_per_player[i].length;y++){
 					blackList.add(Board.nodes_owned_per_player[i][y]);
 				}
@@ -476,11 +476,11 @@ public class GameState {
 		}
 		queue.add(nodes.get(corner));
 		double [][] matrix = new double[9][9];
-		constructMatrix(queue,allready,blackList,playerID,matrix,integer_rep);
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep);
 		queue.clear();
 		queue.add(nodes.get(opositecorner));
 		double [][] opositeMatrix = new double[9][9];
-		constructMatrix(queue,allready,blackList,playerID,opositeMatrix,integer_rep);
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,opositeMatrix,integer_rep);
 		for(int i = 0; i < matrix.length; i++){
 			for(int j = 0; j < matrix[i].length; j++){
 				if(matrix[i][j] == 0){
@@ -488,16 +488,17 @@ public class GameState {
 				}
 			}
 		}
+		Utils.printMatrix(matrix);
 		double [][][] result = new double[2][9][9];
 		for (int k=0; k < result.length; k++) {
 			for(int i = 0; i < matrix.length; i++){
 				for(int j = 0; j < matrix[i].length; j++){
 					switch(board_rep) {
 						case TwoNoNegatives:
-							if(matrix[i][j] == ((k==0)? 1:-1) ) result[k][i][j] = 1;
+							if(matrix[i][j] == ((k==0)? 1:-1)) result[k][i][j] = 1;
 							break;
 						default:
-							if(matrix[i][j]!=0) {
+							if(matrix[i][j] != 0) {
 								if (k==0) {
 									result[k][i][j] = matrix[i][j];
 								} else result[k][i][j] = Math.abs(matrix[i][j]);
@@ -505,7 +506,7 @@ public class GameState {
 		return result;
 	}
 
-	private static void constructMatrix(Queue<BoardNode> queue,List<BoardNode> allready,List<Byte> blackList,int playerID,double [][] matrix, byte [] getIntegerRepresentation){
+	private static void constructMatrix(Queue<BoardNode> queue,List<Byte> allready,List<Byte> blackList,int playerID,double [][] matrix, byte [] getIntegerRepresentation){
 		for(int j = 0;j < 9;j++) {
 			Queue<BoardNode> Requeue = new LinkedList<>();
 			int x = j;
@@ -513,8 +514,8 @@ public class GameState {
 			while (!queue.isEmpty()) {
 				BoardNode node = queue.poll();
 				boolean conditions = true;
-				for (BoardNode check : allready) {
-					if (check.getID() == node.getID()) {
+				for (Byte check : allready) {
+					if (check == node.getID()) {
 						conditions = false;
 						break;
 					}
@@ -529,7 +530,7 @@ public class GameState {
 					boolean conditions1 = false;
 					boolean conditions2 = false;
 					for (int i = 0; i < 10; i++) {
-						if (((int) getIntegerRepresentation[i + playerID * 10]) == node.getID()) {
+						if ((getIntegerRepresentation[i + playerID * 10]) == node.getID()) {
 							matrix[x][y] = 1;
 							conditions1 = true;
 							break;
@@ -540,7 +541,7 @@ public class GameState {
 							if (pid != playerID && !conditions2) {
 								for (int i = 0; i < 10; i++) {
 									if (i + pid * 10 < getIntegerRepresentation.length &&
-											((int) getIntegerRepresentation[i + pid * 10]) == node.getID()) {
+											(getIntegerRepresentation[i + pid * 10]) == node.getID()) {
 										matrix[x][y] = -1;
 										conditions2 = true;
 										break;
@@ -554,7 +555,8 @@ public class GameState {
 					}
 					x -=1 ;
 					y +=1 ;
-					allready.add(node);
+					allready.add((byte)node.getID());
+					System.out.println(node.getNeighbours().size());
 					Requeue.addAll(node.getNeighbours());
 				}
 				if (x < 0 || y > 9) break;
