@@ -1,6 +1,11 @@
 package players.bots.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,11 +21,43 @@ public class DataLoader {
 	public static final String datapath = AssetFinder.assetsPath+"training_data"+File.separator;
 	
 	public static void saveData(String name, GameState...all_states_of_game) {
-		
+		Data data = new Data();
+		data.addData(all_states_of_game);
+		saveData(name, data);
 	}
 	
+	/**
+	 * appends the given data to the file
+	 * @param name the file to save to (just the name, path and extension not needed)
+	 * @param data the data to append to the file
+	 */
 	public static void saveData(String name, Data...data) {
-		
+		File folder = new File(datapath);
+		folder.mkdirs();
+		File data_file = new File(datapath + name + ".training_data");
+		Data loaded = new Data();
+		for (int i=0; i < data.length; i++) loaded.addData(data[i]);
+		try {
+			Files.writeString(data_file.toPath(), loaded.toString());
+		} catch (IOException e) {
+			System.out.println("something went wrong when writing data");
+			e.printStackTrace();
+		}
+	}
+	
+	public static Data loadData(String name) {
+		File folder = new File(datapath);
+		folder.mkdirs();
+		File data_file = new File(datapath + name + ".training_data");
+		if (!data_file.exists()) throw new RuntimeException("could not find data \""+name+"\"");
+		try {
+			String data = Files.readString(data_file.toPath()).strip().replaceAll("//.*\n", "\n").replaceAll("//.*", "");
+			return Data.parseData(data);
+		} catch (IOException e) {
+			System.out.println("something went wrong when reading data");
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static class Data {
@@ -54,6 +91,9 @@ public class DataLoader {
 				data.add(dataPoint);
 				data_modified = true;
 			}
+		}
+		public void addData(DataPoint...dataPoints) {
+			for (int i=0; i < dataPoints.length; i++) addData(dataPoints[i]);
 		}
 		public void addData(Data data) {
 			addDatapoints(data.data);
