@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GameTreeNode {
+public class GameTreeNode implements Comparable<GameTreeNode>{
 
     private final GameState gameState;
     private final GameTreeNode parent;
@@ -13,6 +13,25 @@ public class GameTreeNode {
     protected boolean isExpanded = false;
     
     private boolean addedToParent = false;
+
+    private double fscore;
+    private double gscore;
+
+    public double getFscore() {
+        return fscore;
+    }
+
+    public void setFscore(double fscore) {
+        this.fscore = fscore;
+    }
+
+    public double getGscore() {
+        return gscore;
+    }
+
+    public void setGscore(double gscore) {
+        this.gscore = gscore;
+    }
 
     public GameTreeNode(GameTreeNode parent, GameState gameState) {
     	if (parent == null);
@@ -69,4 +88,8 @@ public class GameTreeNode {
         this.children.add(childNode);
     }
 
+    @Override
+    public int compareTo(GameTreeNode other) {
+        return Double.compare(this.getFscore(),other.getFscore());
+    }
 }

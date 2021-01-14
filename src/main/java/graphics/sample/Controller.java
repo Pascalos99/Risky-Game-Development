@@ -2,6 +2,7 @@ package graphics.sample;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
 
 import game.GamePanel;
@@ -36,7 +37,14 @@ import java.io.IOException;
 
 public class Controller implements Initializable {
 
-	static class PlayerSelect {
+    public JFXSlider slider1;
+    public JFXSlider slider6;
+    public JFXSlider slider5;
+    public JFXSlider slider4;
+    public JFXSlider slider3;
+    public JFXSlider slider2;
+
+    static class PlayerSelect {
 		public String name = null;
 		public String type = null;
 		public Color color = null;
@@ -52,6 +60,8 @@ public class Controller implements Initializable {
     public static Stage gameStage = new Stage();
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
+    public JFXButton SetNameBtn;
+    public String[] names = new String[]{"Daniel Pink","Alex Pentland","Eric Schmidt","Donald Trump","Neil deGrasse Tyson","Bill Gates"};
 
     @FXML
     private JFXTextField name1;
@@ -209,5 +219,14 @@ public class Controller implements Initializable {
     	Image img = SwingFXUtils.toFXImage(trial.getGraphics(trial.getBoard()).getImage(), null);
     	g.drawImage(img, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
     	Board.preview_settings = false;
+    }
+
+    public void SetNames(ActionEvent actionEvent) {
+
+        for(int i=0;i<6;i++){
+            int num = (int) (Math.round(Math.random()*5));
+            namefields.get(i).setPromptText(names[num]);
+            namefields.get(i).setText(names[num]);
+        }
     }
 }
