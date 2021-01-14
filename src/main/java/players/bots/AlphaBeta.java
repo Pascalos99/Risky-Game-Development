@@ -5,6 +5,8 @@ import players.Player;
 import players.bots.utils.AlphaBetaTree;
 import players.bots.utils.AlphaBetaTreeNode;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AlphaBeta extends Player {
@@ -13,16 +15,14 @@ public class AlphaBeta extends Player {
     private GameState winning;
     private int numberOfPlayers;
     private AlphaBetaTree tree;
-    private final boolean debug = true;
-    private int nodes;
-    private long timeAlphaBeta;
-    private long timeDuplicateChildPrevention;
+
+    private int nodesEncountered;
     private long timeOptimalOrder;
     private long timeDuplicateChecking;
 
     // Bare bones
     private AlphaBetaTreeNode alphaBetaV1(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-        nodes++;
+        nodesEncountered++;
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
             winning = node.getGameState();
@@ -70,7 +70,7 @@ public class AlphaBeta extends Player {
     // Bare bones
     // + duplicate child prevention
     private AlphaBetaTreeNode alphaBetaV2(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-        nodes++;
+        nodesEncountered++;
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
             winning = node.getGameState();
@@ -178,7 +178,7 @@ public class AlphaBeta extends Player {
     // Bare bones
     // + optimal ordering
     private AlphaBetaTreeNode alphaBetaV3(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-        nodes++;
+        nodesEncountered++;
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
             winning = node.getGameState();
@@ -229,7 +229,7 @@ public class AlphaBeta extends Player {
     // + duplicate child prevention
     // + optimal ordering
     private AlphaBetaTreeNode alphaBetaV4(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-        nodes++;
+        nodesEncountered++;
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
             winning = node.getGameState();
@@ -343,7 +343,7 @@ public class AlphaBeta extends Player {
     // + optimal ordering
     // + subtrees
     private AlphaBetaTreeNode alphaBetaV5(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-        nodes++;
+        nodesEncountered++;
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
             winning = node.getGameState();
@@ -456,9 +456,135 @@ public class AlphaBeta extends Player {
         return bestValue;
     }
 
+    // V5
+    // + different strategy for optimal ordering
+    private AlphaBetaTreeNode alphaBetaV6(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
+        nodesEncountered++;
+        // Depth-1 winning node
+        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
+            winning = node.getGameState();
+        }
+        // Leaf node
+        if (depth == 0) {
+            return node;
+        }
+        AlphaBetaTreeNode bestValue;
+        // Maximizing
+        if (player == 1) {
+            bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
+
+            if (node.getChildren().isEmpty()) {
+                // Not expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
+                childStates = mergesort(childStates);
+                Collections.reverse(childStates);
+
+                for (GameState childState : childStates) {
+                    double childScore = tree.computeEvaluationScore(childState);
+                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                    tree.addNodeToLayer(childNode, childState.getDepth());
+
+                    bestValue = bestValue.max(alphaBetaV6(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+                // Partially expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
+                childStates = mergesort(childStates);
+                Collections.reverse(childStates);
+
+                for (GameState childState : childStates) {
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
+                        double childScore = tree.computeEvaluationScore(childState);
+                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                        tree.addNodeToLayer(childNode, childState.getDepth());
+                    }
+
+                    bestValue = bestValue.max(alphaBetaV6(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+            else {
+                // Fully expanded
+                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                    bestValue = bestValue.max(alphaBetaV6(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            }
+        }
+        // Minimizing
+        else {
+            bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+
+            if (node.getChildren().isEmpty()) {
+                // Not expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
+                childStates = mergesort(childStates);
+
+                for (GameState childState : childStates) {
+                    double childScore = tree.computeEvaluationScore(childState);
+                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                    tree.addNodeToLayer(childNode, childState.getDepth());
+
+                    bestValue = bestValue.min(alphaBetaV6(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+                // Partially expanded
+                List<Move> moves = node.getAllPossibleMoves();
+                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
+                childStates = mergesort(childStates);
+
+                for (GameState childState : childStates) {
+                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                    if (childNode == null) {
+                        double childScore = tree.computeEvaluationScore(childState);
+                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
+                        tree.addNodeToLayer(childNode, childState.getDepth());
+                    }
+
+                    bestValue = bestValue.min(alphaBetaV6(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+            else {
+                // Fully expanded
+                for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                    bestValue = bestValue.min(alphaBetaV6(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                    if (beta <= alpha) {
+                        break;
+                    }
+                }
+            }
+        }
+        return bestValue;
+    }
+
 //
 //    private AlphaBetaTreeNode alphaBetaV3(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-//        nodes++;
+//        nodesEncountered++;
 //        // Depth-1 winning node
 //        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
 //            winning = node.getGameState();
@@ -594,7 +720,7 @@ public class AlphaBeta extends Player {
 //    }
 //
 //    private AlphaBetaTreeNode alphaBetaV4(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-//        nodes++;
+//        nodesEncountered++;
 //        // Depth-1 winning node
 //        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
 //            winning = node.getGameState();
@@ -730,7 +856,7 @@ public class AlphaBeta extends Player {
 //    }
 
 //    private AlphaBetaTreeNode alphaBeta(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
-//        nodes++;
+//        nodesEncountered++;
 //        // Depth-1 winning node
 //        if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
 //            winning = node.getGameState();
@@ -1036,33 +1162,107 @@ public class AlphaBeta extends Player {
             }
         }
 
-//        for (int i = 0; i < moves.size(); i++) {
-//            int randomIndex = (int) (Math.random() * moves.size());
-//            Move move = moves.get(randomIndex);
-//            GameState childState = currentState.getStateAfterMove(move);
-//            double childScore = tree.computeEvaluationScore(childState);
-//            if (maximizing) {
-//                if (childScore > bestScore) {
-//                    bestMove = move;
-//                    bestState = childState;
-//                    bestScore = childScore;
-//                }
-//            }
-//            else {
-//                if (childScore < bestScore) {
-//                    bestMove = move;
-//                    bestState = childState;
-//                    bestScore = childScore;
-//                }
-//            }
-//        }
-
         moves.remove(bestMove);
 
         long endTime = System.currentTimeMillis();
         timeOptimalOrder += (endTime - startTime);
 
         return bestState;
+    }
+
+    private List<GameState> enumerateChildStates(List<Move> moves, GameState currentState) {
+        List<GameState> childStates = new ArrayList<>();
+        for (Move move : moves) {
+            GameState childState = currentState.getStateAfterMove(move);
+            childStates.add(childState);
+        }
+        return childStates;
+    }
+
+    private void bubbleSort(List<GameState> childStates) {
+        long startTime = System.currentTimeMillis();
+
+        int n = childStates.size();
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (tree.computeEvaluationScore(childStates.get(j)) > tree.computeEvaluationScore(childStates.get(j + 1))) {
+                    // swap arr[j+1] and arr[j]
+                    GameState temp = childStates.get(j);
+                    childStates.set(j, childStates.get(j + 1));
+                    childStates.set(j + 1, temp);
+                }
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        timeOptimalOrder += (endTime - startTime);
+    }
+
+    private List<GameState> mergesort(List<GameState> list) {
+        long startT = System.currentTimeMillis();
+        if(list.size() > 1) {
+            List<GameState>[] lists = partition(list);
+            List<GameState> list1 = lists[0];
+            List<GameState> list2 = lists[1];
+
+            list1 = mergesort(list1);
+            list2 = mergesort(list2);
+
+            return merge(list1, list2);
+        }
+        else {
+            return list;
+        }
+    }
+
+    private List[] partition(List<GameState> list) {
+        List[] lists = new ArrayList[2];
+        List<GameState> list1 = new ArrayList<>();
+        List<GameState> list2 = new ArrayList<>();
+
+        int middle = list.size() / 2;
+        for(int i = 0; i < list.size(); i++) {
+            if(i < middle) {
+                list1.add(list.get(i));
+            }
+            else {
+                list2.add(list.get(i));
+            }
+        }
+
+        lists[0] = list1;
+        lists[1] = list2;
+
+        return lists;
+    }
+
+    private List<GameState> merge(List<GameState> list1, List<GameState> list2) {
+        List<GameState> list = new ArrayList<>();
+        int index1 = 0;
+        int index2 = 0;
+
+        while(index1 < list1.size() && index2 < list2.size()) {
+            if(tree.computeEvaluationScore(list1.get(index1)) <= tree.computeEvaluationScore(list2.get(index2))) {
+                list.add(list1.get(index1));
+                index1++;
+            }
+            else {
+                list.add(list2.get(index2));
+                index2++;
+            }
+        }
+
+        while(index1 < list1.size()) {
+            list.add(list1.get(index1));
+            index1++;
+        }
+
+        while(index2 < list2.size()) {
+            list.add(list2.get(index2));
+            index2++;
+        }
+
+        return list;
     }
 
     private AlphaBetaTreeNode fetchDuplicate(AlphaBetaTreeNode node, GameState stateToCheck) {
@@ -1087,7 +1287,7 @@ public class AlphaBeta extends Player {
             initialCall = false;
             this.numberOfPlayers = gameBoard.getPlayerCount();
             AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(new GameState(gameBoard), Double.NEGATIVE_INFINITY);
-            this.tree = new AlphaBetaTree(rootNode, 5, this);
+            this.tree = new AlphaBetaTree(rootNode, 4, this);
         }
         else {
             AlphaBetaTreeNode rootNode = findNewRoot(new GameState(gameBoard));
@@ -1095,31 +1295,33 @@ public class AlphaBeta extends Player {
         }
 
         // Iterative Deepening AlphaBeta-pruning
+        boolean debug = true;
         if (debug) {
-            nodes = 0;
-            timeAlphaBeta = 0;
+            nodesEncountered = 0;
             timeOptimalOrder = 0;
             timeDuplicateChecking = 0;
-            timeDuplicateChildPrevention = 0;
         }
 
+        long timeAlphaBeta;
         AlphaBetaTreeNode bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
         long startTime = System.currentTimeMillis();
         for (int i = 1; i <= tree.getMaxDepth(); i++) {
 //            AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(tree.getRoot().getGameState(), Double.NEGATIVE_INFINITY);
 //            tree = new AlphaBetaTree(rootNode, tree.getMaxDepth(), this);
-            AlphaBetaTreeNode bestNode = alphaBetaV5(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, i);
+            AlphaBetaTreeNode bestNode = alphaBetaV6(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, i);
             bestValue = bestValue.max(bestNode);
         }
         long endTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
+//        AlphaBetaTreeNode bestValue = alphaBetaV6(tree.getRoot(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1, tree.getMaxDepth());
+//        long endTime = System.currentTimeMillis();
         timeAlphaBeta = (endTime - startTime);
 
         if (debug) {
-            System.out.println("Encountered " + nodes + " nodes");
+            System.out.println("Encountered " + nodesEncountered + " nodes");
             System.out.println("AlphaBeta took " + timeAlphaBeta + " milliseconds");
             System.out.println("OptimalOrder took " + timeOptimalOrder + " milliseconds");
             System.out.println("DuplicateChecking took " + timeDuplicateChecking + " milliseconds");
-            System.out.println("DuplicateChildPrevention took " + timeDuplicateChildPrevention + " milliseconds");
         }
 
         // Extract move
