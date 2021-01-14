@@ -1,10 +1,6 @@
 package gamerules.evaluation_functions;
 
-import gamerules.Board;
-import gamerules.EvaluationFunction;
-import gamerules.GameState;
-import gamerules.Move;
-import gamerules.Pawn;
+import gamerules.*;
 import players.Player;
 
 import java.math.BigInteger;
@@ -59,6 +55,7 @@ public class PaperEval implements EvaluationFunction {
             {6, 16}                                                                                                                                         // Layer 17
     };
     private final float[][] lookupTable;
+    private final HashMap<BigInteger, Double> scores = new HashMap<>();
     private final int[] furthestGoalNodesPerPlayer = {120, 0, 98, 22, 10, 110};
 
     public PaperEval() {
@@ -70,7 +67,7 @@ public class PaperEval implements EvaluationFunction {
         this.weightA = weightA;
         this.weightB = weightB;
         this.weightC = weightC;
-        lookupTable = createLookupTable();
+        this.lookupTable = createLookupTable();
     }
 
     private float[][] createLookupTable() {
@@ -90,7 +87,8 @@ public class PaperEval implements EvaluationFunction {
         return (float) Math.sqrt(Math.pow(differenceInX, 2) + Math.pow(differenceInY, 2));
     }
 
-    private final HashMap<BigInteger, Double> scores = new HashMap<>();
+    // TODO: make B compatible with all players
+    // TODO: make C compatible with all players
     @Override
     public Double apply(GameState state, Player player) {
         Double V = scores.get(state.gameStateID());
