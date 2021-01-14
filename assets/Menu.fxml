@@ -76,12 +76,12 @@
                   <Font size="21.0" />
                </font>
             </JFXButton>
-            <JFXSlider fx:id="slider1" blockIncrement="1.0" indicatorPosition="RIGHT" layoutX="220.0" layoutY="200.0" max="5.0" onDragDetected="#slider1" />
-            <JFXSlider fx:id="slider6" blockIncrement="1.0" layoutX="220.0" layoutY="490.0" max="5.0" onDragDetected="#slider6" />
-            <JFXSlider fx:id="slider5" blockIncrement="1.0" layoutX="220.0" layoutY="430.0" max="5.0" onDragDetected="#slider5" />
-            <JFXSlider fx:id="slider4" blockIncrement="1.0" layoutX="220.0" layoutY="372.0" max="5.0" onDragDetected="#slider4" />
-            <JFXSlider fx:id="slider3" blockIncrement="1.0" layoutX="220.0" layoutY="317.0" max="5.0" onDragDetected="#slider3" />
-            <JFXSlider fx:id="slider2" blockIncrement="1.0" layoutX="220.0" layoutY="260.0" max="5.0" onDragDetected="#slider2" />
+            <JFXSlider fx:id="slider1" blockIncrement="1.0" layoutX="220.0" layoutY="200.0" max="9.0" onDragDetected="#slider1" showTickLabels="true" showTickMarks="true" />
+            <JFXSlider fx:id="slider6" blockIncrement="1.0" layoutX="220.0" layoutY="490.0" max="9.0" onDragDetected="#slider6" showTickLabels="true" showTickMarks="true" />
+            <JFXSlider fx:id="slider5" blockIncrement="1.0" layoutX="220.0" layoutY="430.0" max="9.0" onDragDetected="#slider5" showTickLabels="true" showTickMarks="true" />
+            <JFXSlider fx:id="slider4" blockIncrement="1.0" layoutX="220.0" layoutY="372.0" majorTickUnit="10.0" max="9.0" minorTickCount="1" onDragDetected="#slider4" showTickLabels="true" showTickMarks="true" />
+            <JFXSlider fx:id="slider3" blockIncrement="1.0" layoutX="220.0" layoutY="317.0" max="9.0" onDragDetected="#slider3" showTickLabels="true" showTickMarks="true" />
+            <JFXSlider fx:id="slider2" blockIncrement="1.0" layoutX="220.0" layoutY="260.0" max="9.0" onDragDetected="#slider2" showTickLabels="true" showTickMarks="true" />
          </children>
       </Pane>
    </children>
