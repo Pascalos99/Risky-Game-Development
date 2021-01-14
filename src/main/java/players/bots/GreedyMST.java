@@ -20,6 +20,9 @@ public class GreedyMST extends Player {
     public GreedyMST(){
         this(4,1,500,50,30,new SimpleGoalDistance());
     }
+    public GreedyMST(EvaluationFunction evaluation){
+        this(4,1,500,50,30,evaluation);
+    }
 
     public GreedyMST(int treeSize, int depth,int time,int randomSize,int minimumEvaluation,EvaluationFunction evaluation){
         this.treeSize = treeSize;
@@ -92,7 +95,7 @@ public class GreedyMST extends Player {
 
     @Override
     public String getTypeName() {
-        return "Monte carlo search tree greedy";
+        return "Monte carlo greedy search on a tree";
     }
 
     @Override

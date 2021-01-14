@@ -30,7 +30,6 @@ public class NaivePlayer extends Player {
         HashMap<Double,Move> eval= new HashMap<>();
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
         List<Integer> blackList = this.getOtherPlayersBase(gameBoard);
-        Collections.shuffle(pawns);
         for (Pawn pawn : pawns) {
             List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(gameBoard, pawn);
             for (Move move : moves) {
