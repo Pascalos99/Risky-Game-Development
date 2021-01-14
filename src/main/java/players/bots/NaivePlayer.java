@@ -1,6 +1,7 @@
 package players.bots;
 
 import gamerules.*;
+import gamerules.evaluation_functions.NormalizedSGD;
 import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 
@@ -14,7 +15,7 @@ public class NaivePlayer extends Player {
     EvaluationFunction evaluation;
 
     public NaivePlayer(){
-        this(new SimpleGoalDistance());
+        this(new NormalizedSGD());
     }
 
     public NaivePlayer(EvaluationFunction evaluation){
@@ -28,15 +29,15 @@ public class NaivePlayer extends Player {
         GameState gameState = new GameState(gameBoard);
         HashMap<Double,Move> eval= new HashMap<>();
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
-        Collections.shuffle(pawns);
+        List<Integer> blackList = this.getOtherPlayersBase(gameBoard);
         for (Pawn pawn : pawns) {
             List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(gameBoard, pawn);
             for (Move move : moves) {
-                double score = evaluation.apply(new GameState(gameState, move),this);
-                if(eval.containsKey(score)){
-                   score += Math.random() - 0.5;
+                if(!blackList.contains(move.target_node)){
+                    double score = evaluation.apply(new GameState(gameState, move),this);
+//                    score += Math.random()*0.001;
+                    eval.put(score, move);
                 }
-                eval.put(score, move);
             }
         }
         Double max = Collections.max(eval.keySet());

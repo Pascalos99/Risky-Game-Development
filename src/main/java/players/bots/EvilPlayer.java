@@ -101,7 +101,6 @@ public class EvilPlayer extends Player implements DeterministicReturn {
 				}
 			}
 		}
-		Collections.shuffle(possible_moves);
 		Collections.sort(possible_moves);
 		if (possible_moves.size() <= 0) {
 			if (debug) System.out.println("Couldn't find move");

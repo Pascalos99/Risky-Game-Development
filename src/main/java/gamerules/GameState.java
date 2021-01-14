@@ -84,10 +84,10 @@ public class GameState {
 	/**
 	 * Makes sure the data in the dummy board matches this GameState
 	 */
-	public void setDummyBoard() {
+	public synchronized void setDummyBoard() {
 		if (getDummyBoard() != null && this.equals(getDummyState())) return;
 		
-		if (getDummyBoard() == null || !getDummyState().root.contentEquals(root)) setDummyBoard(getOriginalBoard().clone());
+		if (getDummyBoard() == null || getDummyState() == null || !getDummyState().root.contentEquals(root)) setDummyBoard(getOriginalBoard().clone());
 		else for (GameState state = getDummyState(); state != null; state = state.parent) {
 				if (state == this) { setDummyState(this); return; }
 				if (state.last_move != null) getDummyBoard().reverseMove(state.last_move);

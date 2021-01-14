@@ -414,6 +414,15 @@ public class Board {
 	public int getPlayerCount() {
 		return player_count;
 	}
+	
+	public int getTurnCount() {
+		int total = 0;
+		for (int i=0; i < players.length; i++) {
+			if (players[i] == null) continue;
+			total += players[i].turnCounter.getCount();
+		}
+		return total;
+	}
 
 	public BoardGraphics getGraphics() {
 		return graphics;

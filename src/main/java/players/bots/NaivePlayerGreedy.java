@@ -2,6 +2,7 @@ package players.bots;
 
 import gamerules.*;
 import gamerules.evaluation_functions.MonteCarloEval;
+import gamerules.evaluation_functions.NormalizedSGD;
 import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 
@@ -15,7 +16,7 @@ public class NaivePlayerGreedy extends Player {
     EvaluationFunction evaluation;
 
     public NaivePlayerGreedy(){
-        this(new SimpleGoalDistance());
+        this(new NormalizedSGD());
     }
 
     public NaivePlayerGreedy(EvaluationFunction evaluation){
@@ -27,14 +28,11 @@ public class NaivePlayerGreedy extends Player {
         GameState gameState = new GameState(gameBoard);
         HashMap<Double,Move> eval= new HashMap<>();
         List<Pawn> pawns = gameBoard.getAllPawnsOf(this);
-        Collections.shuffle(pawns);
+//        Collections.shuffle(pawns);
         for (Pawn pawn : pawns) {
             List<Move> moves = SELECTED_GAMERULES.getAllPossibleMoves(gameBoard, pawn);
             for (Move move : moves) {
                 double score = evaluation.apply(new GameState(gameState, move),this);
-                /*if(eval.containsKey(score)){
-                    score += Math.random() - 0.5;
-                }*/
                 eval.put(score, move);
             }
         }

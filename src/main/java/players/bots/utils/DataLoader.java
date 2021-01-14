@@ -1,6 +1,9 @@
 package players.bots.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,12 +18,63 @@ public class DataLoader {
 	
 	public static final String datapath = AssetFinder.assetsPath+"training_data"+File.separator;
 	
-	public static void saveData(String name, GameState...all_states_of_game) {
-		
+	public static void main(String[] args) {
+		Data[] load = loadData("new_testing");
+		System.out.println(load.length);
+		int[] lengths = new int[load.length];
+		for (int i=0; i < lengths.length; i++) lengths[i] = load[i].getData().size();
+		System.out.println(Arrays.toString(lengths));
 	}
 	
-	public static void saveData(String name, Data...data) {
-		
+	public static void saveData(String name, GameState...all_states_of_game) {
+		Data data = new Data();
+		data.addData(all_states_of_game);
+		saveData(name, data);
+	}
+	
+	/**
+	 * appends the given data to the file
+	 * @param name the file to save to (just the name, path and extension not needed)
+	 * @param data the data to append to the file
+	 */
+	public static synchronized void saveData(String name, Data...data) {
+		File folder = new File(datapath);
+		folder.mkdirs();
+		File data_file = new File(datapath + name + ".training_data");
+		if (!data_file.exists())
+			try {
+				data_file.createNewFile();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		StringBuilder output = new StringBuilder();
+		for (int i=0; i < data.length; i++)
+			output.append(data[i]+";\n");
+		try {
+			Files.writeString(data_file.toPath(), output.toString(), StandardOpenOption.APPEND);
+		} catch (IOException e) {
+			System.out.println("something went wrong when writing data");
+			e.printStackTrace();
+		}
+	}
+	
+	public static Data[] loadData(String name) {
+		File folder = new File(datapath);
+		folder.mkdirs();
+		File data_file = new File(datapath + name + ".training_data");
+		if (!data_file.exists()) throw new RuntimeException("could not find data \""+name+"\"");
+		try {
+			String data = Files.readString(data_file.toPath()).strip().replaceAll("//.*\n", "\n").replaceAll("//.*", "");
+			String[] data_parts = data.split(";");
+			Data[] result = new Data[data_parts.length];
+			for (int i=0; i < result.length; i++)
+				result[i] = Data.parseData(data_parts[i]);
+			return result;
+		} catch (IOException e) {
+			System.out.println("something went wrong when reading data");
+			e.printStackTrace();
+		}
+		return new Data[0];
 	}
 	
 	public static class Data {
@@ -54,6 +108,9 @@ public class DataLoader {
 				data.add(dataPoint);
 				data_modified = true;
 			}
+		}
+		public void addData(DataPoint...dataPoints) {
+			for (int i=0; i < dataPoints.length; i++) addData(dataPoints[i]);
 		}
 		public void addData(Data data) {
 			addDatapoints(data.data);
@@ -92,16 +149,16 @@ public class DataLoader {
 		
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			for (DataPoint dp : data) {
-				sb.append(dp);
-				sb.append("\n");
+			for (int i=0; i < data.size(); i++) {
+				sb.append(data.get(i));
+				if (i < data.size()-1) sb.append("\n");
 			}
 			return sb.toString();
 		}
 		
 		public static Data parseData(String str) {
 			String[] points = str.strip().split("[\\s\\h\\v]*\n[\\s\\h\\v]*");
-			Data result = new Data();
+			Data result = new Data(points.length);
 			for (int i=0; i < points.length; i++)
 				result.addData(DataPoint.parseDataPoint(points[i]));
 			return result;
@@ -112,8 +169,17 @@ public class DataLoader {
 	public static class DataPoint {
 		public static final int UNKNOWN = -1;
 		
+		/**
+		 * The gamestate of the game at this moment in the game (before the move of currentplayer is executed)
+		 */
 		public final byte[] gamestate;
+		/**
+		 * The current player who is about to make a move (move has not yet been made)
+		 */
 		public final int current_player;
+		/**
+		 * The player who ended up winning this game
+		 */
 		public int winning_player;
 		
 		private Map<BoardRep, double[][][]> matrixReps = null;
