@@ -2,6 +2,7 @@ package graphics.sample;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
 
 import game.GamePanel;
@@ -35,6 +36,13 @@ import java.io.IOException;
 
 
 public class Controller implements Initializable {
+
+    public JFXSlider slider1;
+    public JFXSlider slider6;
+    public JFXSlider slider5;
+    public JFXSlider slider4;
+    public JFXSlider slider3;
+    public JFXSlider slider2;
 
     static class PlayerSelect {
 		public String name = null;
