@@ -56,7 +56,7 @@ public class DataTrainer {
 		return () -> {
 			DataPoint dp = points.poll();
 			double[] input = dp.getMatrixUnrolled(boardRep);
-			double[] output = new double[] { dp.winning_player };
+			double[] output = new double[] { (dp.winning_player == dp.current_player)? 1:0 };
 			return new double[][] {input, output};
 		};
 	}
