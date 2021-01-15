@@ -1,9 +1,11 @@
 package players.bots;
 
 import gamerules.*;
+import gamerules.evaluation_functions.NeuralNetworkEval;
 import gamerules.evaluation_functions.NormalizedSGD;
 import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
+import players.bots.utils.BoardRep;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ public class NaivePlayer extends Player {
                 }
             }
         }
+        if (((NeuralNetworkEval)evaluation).getBoardRep() == BoardRep.TwoNoNegatives) System.out.println(eval);
         Double max = Collections.max(eval.keySet());
         Move move = eval.get(max);
         if (last_move != null && move.equals(last_move.reverse())) {

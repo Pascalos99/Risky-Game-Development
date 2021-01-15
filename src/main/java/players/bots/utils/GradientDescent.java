@@ -68,6 +68,11 @@ public class GradientDescent {
 		this.acceleration_interval = (acceleration_interval != null)? acceleration_interval : this.acceleration_interval;
 	}
 	
+	public void setMinMaxLR(Double min_lr, Double max_lr) {
+		minimum_lr = (min_lr != null)? min_lr : minimum_lr;
+		maximum_lr = (max_lr != null)? max_lr : maximum_lr;
+	}
+	
 	/**
 	 * @param set
 	 * @param exploration_interval may be {@code null}: sets to default
@@ -116,6 +121,7 @@ public class GradientDescent {
 					// replace network by exploration network
 					//System.out.format("summed loss advantage of exploration is %.3e; thus replacing current model with exploration\n", sum_diff);
 					model.setAllWeights(exploration_model.getAllWeights());
+					exploration_replacements++;
 				}
 			}
 		}
@@ -148,6 +154,8 @@ public class GradientDescent {
 			}
 		}
 	}
+	
+	private int exploration_replacements = 0;
 	
 	private void setupExplorationModel() {
 		exploration_model = model.clone();
@@ -191,6 +199,13 @@ public class GradientDescent {
 			System.out.println("Model got out of bounds! try a smaller learning rate!");
 			System.exit(0);
 		}
+	}
+	
+	public double getLearningRate() {
+		return learning_rate;
+	}
+	public int getExplorationReplacements() {
+		return exploration_replacements;
 	}
 	
 	private class DescentThread extends Thread {

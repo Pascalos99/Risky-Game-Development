@@ -267,8 +267,11 @@ public class NeuralNetwork implements Tunable {
 	}
 	
 	public void setAllWeights(double[][][] weights) {
-		for (int i=0; i < hidden_layers.length; i++)
-			hidden_layers[i].weights = weights[i];
+		for (int i=0; i < hidden_layers.length; i++) {
+			for (int j=0; j < hidden_layers[i].weights.length; j++)
+				for (int k=0; k < hidden_layers[i].weights[j].length; k++)
+					hidden_layers[i].weights[j][k] = weights[i][j][k];
+		}
 	}
 	
 	public double[] forwardProp(double[] input) {

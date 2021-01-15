@@ -24,6 +24,7 @@ import gamerules.evaluation_functions.NeuralNetworkEval;
 import graphics.BoardGraphics;
 import players.*;
 import players.bots.*;
+import players.bots.utils.BoardRep;
 
 import static players.bots.utils.EveryoneShouldHaveMachineLearning.*;
 
@@ -43,12 +44,12 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Melissa", Color.cyan);
+		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-Pascal2"), BoardRep.TwoNoNegatives)), "Melissa", Color.cyan);
 		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.red);
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.green);
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Melissa", Color.gray);
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.black);
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Melissa", Color.blue);
+//		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.green);
+//		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Melissa", Color.gray);
+//		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.black);
+//		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Melissa", Color.blue);
 		startGame(gs);
 	}
 	

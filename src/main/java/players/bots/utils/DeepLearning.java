@@ -29,17 +29,17 @@ public class DeepLearning {
     private static boolean loaded = false;
 
     private static boolean smart_learn = false;
-    public static int max_turns_per_game = 500;
+    public static int max_turns_per_game = 2000;
     public static int iterations = -1; // don't limit
-    public static double learning_rate = 0.1;
+    public static double learning_rate = 0.4;
     /** should be lower than save_time and stop_time */
-    public static long info_time_ms = 300000l; // 5 minutes
-    public static long save_time_ms = 900000l; // 15 minutes
-    public static long stop_time_ms = 21600000l * 2; // 6 hours * 2 = 12 hours
+    public static long info_time_ms = 300000l / 3; // 5 minutes
+    public static long save_time_ms = 900000l / 3; // 15 minutes
+    public static long stop_time_ms = 21600000l / 6; // 6 hours
     public static BoardRep board_rep = BoardRep.TwoNoNegatives;
     public static boolean save_on_stop = false;
     
-    private static String network_name = "DL-working test";
+    private static String network_name = "DL-Pascal2";
 
     public static void main(String[] args) throws IOException {
     	try {
@@ -52,7 +52,7 @@ public class DeepLearning {
     	if (!loaded) {
 	        int[] structure = {162, 40, 1};
 	        // The different activation function use in the ANN
-	        NeuralNetwork.Activation[] activations = {SILU, SIGMOID};
+	        NeuralNetwork.Activation[] activations = {dSILU, SIGMOID};
 	        ann = new NeuralNetwork(structure, activations);
 	        ann.initializeRandomWeights(-1, 1);
 	        System.out.println("Generated new ANN weights");
@@ -80,6 +80,9 @@ public class DeepLearning {
         };
         System.out.println("Training through gradient descent...");
         GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, learning_rate, iterations);
+        GD.setDynamicLR(true, 1.25, 25);
+        GD.setExploration(true, 0.5, 25, null);
+        GD.setMinMaxLR(0.05, 0.5);
         long time = System.currentTimeMillis();
         long start_time = time;
         GD.start(problem);
@@ -105,6 +108,7 @@ public class DeepLearning {
             if (GD.hasNewData()) {
             	System.out.format("calculated %d iterations\n", GD.getIterations());
             	System.out.format("  Loss = % .3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
+            	System.out.format("  executed %d replacements; learning-rate = %.3f\n", GD.getExplorationReplacements(), GD.getLearningRate());
 //				GameSetup gs = new GameSetup();
 //				gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(ann)), "Melissa", Color.cyan);
 //				gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(ann)), "Henry", Color.red);
@@ -168,7 +172,7 @@ public class DeepLearning {
     		for (int i=0; i < temp.length; i++) temp[i] = random.nextInt(4);
     	for (int i=0; i < temp.length; i++)
     		if (temp[i] == 3) result[i] = new RandomGreedy(new NeuralNetworkEval(ann, board_rep), 5.5);
-    		else result[i] = new NaivePlayerGreedy();//randomgameplayers[temp[i]];
+    		else result[i] = randomgameplayers[temp[i]];//new NaivePlayerGreedy();
     	return result;
     }
     private static boolean filledWith(int[] a, int x) {
@@ -183,9 +187,10 @@ public class DeepLearning {
 
     private static void smartLearn() {
 		if (state_outputs.isEmpty()) {
-			Player player1 = new AlphaBeta();
+			Player[] players = pick_random_players(2);
+			Player player1 = players[0]; //new AlphaBeta();
 			player1.setName("player1");
-			Player player2 = new GreedyMST();
+			Player player2 = players[1]; //new GreedyMST();
 			player2.setName("player2");
 			GameState gs;
 			List<double[]> state1_inputs = new LinkedList<>();
@@ -216,7 +221,7 @@ public class DeepLearning {
 				state_outputs.add(1 - output);
 				state_inputs.add(state2_inputs.get(i));
 			}
-			System.out.println("Game output set to "+output);
+			//System.out.println("Game output set to "+output);
 
 			player_order = !player_order;
 		}

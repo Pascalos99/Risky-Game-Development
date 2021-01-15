@@ -44,6 +44,10 @@ public class NeuralNetworkEval implements EvaluationFunction {
 		return ann.forwardProp(t.getMatrixUnrolled(u, boardrep))[0];
 	}
 	
+	public BoardRep getBoardRep() {
+		return boardrep;
+	}
+	
 	public String toString() {
 		return "ANN";
 	}
