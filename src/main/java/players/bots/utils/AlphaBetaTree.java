@@ -20,8 +20,8 @@ public class AlphaBetaTree {
 
     public AlphaBetaTree(AlphaBetaTreeNode root, int maxDepth, AlphaBeta maximizingPlayer) {
         this.root = root;
-//        this.evaluationFunction = new SimpleGoalDistance();
-        this.evaluationFunction = new PaperEval();
+        this.evaluationFunction = new SimpleGoalDistance();
+//        this.evaluationFunction = new PaperEval();
         this.maxDepth = maxDepth;
         this.maximizingPlayer = maximizingPlayer;
         this.layers = new ArrayList<>();

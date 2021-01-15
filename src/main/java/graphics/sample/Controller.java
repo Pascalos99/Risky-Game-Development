@@ -9,6 +9,8 @@ import game.GamePanel;
 import game.GameSetup;
 import game.events.GameEvent;
 import gamerules.Board;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -23,11 +25,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import javax.swing.event.ChangeEvent;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -142,7 +146,7 @@ public class Controller implements Initializable {
         Image image = new Image(AssetFinder.getResource("circle-cropped-2.png").toString());
         bp_graphics = boardPreview.getGraphicsContext2D();
         bp_graphics.drawImage(image, 0, 0, boardPreview.getWidth(), boardPreview.getHeight());
-        
+
         updatePlayers();
     }
     
@@ -228,5 +232,34 @@ public class Controller implements Initializable {
             namefields.get(i).setPromptText(names[num]);
             namefields.get(i).setText(names[num]);
         }
+    }
+
+    public void slider1(MouseEvent mouseEvent) {
+        combo1.setValue(setSliders(slider1));
+    }
+
+    public void slider6(MouseEvent mouseEvent) {
+        combo6.setValue(setSliders(slider6));
+    }
+
+    public void slider5(MouseEvent mouseEvent) {
+        combo5.setValue(setSliders(slider5));
+    }
+
+    public void slider3(MouseEvent mouseEvent) {
+        combo3.setValue(setSliders(slider3));
+    }
+
+    public void slider2(MouseEvent mouseEvent) {
+        combo2.setValue(setSliders(slider2));
+    }
+
+    public void slider4(MouseEvent mouseEvent) {
+        combo4.setValue(setSliders(slider4));
+    }
+
+    public String setSliders(JFXSlider slider){
+
+        return combo1.getItems().get((int)slider.getValue());
     }
 }
