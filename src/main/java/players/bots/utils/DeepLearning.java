@@ -89,7 +89,6 @@ public class DeepLearning {
         while (GD.isBusy()) {
         	if (System.currentTimeMillis() - time >= save_time_ms) {
         		saveNetwork(ann, network_name);
-        		ann = loadNetwork(network_name);
         		time = System.currentTimeMillis();
         		System.gc();
         		System.out.println("Saved Network to version "+getLatestVersion(network_name));

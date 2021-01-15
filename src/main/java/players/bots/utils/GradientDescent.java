@@ -155,7 +155,7 @@ public class GradientDescent {
 		for (int i=0; i < weights.length; i++)
 			for (int j=0; j < weights[i].length; j++)
 				for (int k=0; k < weights[i][j].length; k++)
-					weights[i][j][k] += (2 * explorator.nextDouble() - 2) * exploration_magnitude;
+					weights[i][j][k] += (2 * explorator.nextDouble() - 1) * exploration_magnitude;
 	}
 	
 	private double estimateNextLoss(double[][][] gradients, double loss) {
