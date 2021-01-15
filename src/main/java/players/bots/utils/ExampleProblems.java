@@ -10,14 +10,21 @@ public class ExampleProblems {
 		xor();
 	}
 	
-	public static void xor() { xor(System.currentTimeMillis()); }
+	public static void xor() {
+		xor(1610682005305l);
+		//long seed = System.currentTimeMillis();
+		//System.out.println(seed);
+		//xor(seed); 
+	}
 	public static void xor(long seed) {
 		Random random = new Random(seed);
-		int[] structure = {2, 5, 1};
+		int[] structure = {2, 4, 1};
 		Activation[] act = {SILU, SILU};
 		NeuralNetwork net = new NeuralNetwork(structure, act);
 		net.initializeRandomWeights(-1, 1, seed);
-		GradientDescent GD = new GradientDescent(net, HALF_SQUARE_ERROR, 0.1, 10000);
+		GradientDescent GD = new GradientDescent(net, HALF_SQUARE_ERROR, 0.4, 2000);
+		GD.setDynamicLR(true, 1.25, 25);
+		GD.setExploration(true, 0.5, 25, null);
 		GD.start(() -> {
 			boolean x1 = random.nextBoolean();
 			boolean x2 = random.nextBoolean();

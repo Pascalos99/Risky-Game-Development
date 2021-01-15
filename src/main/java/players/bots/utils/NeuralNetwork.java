@@ -266,6 +266,11 @@ public class NeuralNetwork implements Tunable {
 		return result;
 	}
 	
+	public void setAllWeights(double[][][] weights) {
+		for (int i=0; i < hidden_layers.length; i++)
+			hidden_layers[i].weights = weights[i];
+	}
+	
 	public double[] forwardProp(double[] input) {
 		int input_size = getInputSize();
 		if (input.length != input_size) throw new IllegalArgumentException
@@ -580,5 +585,4 @@ public class NeuralNetwork implements Tunable {
 		// σ(x)(1 − σ(x))(2 + x(1 − σ(x)) − x*σ(x)) [credit to https://arxiv.org/pdf/1702.03118.pdf]
 		return s * (1 - s) * (2 + x * (1 - s) - x * s);
 	});
-
 }

@@ -9,6 +9,8 @@ public interface Tunable {
 	 */
 	double[][][] getAllWeights();
 	
+	void setAllWeights(double[][][] weights);
+	
 	/**
 	 * Model should store the input array from a prior call of {@linkplain #computeOutput(double[])} if it's needed to compute the gradients.
 	 * @param E the loss function
@@ -23,5 +25,10 @@ public interface Tunable {
 	 * @return the output vector as the model computes it given the input
 	 */
 	double[] computeOutput(double[] input);
+	
+	/**
+	 * Must properly implement the clone method as deep-clone!
+	 */
+	Tunable clone();
 	
 }
