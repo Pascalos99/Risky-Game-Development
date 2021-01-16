@@ -57,7 +57,6 @@ public class BotTester {
     private int current_threads = 0;
 
     private List<Integer> occupied;
-    private List<TestThread> all_tests = new ArrayList<>();
     
     public static String store_data = "complete_testing";
     private int max_turn_count;
@@ -71,7 +70,6 @@ public class BotTester {
     }
 
     public void runTestingGames(Player[]... games_players) {
-    	all_tests = new ArrayList<>();
     	long startTime = System.nanoTime();
         occupied = new ArrayList<>();
         number_of_tests = games_players.length;
@@ -83,7 +81,6 @@ public class BotTester {
         			break;
         		}
             TestThread gameThread = new TestThread(id, games_players[game], max_turn_count, store_data);
-            all_tests.add(gameThread);
             occupied.add(id);
             System.out.println("running threads: "+occupied);
             gameThread.start();
