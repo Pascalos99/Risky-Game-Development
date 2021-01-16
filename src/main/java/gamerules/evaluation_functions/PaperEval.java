@@ -159,5 +159,9 @@ public class PaperEval implements EvaluationFunction {
 
         return V;
     }
+    
+    public String toString() {
+    	return "PaperEval";
+    }
 
 }

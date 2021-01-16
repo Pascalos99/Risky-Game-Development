@@ -95,7 +95,7 @@ public class GreedyMST extends Player {
 
     @Override
     public String getTypeName() {
-        return "Monte carlo greedy search on a tree";
+        return "Monte Carlo ["+evaluation+"]";
     }
 
     @Override

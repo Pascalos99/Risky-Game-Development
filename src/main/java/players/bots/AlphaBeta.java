@@ -1,6 +1,7 @@
 package players.bots;
 
 import gamerules.*;
+import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 import players.bots.utils.AlphaBetaTree;
 import players.bots.utils.AlphaBetaTreeNode;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class AlphaBeta extends Player {
+public class AlphaBeta extends Player implements DeterministicReturn {
 
     private boolean initialCall = true;
     private GameState winning;
@@ -21,6 +22,15 @@ public class AlphaBeta extends Player {
     private int duplicatesEncountered;
     private long timeOptimalOrder;
     private long timeDuplicateChecking;
+    
+    private EvaluationFunction evaluationFunction;
+    
+    public AlphaBeta() {
+    	this(new SimpleGoalDistance());
+    }
+    public AlphaBeta(EvaluationFunction evaluationFunction) {
+    	this.evaluationFunction = evaluationFunction;
+    }
 
     // Bare bones
     private AlphaBetaTreeNode alphaBetaV1(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
@@ -1519,6 +1529,7 @@ public class AlphaBeta extends Player {
             this.numberOfPlayers = gameBoard.getPlayerCount();
             AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(new GameState(gameBoard), Double.NEGATIVE_INFINITY);
             this.tree = new AlphaBetaTree(rootNode, 4, this);
+            this.tree.evaluationFunction = evaluationFunction;
         }
         else {
             AlphaBetaTreeNode rootNode = findNewRoot(new GameState(gameBoard));
@@ -1550,11 +1561,11 @@ public class AlphaBeta extends Player {
         timeAlphaBeta = (endTime - startTime);
 
         if (debug) {
-            System.out.println("Encountered " + nodesEncountered + " nodes");
-            System.out.println("Encountered " + duplicatesEncountered + " duplicates");
-            System.out.println("AlphaBeta took " + timeAlphaBeta + " milliseconds");
-            System.out.println("OptimalOrder took " + timeOptimalOrder + " milliseconds");
-            System.out.println("DuplicateChecking took " + timeDuplicateChecking + " milliseconds");
+//            System.out.println("Encountered " + nodesEncountered + " nodes");
+//            System.out.println("Encountered " + duplicatesEncountered + " duplicates");
+//            System.out.println("AlphaBeta took " + timeAlphaBeta + " milliseconds");
+//            System.out.println("OptimalOrder took " + timeOptimalOrder + " milliseconds");
+//            System.out.println("DuplicateChecking took " + timeDuplicateChecking + " milliseconds");
         }
 
         // Extract move
@@ -1571,7 +1582,7 @@ public class AlphaBeta extends Player {
 
     @Override
     public String getTypeName() {
-        return "Alpha-beta pruning";
+        return "Alpha-beta ["+evaluationFunction+"]";
     }
 
     @Override
@@ -1581,7 +1592,7 @@ public class AlphaBeta extends Player {
 
     @Override
     public Player getNewInstance() {
-        return new AlphaBeta();
+        return new AlphaBeta(evaluationFunction);
     }
 
 }

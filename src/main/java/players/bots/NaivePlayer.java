@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import static gamerules.GameRules.SELECTED_GAMERULES;
 
-public class NaivePlayer extends Player {
+public class NaivePlayer extends Player implements DeterministicReturn {
 
     EvaluationFunction evaluation;
 
@@ -37,12 +37,10 @@ public class NaivePlayer extends Player {
             for (Move move : moves) {
                 if(!blackList.contains(move.target_node)){
                     double score = evaluation.apply(new GameState(gameState, move),this);
-//                    score += Math.random()*0.001;
                     eval.put(score, move);
                 }
             }
         }
-        if (((NeuralNetworkEval)evaluation).getBoardRep() == BoardRep.TwoNoNegatives) System.out.println(eval);
         Double max = Collections.max(eval.keySet());
         Move move = eval.get(max);
         if (last_move != null && move.equals(last_move.reverse())) {
@@ -60,7 +58,7 @@ public class NaivePlayer extends Player {
 
     @Override
     public String getDescription() {
-        return "A bot that take randomly a pawn and find the move who will get him closer to the goal";
+        return "A bot that computes the greedily best next move to make based on the evaluation function";
     }
 
 	@Override

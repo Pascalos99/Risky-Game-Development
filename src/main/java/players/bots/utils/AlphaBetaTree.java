@@ -13,7 +13,7 @@ import java.util.List;
 public class AlphaBetaTree {
 
     private final AlphaBetaTreeNode root;
-    private final EvaluationFunction evaluationFunction;
+    public EvaluationFunction evaluationFunction;
     private final int maxDepth;
     private final AlphaBeta maximizingPlayer;
     private final List<List<AlphaBetaTreeNode>> layers;

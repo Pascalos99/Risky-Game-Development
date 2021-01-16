@@ -1,0 +1,9 @@
+Player-1; Player-2; Winner; Number of Players; Time (ns)
+Alpha-beta [normSGD];Naive Player [normSGD];1;2;81126528301
+Alpha-beta [normSGD];Naive Player [ANN];1;2;84820541901
+Alpha-beta [normSGD];Naive Player [PaperEval];0;2;105351359900
+Alpha-beta [normSGD];Monte Carlo [normSGD];0;2;123780890800
+Alpha-beta [normSGD];Naive Player [normSGD];0;2;70054069199
+Alpha-beta [normSGD];Naive Player [ANN];1;2;75999611300
+Alpha-beta [normSGD];Monte Carlo [normSGD];1;2;169056542300
+Alpha-beta [normSGD];Evil Player;1;2;99991433500

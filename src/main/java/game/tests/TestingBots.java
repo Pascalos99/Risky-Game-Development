@@ -172,6 +172,13 @@ public class TestingBots {
         oldMain(new String[]{p1,p2,p2,p1,p2,p1});
     }
 
+    protected static Player[] toPlayers(String... player_strings) {
+    	Player[] result = new Player[player_strings.length];
+    	for (int i=0; i < result.length; i++)
+    		result[i] = str2p(player_strings[i]);
+    	return result;
+    }
+    
     protected static Player str2p(String playerAsString){
         return switch (playerAsString) {
             case "np" -> new NaivePlayer();
