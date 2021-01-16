@@ -7,10 +7,8 @@ import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import game.events.GameEvent;
 import game.events.MoveEvent;
 import game.events.TurnEvent;
@@ -19,13 +17,11 @@ import gamerules.Board;
 import gamerules.BoardNode;
 import gamerules.GameRules;
 import gamerules.Move;
-import gamerules.evaluation_functions.NormalizedSGD;
+import gamerules.evaluation_functions.MCNormalized;
 import gamerules.evaluation_functions.NeuralNetworkEval;
 import graphics.BoardGraphics;
 import players.*;
 import players.bots.*;
-import players.bots.utils.BoardRep;
-
 import static players.bots.utils.EveryoneShouldHaveMachineLearning.*;
 
 public class GamePanel extends JPanel {
@@ -44,8 +40,8 @@ public class GamePanel extends JPanel {
 	
 	public static void main(String[] args) {
 		GameSetup gs = new GameSetup();
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-Pascal2"), BoardRep.TwoNoNegatives)), "Melissa", Color.cyan);
-		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.red);
+		gs.addPlayer(new NaivePlayerGreedy(new MCNormalized(new NeuralNetworkEval(loadNetwork("DL-working test")))), "Melissa", Color.cyan);
+		gs.addPlayer(new NaivePlayerGreedy(new MCNormalized(new NeuralNetworkEval(loadNetwork("DL-working test")))), "Henry", Color.red);
 //		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.green);
 //		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Melissa", Color.gray);
 //		gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), "Henry", Color.black);

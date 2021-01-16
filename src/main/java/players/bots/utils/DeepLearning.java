@@ -4,8 +4,10 @@ import game.GamePanel;
 import game.GameSetup;
 import game.events.GameEvent;
 import gamerules.*;
+import gamerules.evaluation_functions.MCNormalized;
 import gamerules.evaluation_functions.NeuralNetworkEval;
 import gamerules.evaluation_functions.NormalizedSGD;
+import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.Player;
 import players.bots.*;
 
@@ -25,7 +27,7 @@ public class DeepLearning {
     private static int index = 0;
     private static double [] input;
     private static final double [] expected = new double[1];
-    private static final NormalizedSGD heuristic = new NormalizedSGD();
+    private static final EvaluationFunction heuristic = new MCNormalized(new MCNormalized(new NeuralNetworkEval(loadNetwork("DL-working test"))));
     private static boolean loaded = false;
 
     private static boolean smart_learn = false;
@@ -39,7 +41,7 @@ public class DeepLearning {
     public static BoardRep board_rep = BoardRep.TwoNoNegatives;
     public static boolean save_on_stop = false;
     
-    private static String network_name = "DL-Pascal2";
+    private static String network_name = "DL-working test";
 
     public static void main(String[] args) throws IOException {
     	try {
@@ -80,9 +82,9 @@ public class DeepLearning {
         };
         System.out.println("Training through gradient descent...");
         GradientDescent GD = new GradientDescent(ann, HALF_SQUARE_ERROR, learning_rate, iterations);
-        GD.setDynamicLR(true, 1.25, 25);
-        GD.setExploration(true, 0.5, 25, null);
-        GD.setMinMaxLR(0.05, 0.5);
+//        GD.setDynamicLR(true, 1.25, 25);
+//        GD.setExploration(true, 0.5, 25, null);
+//        GD.setMinMaxLR(0.05, 0.5);
         long time = System.currentTimeMillis();
         long start_time = time;
         GD.start(problem);
@@ -124,9 +126,9 @@ public class DeepLearning {
     	}
         if (game != null && game.noWinners()){
             GameState gs = new GameState(game);
+			game.forceRequestMoveAndContinue();
             input = gs.getMatrixUnrolled(game.currentPlayer(), board_rep);
-            expected[0] = heuristic.apply(gs,game.currentPlayer());
-            game.forceRequestMoveAndContinue();
+            expected[0] = heuristic.apply(new GameState(gs, game.lastMove),game.currentPlayer());
             if(index++ <= max_turns_per_game) return;
         }
         game = getRandomGameSetup();
@@ -151,12 +153,14 @@ public class DeepLearning {
     	Random random = new Random();
     	GameSetup gs = new GameSetup();
     	Player[] players;
-//    	if (random.nextBoolean())
+//    	if (Math.random() < .25)
     		players = pick_random_players(2);
-//    	else if (random.nextBoolean())
+//    	else if (Math.random() < .25)
 //    		players = pick_random_players(4);
-//    	else
+//    	else if (Math.random() < .25)
 //    		players = pick_random_players(6);
+//    	else
+//    		players = pick_random_players(1);
     	for (int i=0; i < players.length; i++)
     		gs.addPlayer(players[i], "testplayer"+(i+1), playerColors[i]);
     	return gs.getBoard();
@@ -165,6 +169,7 @@ public class DeepLearning {
     private static Random random;
     
     private static Player[] pick_random_players(int amount) {
+    	System.out.println("Niew player");
     	if (random == null) random = new Random();
     	Player[] result = new Player[amount];
     	int[] temp = new int[amount];
@@ -197,7 +202,7 @@ public class DeepLearning {
 			List<double[]> state2_inputs = new LinkedList<>();
 			int iter = 0;
 			int max_iter = max_turns_per_game;
-			if (player_order) game = new Board(GameRules.SELECTED_GAMERULES, null, player1, player2);
+			if (new Random().nextBoolean())game = new Board(GameRules.SELECTED_GAMERULES, null, player1, player2);
 			else game = new Board(GameRules.SELECTED_GAMERULES, null, player2, player1);
 			while (game.noWinners() && iter++ <= max_iter) {
 				gs = new GameState(game);
