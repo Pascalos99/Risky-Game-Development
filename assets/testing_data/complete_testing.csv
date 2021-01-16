@@ -33,6 +33,13 @@ Alpha-beta [normSGD];Naive Player [ANN];0;2;173589219000
 Alpha-beta [SGD];Naive Player [normSGD];1;2;59167838800
 Alpha-beta [SGD];Naive Player [PaperEval];0;2;64519277800
 Alpha-beta [SGD];Evil Player;1;2;71187154600
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;42906083300
+Alpha-beta [SGD];Naive Player [normSGD];0;2;49398520700
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;87289833200
+Alpha-beta [SGD];Evil Player;0;2;89572992600
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;3373860446800
+Alpha-beta [SGD];Alpha-beta [PaperEval];0;2;5853687094300
+Alpha-beta [PaperEval];Naive Player [ANN];1;2;8805447791100
 Alpha-beta [SGD];Naive Player [normSGD];0;2;77373000400
 Alpha-beta [SGD];Naive Player [PaperEval];0;2;89487187900
 Alpha-beta [SGD];Evil Player;1;2;54134925400
