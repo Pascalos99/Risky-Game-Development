@@ -16,6 +16,14 @@ public class AlphaBeta extends Player implements DeterministicReturn {
     private int numberOfPlayers;
     private AlphaBetaTree tree;
 
+    private EvaluationFunction evaluationFunction;
+    public AlphaBeta(EvaluationFunction evaluationFunction) {
+    	this.evaluationFunction = evaluationFunction;
+    }
+    public AlphaBeta() {
+    	this(new SimpleGoalDistance());
+    }
+    
     // Bare bones
     // + duplicate child prevention
     // + optimal ordering (mergesort)

@@ -207,7 +207,7 @@ public class PaperEval implements EvaluationFunction {
 //            System.out.println("C[0]: " + C[0] + ", C[1]: " + C[1]);
 //            System.out.println("C0: " + originalC0 + ", C1: " + originalC1);
 //            System.out.println(endTime - startTime);
-            scores.put(state.gameStateID(), V);
+            //scores.put(state.gameStateID(), V);
         }
 
         return V;
