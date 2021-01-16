@@ -33,15 +33,15 @@ public class BotTester {
 	public static final String testing_path = AssetFinder.assetsPath+"testing_data"+File.separator;
 	
 	public static void main(String[] args) {
-		BotTester test = new BotTester(70, 5, 2000);
+		BotTester test = new BotTester(70, 5, 1000);
 		Player[] players = {
-				new AlphaBeta(new NormalizedSGD()),
+				new AlphaBeta(),
 				new AlphaBeta(new PaperEval()),
 				new AlphaBeta(new NeuralNetworkEval(loadNetwork("DL-working test"))),
-				new GreedyMST(new NormalizedSGD()),
+				new GreedyMST(),
 				new GreedyMST(new PaperEval()),
 				new GreedyMST(new NeuralNetworkEval(loadNetwork("DL-working test"))),
-				new NaivePlayer(new NormalizedSGD()),
+				new NaivePlayer(),
 				new NaivePlayer(new PaperEval()),
 				new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))),
 				new EvilPlayer()
@@ -235,6 +235,11 @@ public class BotTester {
                 System.out.println ("Exception "+e+" is caught");
                 System.out.println (e.getMessage());
                 e.printStackTrace();
+                String xvx = "1v1";
+                if (players.length == 4) xvx = "2v2";
+                if (players.length == 6) xvx = "3v3";
+                System.out.println("skipped match "+players[0].getTypeName()+" v "+players[1].getTypeName()+" ("+xvx+")");
+                tests_completed++;
             }
             synchronized (waitingObject){
                 if(tests_completed == number_of_tests){
