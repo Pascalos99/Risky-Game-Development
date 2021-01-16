@@ -519,7 +519,6 @@ public class GameState {
 		}
 		Byte[] pawn_positions = new Byte[pawnPositions.size()];
 		pawnPositions.toArray(pawn_positions);
-		System.out.println(Arrays.toString(pawn_positions));
 		queue.add(nodes.get(corner));
 		byte [][] matrix = new byte[9][9];
 		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep,pawn_positions);
