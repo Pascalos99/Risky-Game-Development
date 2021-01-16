@@ -33,3 +33,187 @@ Alpha-beta [normSGD];Naive Player [ANN];0;2;173589219000
 Alpha-beta [SGD];Naive Player [normSGD];1;2;59167838800
 Alpha-beta [SGD];Naive Player [PaperEval];0;2;64519277800
 Alpha-beta [SGD];Evil Player;1;2;71187154600
+Alpha-beta [SGD];Naive Player [normSGD];0;2;77373000400
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;89487187900
+Alpha-beta [SGD];Evil Player;1;2;54134925400
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;161198628900
+Alpha-beta [SGD];Naive Player [ANN];0;2;183173497800
+Alpha-beta [SGD];Evil Player;1;2;44898988000
+Naive Player [normSGD];Evil Player;0;2;759230400
+Naive Player [normSGD];Alpha-beta [SGD];0;2;60219613200
+Alpha-beta [SGD];Naive Player [normSGD];0;2;71944538000
+Evil Player;Naive Player [normSGD];0;2;235845500
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;128336003100
+Naive Player [normSGD];Monte Carlo [SGD];0;2;128914160600
+Evil Player;Alpha-beta [SGD];0;2;86428990400
+Monte Carlo [SGD];Evil Player;1;2;188599305800
+Evil Player;Monte Carlo [SGD];0;2;154998370000
+Monte Carlo [SGD];Alpha-beta [SGD];0;2;386387823000
+Alpha-beta [SGD];Naive Player [normSGD];1;4;385856577800
+Naive Player [normSGD];Evil Player;1;4;793655800
+Naive Player [normSGD];Alpha-beta [SGD];0;4;308660859200
+Alpha-beta [SGD];Evil Player;1;4;450283972900
+Evil Player;Naive Player [normSGD];0;4;1035588600
+Monte Carlo [SGD];Naive Player [normSGD];1;4;556085054800
+Monte Carlo [SGD];Evil Player;1;4;578428653600
+Naive Player [normSGD];Monte Carlo [SGD];1;4;630716304200
+Alpha-beta [SGD];Monte Carlo [SGD];0;4;982156018400
+Alpha-beta [SGD];Naive Player [normSGD];1;2;43324111900
+Naive Player [normSGD];Evil Player;0;2;658006200
+Alpha-beta [SGD];Evil Player;1;2;50569781200
+Monte Carlo [SGD];Naive Player [normSGD];0;2;87079606500
+Evil Player;Naive Player [normSGD];0;2;161564800
+Monte Carlo [SGD];Evil Player;1;2;102436808400
+Naive Player [normSGD];Monte Carlo [SGD];0;2;122366941600
+Naive Player [normSGD];Alpha-beta [SGD];0;2;129320763600
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;155983105900
+Naive Player [normSGD];Evil Player;0;2;1259671600
+Naive Player [normSGD];Naive Player [ANN];0;2;5452443400
+Naive Player [ANN];Naive Player [normSGD];0;2;5906469500
+Evil Player;Naive Player [normSGD];0;2;117009000
+Naive Player [ANN];Evil Player;0;2;4884922400
+Evil Player;Naive Player [ANN];0;2;4706882900
+Naive Player [normSGD];Monte Carlo [SGD];0;2;79638767899
+Monte Carlo [SGD];Naive Player [normSGD];0;2;81647757899
+Naive Player [normSGD];Naive Player [ANN];1;4;1503362599
+Naive Player [normSGD];Evil Player;0;4;1108063600
+Evil Player;Monte Carlo [SGD];0;2;110076691400
+Naive Player [ANN];Naive Player [normSGD];0;4;1093592200
+Monte Carlo [SGD];Evil Player;1;2;122006801800
+Naive Player [ANN];Evil Player;0;4;5739440000
+Evil Player;Naive Player [normSGD];0;4;812608700
+Evil Player;Naive Player [ANN];0;4;5561329200
+Naive Player [ANN];Monte Carlo [SGD];0;2;207517283800
+Monte Carlo [SGD];Naive Player [normSGD];0;4;367031625399
+Monte Carlo [SGD];Evil Player;1;4;448076253500
+Naive Player [normSGD];Monte Carlo [SGD];0;4;379485554600
+Naive Player [normSGD];Naive Player [ANN];1;6;1502045500
+Naive Player [normSGD];Evil Player;1;6;1904324401
+Naive Player [ANN];Monte Carlo [SGD];0;4;425582935600
+Naive Player [ANN];Naive Player [normSGD];0;6;1568688600
+Naive Player [ANN];Evil Player;0;6;7346262300
+Monte Carlo [SGD];Naive Player [ANN];1;4;539665224900
+Evil Player;Naive Player [normSGD];0;6;1261079200
+Evil Player;Naive Player [ANN];0;6;6832334000
+Evil Player;Monte Carlo [SGD];0;4;435120978201
+Monte Carlo [SGD];Naive Player [normSGD];0;2;82524327400
+Monte Carlo [SGD];Naive Player [ANN];1;2;103065769900
+Monte Carlo [SGD];Evil Player;1;2;92480821900
+Naive Player [normSGD];Monte Carlo [SGD];0;2;82941001700
+Naive Player [ANN];Monte Carlo [SGD];0;2;70801365401
+Evil Player;Monte Carlo [SGD];0;2;125658552000
+Monte Carlo [SGD];Naive Player [normSGD];0;6;867923328300
+Monte Carlo [SGD];Naive Player [normSGD];0;4;407859974501
+Monte Carlo [SGD];Naive Player [ANN];1;6;1037273614500
+Naive Player [normSGD];Monte Carlo [SGD];1;6;866078797001
+Monte Carlo [SGD];Naive Player [ANN];1;4;460975460400
+Evil Player;Monte Carlo [SGD];0;6;972284363600
+Monte Carlo [SGD];Evil Player;1;4;518118455600
+Naive Player [ANN];Monte Carlo [SGD];0;6;1187596647501
+Naive Player [ANN];Monte Carlo [SGD];0;4;478451565300
+Evil Player;Monte Carlo [SGD];0;4;442034520100
+Monte Carlo [SGD];Naive Player [normSGD];0;2;96356030900
+Monte Carlo [SGD];Evil Player;1;6;1456411069900
+Monte Carlo [SGD];Naive Player [ANN];1;2;142051684100
+Naive Player [normSGD];Monte Carlo [SGD];0;2;83995101900
+Monte Carlo [SGD];Evil Player;1;2;98842782900
+Naive Player [ANN];Monte Carlo [SGD];0;2;95189440800
+Evil Player;Monte Carlo [SGD];0;2;132819125900
+Monte Carlo [SGD];Naive Player [normSGD];0;4;459857413800
+Naive Player [normSGD];Monte Carlo [SGD];1;6;992875570900
+Monte Carlo [SGD];Evil Player;1;6;1271694109000
+Monte Carlo [SGD];Evil Player;1;4;563019876400
+Monte Carlo [SGD];Naive Player [ANN];1;6;1287053896500
+Monte Carlo [SGD];Naive Player [ANN];1;4;617814482600
+Naive Player [ANN];Monte Carlo [SGD];0;6;1231337658300
+Naive Player [normSGD];Monte Carlo [SGD];0;4;464042496800
+Evil Player;Monte Carlo [SGD];0;6;1249522571600
+Naive Player [ANN];Monte Carlo [SGD];0;4;626103617600
+Evil Player;Monte Carlo [SGD];0;4;541733655800
+Monte Carlo [SGD];Naive Player [normSGD];0;2;79415022900
+Monte Carlo [SGD];Naive Player [ANN];1;2;106181916000
+Monte Carlo [SGD];Evil Player;1;2;97913727300
+Naive Player [normSGD];Monte Carlo [SGD];0;2;91977917100
+Naive Player [ANN];Monte Carlo [SGD];0;2;104543345300
+Evil Player;Monte Carlo [SGD];0;2;97928397200
+Monte Carlo [SGD];Naive Player [normSGD];1;6;1150208446800
+Monte Carlo [SGD];Evil Player;1;6;1163575096900
+Naive Player [normSGD];Monte Carlo [SGD];1;6;1054501405500
+Monte Carlo [SGD];Naive Player [normSGD];0;4;452522287100
+Monte Carlo [SGD];Naive Player [ANN];1;4;462059154200
+Monte Carlo [SGD];Naive Player [ANN];1;6;1290253234000
+Evil Player;Monte Carlo [SGD];0;6;1099047363100
+Naive Player [ANN];Monte Carlo [SGD];0;6;1318698840300
+Naive Player [normSGD];Monte Carlo [SGD];0;4;486834972300
+Naive Player [ANN];Monte Carlo [SGD];0;4;495906874400
+Monte Carlo [SGD];Evil Player;1;4;563620218600
+Evil Player;Monte Carlo [SGD];0;4;535642964900
+Monte Carlo [SGD];Naive Player [normSGD];0;2;89708184900
+Monte Carlo [SGD];Naive Player [ANN];1;2;129836683300
+Monte Carlo [SGD];Evil Player;1;2;152414414900
+Naive Player [normSGD];Monte Carlo [SGD];0;2;85459285300
+Naive Player [ANN];Monte Carlo [SGD];0;2;133589812600
+Evil Player;Monte Carlo [SGD];0;2;144236662600
+Monte Carlo [SGD];Naive Player [normSGD];0;6;1066021703700
+Monte Carlo [SGD];Naive Player [ANN];1;6;1236239883500
+Monte Carlo [SGD];Evil Player;1;6;1206436207400
+Monte Carlo [SGD];Naive Player [ANN];1;4;543478202400
+Naive Player [normSGD];Monte Carlo [SGD];0;6;1171273088700
+Monte Carlo [SGD];Evil Player;1;4;592079512300
+Naive Player [ANN];Monte Carlo [SGD];0;6;1068032220200
+Naive Player [normSGD];Monte Carlo [SGD];0;4;409329137500
+Evil Player;Monte Carlo [SGD];0;6;1093493221400
+Naive Player [ANN];Monte Carlo [SGD];0;4;491419355900
+Evil Player;Monte Carlo [SGD];0;4;461344788400
+Monte Carlo [SGD];Naive Player [normSGD];0;2;104902898400
+Monte Carlo [SGD];Naive Player [ANN];1;2;102313882700
+Naive Player [normSGD];Monte Carlo [SGD];0;2;75958840100
+Monte Carlo [SGD];Evil Player;1;2;134900314100
+Naive Player [ANN];Monte Carlo [SGD];0;2;118281340100
+Evil Player;Monte Carlo [SGD];0;2;107039959600
+Naive Player [normSGD];Monte Carlo [SGD];0;6;1184330111900
+Monte Carlo [SGD];Evil Player;1;6;1246095975500
+Monte Carlo [SGD];Naive Player [ANN];1;4;614790211000
+Monte Carlo [SGD];Naive Player [normSGD];0;4;651180560600
+Evil Player;Monte Carlo [SGD];0;6;1259900641300
+Monte Carlo [SGD];Naive Player [normSGD];0;6;1462477166800
+Monte Carlo [SGD];Naive Player [ANN];1;6;1470790521200
+Naive Player [ANN];Monte Carlo [SGD];0;6;1477244753300
+Naive Player [ANN];Monte Carlo [SGD];0;4;499869811700
+Monte Carlo [SGD];Evil Player;1;4;586385101000
+Naive Player [normSGD];Monte Carlo [SGD];0;4;540393009700
+Evil Player;Monte Carlo [SGD];0;4;577777919500
+Monte Carlo [SGD];Naive Player [normSGD];0;2;114143348100
+Monte Carlo [SGD];Naive Player [ANN];1;2;128722598300
+Monte Carlo [SGD];Evil Player;1;2;164959418100
+Naive Player [normSGD];Monte Carlo [SGD];0;2;95767424200
+Naive Player [ANN];Monte Carlo [SGD];0;2;93438573000
+Evil Player;Monte Carlo [SGD];0;2;112024759600
+Monte Carlo [SGD];Naive Player [normSGD];0;6;1175909573600
+Monte Carlo [SGD];Naive Player [ANN];1;6;1140935782300
+Monte Carlo [SGD];Naive Player [normSGD];0;4;432535163400
+Monte Carlo [SGD];Naive Player [ANN];1;4;436005541600
+Monte Carlo [SGD];Evil Player;1;6;1279592050700
+Naive Player [normSGD];Monte Carlo [SGD];0;6;1272299081000
+Evil Player;Monte Carlo [SGD];1;6;1048393643700
+Naive Player [normSGD];Monte Carlo [SGD];0;4;374993408300
+Monte Carlo [SGD];Evil Player;1;4;539986541100
+Naive Player [ANN];Monte Carlo [SGD];0;4;530382031400
+Naive Player [ANN];Monte Carlo [SGD];0;6;1525097162400
+Evil Player;Monte Carlo [SGD];0;4;714148725200
+Monte Carlo [SGD];Naive Player [normSGD];0;2;91518548100
+Monte Carlo [SGD];Naive Player [ANN];1;2;91845017500
+Monte Carlo [SGD];Evil Player;1;2;128946923600
+Naive Player [normSGD];Monte Carlo [SGD];0;2;95868558100
+Naive Player [ANN];Monte Carlo [SGD];0;2;113301537100
+Evil Player;Monte Carlo [SGD];0;2;112910311700
+Monte Carlo [SGD];Naive Player [normSGD];0;6;1009740483600
+Naive Player [normSGD];Monte Carlo [SGD];1;6;917394517900
+Monte Carlo [SGD];Naive Player [ANN];1;6;1224173110000
+Monte Carlo [SGD];Naive Player [normSGD];0;4;438067394000
+Naive Player [ANN];Monte Carlo [SGD];0;6;1182320568800
+Monte Carlo [SGD];Naive Player [ANN];1;4;585986488800
+Naive Player [normSGD];Monte Carlo [SGD];0;4;438945642000
+Evil Player;Monte Carlo [SGD];0;6;1148773141700
+Monte Carlo [SGD];Evil Player;1;6;1475245810100
+Monte Carlo [SGD];Evil Player;1;4;581382703800

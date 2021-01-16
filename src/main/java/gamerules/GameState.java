@@ -464,14 +464,16 @@ public class GameState {
 		return getMatrix3d(original_board.getPlayerID(perspective),getIntegerRepresentation(),board_rep);
 	}
 
+	public static Board empty = Board.empty_board;
+
 	public static double [][][] getMatrix3d(int playerID,byte[] integer_rep, BoardRep board_rep) {
-		Board empty = Board.empty_board;
 		List<Byte> blackList = new ArrayList<>();
 		List<BoardNode> nodes = empty.getAllnodes();
 		List<BoardNode> allready = new ArrayList<>();
 		Queue<BoardNode> queue = new LinkedList<>();
 		for(int i = 0;i < 6; i++){
-			if(i != playerID && i != Board.player_pairings[playerID]){
+			if(i != playerID &&
+					i != Board.player_pairings[playerID]){
 				for (int y = 0;y<Board.nodes_owned_per_player[i].length;y++){
 					blackList.add(Board.nodes_owned_per_player[i][y]);
 				}
@@ -502,13 +504,29 @@ public class GameState {
 			corner = 98;
 			opositecorner = 22;
 		}
+		List<Byte> pawnPositions = new ArrayList<Byte>();
+		for (byte pid = 0; pid < 6;pid++) {
+			if (pid != playerID) {
+				for (byte i = 0; i < 10; i++) {
+					if (i + pid * 10 < integer_rep.length) {
+						pawnPositions.add(integer_rep[(i + pid * 10)]);
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+		Byte[] pawn_positions = new Byte[pawnPositions.size()];
+		pawnPositions.toArray(pawn_positions);
+		System.out.println(Arrays.toString(pawn_positions));
 		queue.add(nodes.get(corner));
-		double [][] matrix = new double[9][9];
-		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep);
+		byte [][] matrix = new byte[9][9];
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep,pawn_positions);
 		queue.clear();
 		queue.add(nodes.get(opositecorner));
-		double [][] opositeMatrix = new double[9][9];
-		constructMatrix(queue,new ArrayList<>(),blackList,playerID,opositeMatrix,integer_rep);
+		byte [][] opositeMatrix = new byte[9][9];
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,opositeMatrix,integer_rep,pawn_positions);
 		for(int i = 0; i < matrix.length; i++){
 			for(int j = 0; j < matrix[i].length; j++){
 				if(matrix[i][j] == 0){
@@ -533,7 +551,7 @@ public class GameState {
 		return result;
 	}
 
-	private static void constructMatrix(Queue<BoardNode> queue,List<Byte> allready,List<Byte> blackList,int playerID,double [][] matrix, byte [] getIntegerRepresentation){
+	private static void constructMatrix(Queue<BoardNode> queue,List<Byte> allready,List<Byte> blackList,int playerID,byte [][] matrix, byte [] getIntegerRepresentation,Byte[] pawn_positions){
 		for(int j = 0;j < 9;j++) {
 			Queue<BoardNode> Requeue = new LinkedList<>();
 			int x = j;
@@ -547,13 +565,15 @@ public class GameState {
 						break;
 					}
 				}
-				for (int v : blackList) {
-					if (v == node.getID()) {
-						conditions = false;
-						break;
+				if(conditions){
+					for (Byte v : blackList) {
+						if (v == node.getID()) {
+							conditions = false;
+							break;
+						}
 					}
 				}
-				if (conditions) {
+				if(conditions) {
 					boolean conditions1 = false;
 					boolean conditions2 = false;
 					for (int i = 0; i < 10; i++) {
@@ -564,16 +584,11 @@ public class GameState {
 						}
 					}
 					if (!conditions1) {
-						for (int pid = 0; pid < 6;pid++) {
-							if (pid != playerID && !conditions2) {
-								for (int i = 0; i < 10; i++) {
-									if (i + pid * 10 < getIntegerRepresentation.length &&
-											(getIntegerRepresentation[i + pid * 10]) == node.getID()) {
-										matrix[x][y] = -1;
-										conditions2 = true;
-										break;
-									}
-								}
+						for(byte position : pawn_positions){
+							if(position == node.getID()){
+								matrix[x][y] = -1;
+								conditions2 = true;
+								break;
 							}
 						}
 					}
