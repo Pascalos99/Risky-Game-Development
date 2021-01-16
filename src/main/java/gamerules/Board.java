@@ -23,6 +23,7 @@ public class Board {
 	 * player[2] is paired against player[3]
 	 * player[4] is paired against player[5]
 	 */
+	public Move lastMove;
 	public static final byte[] player_pairings = {
 			1, 0,
 			3, 2,
@@ -328,6 +329,7 @@ public class Board {
 		while (move == null || !move.isValid(this))
 			move = currentPlayer().returnMove(this);
 		executeMoveForReal(move);
+		lastMove = move;
 		updateGraphics();
 		nextTurn();
 	}

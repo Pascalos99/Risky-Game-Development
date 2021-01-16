@@ -48,7 +48,6 @@ public class GreedyMST extends Player {
             for(GameTreeNode node :nodes){
                 if(i==0
                         && node.getGameState().hasWon(this)) return node.getGameState().lastMove();
-                else if(node.getGameState().hasWon(this)) return node.getGameState().getMoveSequence().get(0);
 
             }
         }
@@ -87,7 +86,7 @@ public class GreedyMST extends Player {
             List<Move> moves = board.getAllPossibleMoves(pawn);
             for (Move move : moves) {
                 Random rd = new Random();
-                eval.put(evaluation.apply(new GameState(gameState, move), this) + rd.nextGaussian()*randomSize, move);
+                eval.put(evaluation.apply(new GameState(gameState, move), this) + rd.nextGaussian() * randomSize, move);
             }
         }
         return eval.get((Collections.max(eval.keySet())));
