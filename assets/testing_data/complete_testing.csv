@@ -650,3 +650,18 @@ Monte Carlo [SGD];Naive Player [PaperEval];0;2;81268336800
 Monte Carlo [SGD];Naive Player [normSGD];0;2;86978856500
 Monte Carlo [SGD];Naive Player [ANN];1;2;122821914300
 Monte Carlo [SGD];Evil Player;1;2;144472023800
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;3666442499700
+Monte Carlo [PaperEval];Alpha-beta [SGD];0;2;3609885035600
+Alpha-beta [SGD];Monte Carlo [ANN];1;2;4248586866300
+Monte Carlo [PaperEval];Monte Carlo [SGD];0;2;6557030161100
+Monte Carlo [SGD];Monte Carlo [ANN];1;2;7892300700599
+Alpha-beta [SGD];Naive Player [normSGD];1;2;75596171200
+Alpha-beta [SGD];Naive Player [PaperEval];1;2;94872103400
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;111899591700
+Alpha-beta [SGD];Evil Player;1;2;53304387900
+Alpha-beta [SGD];Naive Player [ANN];0;2;169394398700
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;5121588547500
+Alpha-beta [SGD];Alpha-beta [PaperEval];0;2;8896041715300
+Alpha-beta [PaperEval];Monte Carlo [SGD];1;2;11349091871700
+Alpha-beta [PaperEval];Monte Carlo [ANN];1;2;16318453030700
+Alpha-beta [PaperEval];Naive Player [normSGD];1;2;12855966365999
