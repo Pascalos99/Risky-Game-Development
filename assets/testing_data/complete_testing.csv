@@ -33,6 +33,27 @@ Alpha-beta [normSGD];Naive Player [ANN];0;2;173589219000
 Alpha-beta [SGD];Naive Player [normSGD];1;2;59167838800
 Alpha-beta [SGD];Naive Player [PaperEval];0;2;64519277800
 Alpha-beta [SGD];Evil Player;1;2;71187154600
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;19814321942
+Alpha-beta [SGD];Naive Player [normSGD];1;2;29419818202
+Alpha-beta [SGD];Naive Player [ANN];1;2;33286959335
+Alpha-beta [SGD];Evil Player;1;2;27767814373
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;57854461653
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;18573275991
+Alpha-beta [SGD];Naive Player [normSGD];1;2;21832738627
+Alpha-beta [SGD];Naive Player [ANN];1;2;32175422218
+Alpha-beta [SGD];Evil Player;1;2;24582179010
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;58482861607
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;39459228820
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;37729349209
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;1469661155711
+Alpha-beta [SGD];Alpha-beta [PaperEval];0;2;3314068318368
+Alpha-beta [SGD];Naive Player [normSGD];0;2;13195138956
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;14943522929
+Alpha-beta [SGD];Naive Player [ANN];0;2;37496887115
+Alpha-beta [SGD];Evil Player;1;2;12476160401
+Alpha-beta [SGD];Monte Carlo [ANN];1;2;1902021055698
+Alpha-beta [PaperEval];Alpha-beta [SGD];1;2;3468190450466
+Alpha-beta [PaperEval];Monte Carlo [SGD];0;2;3981663976299
 Alpha-beta [SGD];Naive Player [PaperEval];0;2;42906083300
 Alpha-beta [SGD];Naive Player [normSGD];0;2;49398520700
 Alpha-beta [SGD];Monte Carlo [SGD];1;2;87289833200
@@ -650,6 +671,11 @@ Monte Carlo [SGD];Naive Player [PaperEval];0;2;81268336800
 Monte Carlo [SGD];Naive Player [normSGD];0;2;86978856500
 Monte Carlo [SGD];Naive Player [ANN];1;2;122821914300
 Monte Carlo [SGD];Evil Player;1;2;144472023800
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;44967562672
+Alpha-beta [SGD];Naive Player [normSGD];1;2;12531442670
+Alpha-beta [SGD];Naive Player [PaperEval];1;2;13138449517
+Alpha-beta [SGD];Naive Player [ANN];1;2;14477763724
+Alpha-beta [SGD];Evil Player;0;2;31414870195
 Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;3666442499700
 Monte Carlo [PaperEval];Alpha-beta [SGD];0;2;3609885035600
 Alpha-beta [SGD];Monte Carlo [ANN];1;2;4248586866300
