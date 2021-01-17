@@ -38,6 +38,27 @@ Alpha-beta [SGD];Naive Player [ANN];0;2;147196253400
 Alpha-beta [SGD];Alpha-beta [PaperEval];0;2;5848858848900
 Alpha-beta [PaperEval];Monte Carlo [SGD];1;2;6433953824000
 Alpha-beta [PaperEval];Alpha-beta [SGD];1;2;8179575393300
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;19814321942
+Alpha-beta [SGD];Naive Player [normSGD];1;2;29419818202
+Alpha-beta [SGD];Naive Player [ANN];1;2;33286959335
+Alpha-beta [SGD];Evil Player;1;2;27767814373
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;57854461653
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;18573275991
+Alpha-beta [SGD];Naive Player [normSGD];1;2;21832738627
+Alpha-beta [SGD];Naive Player [ANN];1;2;32175422218
+Alpha-beta [SGD];Evil Player;1;2;24582179010
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;58482861607
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;39459228820
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;37729349209
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;1469661155711
+Alpha-beta [SGD];Alpha-beta [PaperEval];0;2;3314068318368
+Alpha-beta [SGD];Naive Player [normSGD];0;2;13195138956
+Alpha-beta [SGD];Naive Player [PaperEval];0;2;14943522929
+Alpha-beta [SGD];Naive Player [ANN];0;2;37496887115
+Alpha-beta [SGD];Evil Player;1;2;12476160401
+Alpha-beta [SGD];Monte Carlo [ANN];1;2;1902021055698
+Alpha-beta [PaperEval];Alpha-beta [SGD];1;2;3468190450466
+Alpha-beta [PaperEval];Monte Carlo [SGD];0;2;3981663976299
 Alpha-beta [SGD];Naive Player [PaperEval];0;2;42906083300
 Alpha-beta [SGD];Naive Player [normSGD];0;2;49398520700
 Alpha-beta [SGD];Monte Carlo [SGD];1;2;87289833200
@@ -692,3 +713,23 @@ Naive Player [PaperEval];Evil Player;1;2;412446200
 Naive Player [ANN];Alpha-beta [SGD];0;2;307165262000
 Naive Player [PaperEval];Monte Carlo [ANN];1;2;3960075321600
 Naive Player [ANN];Monte Carlo [SGD];0;2;141871510900
+Alpha-beta [SGD];Monte Carlo [SGD];0;2;44967562672
+Alpha-beta [SGD];Naive Player [normSGD];1;2;12531442670
+Alpha-beta [SGD];Naive Player [PaperEval];1;2;13138449517
+Alpha-beta [SGD];Naive Player [ANN];1;2;14477763724
+Alpha-beta [SGD];Evil Player;0;2;31414870195
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;3666442499700
+Monte Carlo [PaperEval];Alpha-beta [SGD];0;2;3609885035600
+Alpha-beta [SGD];Monte Carlo [ANN];1;2;4248586866300
+Monte Carlo [PaperEval];Monte Carlo [SGD];0;2;6557030161100
+Monte Carlo [SGD];Monte Carlo [ANN];1;2;7892300700599
+Alpha-beta [SGD];Naive Player [normSGD];1;2;75596171200
+Alpha-beta [SGD];Naive Player [PaperEval];1;2;94872103400
+Alpha-beta [SGD];Monte Carlo [SGD];1;2;111899591700
+Alpha-beta [SGD];Evil Player;1;2;53304387900
+Alpha-beta [SGD];Naive Player [ANN];0;2;169394398700
+Alpha-beta [SGD];Monte Carlo [PaperEval];1;2;5121588547500
+Alpha-beta [SGD];Alpha-beta [PaperEval];0;2;8896041715300
+Alpha-beta [PaperEval];Monte Carlo [SGD];1;2;11349091871700
+Alpha-beta [PaperEval];Monte Carlo [ANN];1;2;16318453030700
+Alpha-beta [PaperEval];Naive Player [normSGD];1;2;12855966365999

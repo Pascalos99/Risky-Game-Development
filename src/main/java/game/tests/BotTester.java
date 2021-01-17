@@ -53,7 +53,8 @@ public class BotTester {
     private static final Object threadWait = new Object();
     private int tests_completed;
     private int number_of_tests;
-    private static final int LOGICAL_THREADS = Runtime.getRuntime().availableProcessors();
+    private static final int LOGICAL_THREADS = 3;
+//			Runtime.getRuntime().availableProcessors();
     private int current_threads = 0;
 
     private List<Integer> occupied;
