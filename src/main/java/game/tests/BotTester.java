@@ -36,10 +36,10 @@ public class BotTester {
 		BotTester test = new BotTester(70, 5, 1000);
 		Player[] players = {
 				new AlphaBeta(),
-//				new AlphaBeta(new PaperEval()),
+				new AlphaBeta(new PaperEval()),
 				new AlphaBeta(new NeuralNetworkEval(loadNetwork("DL-working test"))),
 				new GreedyMST(),
-//				new GreedyMST(new PaperEval()),
+				new GreedyMST(new PaperEval()),
 				new GreedyMST(new NeuralNetworkEval(loadNetwork("DL-working test"))),
 				new NaivePlayer(),
 				new NaivePlayer(new PaperEval()),
