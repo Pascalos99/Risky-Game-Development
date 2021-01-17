@@ -18,29 +18,29 @@ import players.bots.utils.BoardRep;
 import players.bots.utils.Utils;
 
 public class GameState {
-	
+
 	public static final byte PLAYER_PAWNS = 10;
-	
+
 	private Board original_board;
-	
+
 	/**
-	 * Internal state of the GameState, is updated for most information requests from any GameState object. This object is 
+	 * Internal state of the GameState, is updated for most information requests from any GameState object. This object is
 	 *  shared among them and thus will not keep its state the same at most times.
 	 * Please inform me (@pascal) if you intend to directly use this field for anything, as there is likely a way to solve your
 	 *  problem in a safer way.
 	 */
 	private static Map<Integer, Board> dummy_boards = new HashMap<>();
 	private static Map<Integer, GameState> dummy_states = new HashMap<>();
-	
+
 	public static Map<Thread, Integer> thread_dummy_ids = new HashMap<>();
 	private static int last_dummy_id = 0;
-	
+
 	/*         /a---b---*p*
 	 *    /r--<
 	 * G-<     \c---d---%q%
 	 *    \---...
-	 */ 
-	
+	 */
+
 	/**
 	 * A byte representation of the GameState holds the positions of all pawns in an efficient format<br>
 	 * Every 10 elements represent the pawns of a single player in increasing order of the result
@@ -57,14 +57,14 @@ public class GameState {
 	 * Get a copy of this array through {@linkplain #getIntegerRepresentation()}
 	 */
 	private byte[] pawn_positions;
-	
+
 	private Move last_move;
 	private GameState parent;
 	private GameState root;
 	private int depth;
-	
+
 	private final int player_count;
-	
+
 	private synchronized Integer getDummyKey() {
 		Integer key = thread_dummy_ids.get(Thread.currentThread());
 		if (key == null) {
@@ -73,7 +73,7 @@ public class GameState {
 		}
 		return key;
 	}
-	
+
 	public Board getDummyBoard() {
 		return dummy_boards.get(getDummyKey());
 	}
@@ -95,23 +95,23 @@ public class GameState {
 	 */
 	public synchronized void setDummyBoard() {
 		if (getDummyBoard() != null && this.equals(getDummyState())) return;
-		
+
 		if (getDummyBoard() == null || getDummyState() == null || !getDummyState().root.contentEquals(root)) setDummyBoard(getOriginalBoard().clone());
 		else for (GameState state = getDummyState(); state != null; state = state.parent) {
 				if (state == this) { setDummyState(this); return; }
 				if (state.last_move != null) getDummyBoard().reverseMove(state.last_move);
 		}
-		
+
 		LinkedList<Move> moves = new LinkedList<>();
-		
+
 		for (GameState state = this; state != null; state = state.parent)
 			if (state.last_move != null) moves.addFirst(state.last_move);
-		
+
 		for (Move move : moves) move.execute(getDummyBoard());
-		
+
 		setDummyState(this);
 	}
-	
+
 	/**
 	 * Returns the integer representation of this GameState.
 	 * @return a byte array of length {@link #getPlayerCount()} {@code * 10} with a byte for each pawn
@@ -120,10 +120,10 @@ public class GameState {
 	public byte[] getIntegerRepresentation() {
 		return Arrays.copyOf(pawn_positions, pawn_positions.length);
 	}
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
-	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
@@ -154,29 +154,29 @@ public class GameState {
 	public int currentPlayerID() {
 		return (depth + getOriginalBoard().currentPlayerID()) % getOriginalBoard().getPlayerCount();
 	}
-	
+
 	public GameState getRoot() {
 		return root;
 	}
-	
+
 	/**
 	 * @return the list of moves executed to get to this GameState (in order of execution) from this GameState's root state (this
 	 *  is the furthest parent down from this GameState which is directly derived from a Board object)
 	 */
 	public List<Move> getMoveSequence() {
 		LinkedList<Move> moves = new LinkedList<>();
-		
+
 		for (GameState state = this; state != null; state = state.parent) {
 			if (state == root) break;
 			moves.addFirst(state.last_move);
 		}
-		
+
 		return moves;
 	}
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
-	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
@@ -194,10 +194,10 @@ public class GameState {
 		setDummyBoard();
 		return getDummyBoard().getAllnodes();
 	};
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
-	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
@@ -215,10 +215,10 @@ public class GameState {
 		setDummyBoard();
 		return getDummyBoard().getAllNodesOf(player);
 	};
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
-	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
@@ -239,7 +239,7 @@ public class GameState {
 
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
-	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
@@ -265,22 +265,22 @@ public class GameState {
 	public List<BoardNode> getGoal(Player player) {
 		return getOriginalBoard().getGoal(player).stream().map(getDummyBoard().getNodeMapper()).collect(Collectors.toList());
 	}
-	
+
 	public final boolean isGoalNode(Player player, BoardNode node) {
     	return node.getOwner() == getEnemy(player);
     }
-	
+
 	public int getDepth() {
 		return depth;
 	}
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
 	 */
 	public boolean allowMove(Pawn pawn, BoardNode target) {
 		return allowMove(new Move(pawn, target));
 	};
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
 	 */
@@ -296,7 +296,7 @@ public class GameState {
     	setDummyBoard();
     	return GameRules.SELECTED_GAMERULES.hasWon(getDummyBoard(), Player);
 	};
-    
+
 	/**
 	 * This method may require {@link GameState#dummy_board} to be modified.<br><br>
 	 */
@@ -312,10 +312,10 @@ public class GameState {
 			return hasWon(parent.currentPlayer());
 		}
 	};
-    
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
-	 * <b>[Warning]</b> results from this method from different GameStates will be modified 
+	 * <b>[Warning]</b> results from this method from different GameStates will be modified
 	 * by any call of the following methods: <br>
 	 * <l>
 	 * <li>{@link #getAllnodes()}</li>
@@ -335,7 +335,7 @@ public class GameState {
 			result.addAll(getAllPossibleMoves(pawn));
 		return result;
 	}
-	
+
 	public GameState(Board copyFrom) {
 		original_board = copyFrom;
 		root = this;
@@ -355,7 +355,7 @@ public class GameState {
 			}
 		}
 	}
-	
+
 	public GameState(GameState parent, Move move) {
 		original_board = parent.getOriginalBoard();
 		this.parent = parent;
@@ -371,19 +371,19 @@ public class GameState {
 		pawn_positions[index] = (byte)move.target_node;
 		Arrays.sort(pawn_positions, from, to);
 	}
-	
+
 	public GameState getStateAfterMove(Move move) {
 		return new GameState(this, move);
 	}
-	
+
 	public GameState getPrevious() {
 		return parent;
 	}
-	
+
 	public Move lastMove() {
 		return last_move;
 	}
-	
+
 	/**
 	 * This method requires {@link GameState#dummy_board} to be modified.<br><br>
 	 * Clones the dummy board at this GameState and stores it as this state's original board.<br>
@@ -395,13 +395,13 @@ public class GameState {
 		original_board = getDummyBoard().clone();
 		depth = 0;
 	}
-	
+
 	public Board getOriginalBoard() {
 		return original_board;
 	}
 
 	private BigInteger gameStateID;
-	
+
 	public BigInteger gameStateID() {
 		if (gameStateID == null) {
 			byte[] input = new byte[46]; // 3 bits per boardnode, for 121 boardnodes, gives 121*3/8 + 1 = 46 bytes
@@ -415,17 +415,17 @@ public class GameState {
 					for (int j=0; j < 3; j++)
 						if (index_in_byte + j < 8) part1 |= (((p+1) >> (2 - j)) & 1) << (index_in_byte + j);
 						else part2 |= (((p+1) >> (2 - j)) & 1) << (index_in_byte + j - 8);
-					
+
 					input[index*3/8] = part1;
 					if (index*3/8+1 < 46) input[index*3/8+1] = part2;
 				}
 			}
 			gameStateID = new BigInteger(input);
 		}
-		
+
 		return gameStateID;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder("GameState with id [");
@@ -438,14 +438,14 @@ public class GameState {
 		}
 		return sb.toString();
 	}
-	
+
 	public boolean contentEquals(Object o) {
 		if (o == this) return true;
 		if (!(o instanceof GameState)) return false;
 		GameState s = (GameState) o;
 		return s.gameStateID().equals(gameStateID());
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) return true;
@@ -460,7 +460,7 @@ public class GameState {
 	public double [] getMatrixUnrolled(Player perspective){
 		return getMatrixUnrolled(perspective, BoardRep.Original);
 	}
-	
+
 	public double[] getMatrixUnrolled(Player perspective, BoardRep boardRep) {
 		double[] result = new double[162];
 		int playerID = original_board.getPlayerID(perspective);
@@ -484,15 +484,15 @@ public class GameState {
 		return result;
 		//return Utils.unrollMatrix(getMatrix(perspective, boardRep));
 	}
-	
+
 	public double[][][] getMatrix(Player perspective) {
 		return getMatrix(perspective, BoardRep.Original);
 	}
-	
+
 	public double[][][] getMatrix(Player perspective, BoardRep board_rep) {
 		return getMatrix3d(original_board.getPlayerID(perspective),getIntegerRepresentation(),board_rep);
 	}
-	
+
 	public static Map<Integer, Map<Byte, Integer>> pid_to_nid_to_mid;
 	static {
 		pid_to_nid_to_mid = new HashMap<>();
@@ -510,7 +510,7 @@ public class GameState {
 			}
 		}
 	}
-	
+
 	public static double[] fastMatrix1d(int playerID, byte[] integer_rep) {
 		double[] unrolled = new double[81];
 		for (int i=playerID*10; i < playerID*10 + 10; i++) {
@@ -519,15 +519,17 @@ public class GameState {
 		}
 		return unrolled;
 	}
-	
+
+	public static Board empty = Board.empty_board;
+
 	public static double [][][] getMatrix3d(int playerID,byte[] integer_rep, BoardRep board_rep) {
-		Board empty = Board.empty_board;
 		List<Byte> blackList = new ArrayList<>();
 		List<BoardNode> nodes = empty.getAllnodes();
 		List<BoardNode> allready = new ArrayList<>();
 		Queue<BoardNode> queue = new LinkedList<>();
 		for(int i = 0;i < 6; i++){
-			if(i != playerID && i != Board.player_pairings[playerID]){
+			if(i != playerID &&
+					i != Board.player_pairings[playerID]){
 				for (int y = 0;y<Board.nodes_owned_per_player[i].length;y++){
 					blackList.add(Board.nodes_owned_per_player[i][y]);
 				}
@@ -558,13 +560,28 @@ public class GameState {
 			corner = 98;
 			opositecorner = 22;
 		}
+		List<Byte> pawnPositions = new ArrayList<Byte>();
+		for (byte pid = 0; pid < 6;pid++) {
+			if (pid != playerID) {
+				for (byte i = 0; i < 10; i++) {
+					if (i + pid * 10 < integer_rep.length) {
+						pawnPositions.add(integer_rep[(i + pid * 10)]);
+					}
+					else{
+						break;
+					}
+				}
+			}
+		}
+		Byte[] pawn_positions = new Byte[pawnPositions.size()];
+		pawnPositions.toArray(pawn_positions);
 		queue.add(nodes.get(corner));
-		double [][] matrix = new double[9][9];
-		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep);
+		byte [][] matrix = new byte[9][9];
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,matrix,integer_rep,pawn_positions);
 		queue.clear();
 		queue.add(nodes.get(opositecorner));
-		double [][] opositeMatrix = new double[9][9];
-		constructMatrix(queue,new ArrayList<>(),blackList,playerID,opositeMatrix,integer_rep);
+		byte [][] opositeMatrix = new byte[9][9];
+		constructMatrix(queue,new ArrayList<>(),blackList,playerID,opositeMatrix,integer_rep,pawn_positions);
 		for(int i = 0; i < matrix.length; i++){
 			for(int j = 0; j < matrix[i].length; j++){
 				if(matrix[i][j] == 0){
@@ -589,7 +606,7 @@ public class GameState {
 		return result;
 	}
 
-	private static void constructMatrix(Queue<BoardNode> queue,List<Byte> allready,List<Byte> blackList,int playerID,double [][] matrix, byte [] getIntegerRepresentation){
+	private static void constructMatrix(Queue<BoardNode> queue,List<Byte> allready,List<Byte> blackList,int playerID,byte [][] matrix, byte [] getIntegerRepresentation,Byte[] pawn_positions){
 		for(int j = 0;j < 9;j++) {
 			Queue<BoardNode> Requeue = new LinkedList<>();
 			int x = j;
@@ -603,13 +620,15 @@ public class GameState {
 						break;
 					}
 				}
-				for (int v : blackList) {
-					if (v == node.getID()) {
-						conditions = false;
-						break;
+				if(conditions){
+					for (Byte v : blackList) {
+						if (v == node.getID()) {
+							conditions = false;
+							break;
+						}
 					}
 				}
-				if (conditions) {
+				if(conditions) {
 					boolean conditions1 = false;
 					boolean conditions2 = false;
 					for (int i = 0; i < 10; i++) {
@@ -620,16 +639,11 @@ public class GameState {
 						}
 					}
 					if (!conditions1) {
-						for (int pid = 0; pid < 6;pid++) {
-							if (pid != playerID && !conditions2) {
-								for (int i = 0; i < 10; i++) {
-									if (i + pid * 10 < getIntegerRepresentation.length &&
-											(getIntegerRepresentation[i + pid * 10]) == node.getID()) {
-										matrix[x][y] = -1;
-										conditions2 = true;
-										break;
-									}
-								}
+						for(byte position : pawn_positions){
+							if(position == node.getID()){
+								matrix[x][y] = -1;
+								conditions2 = true;
+								break;
 							}
 						}
 					}
