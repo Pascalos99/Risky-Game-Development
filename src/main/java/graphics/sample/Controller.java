@@ -67,7 +67,7 @@ public class Controller implements Initializable {
     public JFXButton SetNameBtn;
     public String[] names = new String[]{
     		"Daniel Pink","Alex Pentland","Eric Schmidt","Donald Trump","Neil deGrasse Tyson","Bill Gates",
-    		"Barrack Obama", "Mark Rutte", "Alan Turing"};
+    		"Barrack Obama", "Mark Rutte", "Alan Turing", "Charles Babbage"};
 
     @FXML
     private JFXTextField name1;
