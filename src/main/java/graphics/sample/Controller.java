@@ -65,9 +65,7 @@ public class Controller implements Initializable {
     public JFXButton PlayBtn;
     public JFXButton GameRulesBtn;
     public JFXButton SetNameBtn;
-    public String[] names = new String[]{
-    		"Daniel Pink","Alex Pentland","Eric Schmidt","Donald Trump","Neil deGrasse Tyson","Bill Gates",
-    		"Barrack Obama", "Mark Rutte", "Alan Turing", "Charles Babbage", "Rick Astley"};
+    public String[] names = new String[]{"Daniel Pink","Alex Pentland","Eric Schmidt","Donald Trump","Neil deGrasse Tyson","Bill Gates","Beppie Kraft","Barrack Obama", "Mark Rutte", "Alan Turing", "Charles Babbage", "Rick Astley"};
 
     @FXML
     private JFXTextField name1;
@@ -230,7 +228,7 @@ public class Controller implements Initializable {
     public void SetNames(ActionEvent actionEvent) {
 
         for(int i=0;i<6;i++){
-            int num = (int) (Math.round(Math.random()*5));
+            int num = (int) (Math.round(Math.random()*11));
             namefields.get(i).setPromptText(names[num]);
             namefields.get(i).setText(names[num]);
         }
