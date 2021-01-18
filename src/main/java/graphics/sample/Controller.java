@@ -33,6 +33,7 @@ import javafx.stage.WindowEvent;
 
 import javax.swing.event.ChangeEvent;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -227,10 +228,16 @@ public class Controller implements Initializable {
 
     public void SetNames(ActionEvent actionEvent) {
 
+    	List<String> used = new ArrayList<>();
+    	used.add("");
         for(int i=0;i<6;i++){
-            int num = (int) (Math.round(Math.random()*11));
-            namefields.get(i).setPromptText(names[num]);
-            namefields.get(i).setText(names[num]);
+        	if (players[i].type == null) continue;
+        	String name = "";
+        	while (used.contains(name))
+            	name = names[(int) (Math.random() * names.length)];
+            namefields.get(i).setPromptText(name);
+            namefields.get(i).setText(name);
+            used.add(name);
         }
     }
 
