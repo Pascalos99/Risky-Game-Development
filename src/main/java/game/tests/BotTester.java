@@ -33,14 +33,14 @@ public class BotTester {
 	public static final String testing_path = AssetFinder.assetsPath+"testing_data"+File.separator;
 	
 	public static void main(String[] args) {
-		BotTester test = new BotTester(70, 5, 1000);
+		BotTester test = new BotTester(70, 70, 1000);
 		Player[] players = {
 				new AlphaBeta(),
 				//new AlphaBeta(new PaperEval()),
-				new AlphaBeta(new NeuralNetworkEval(loadNetwork("DL-working test"))),
+				//new AlphaBeta(new NeuralNetworkEval(loadNetwork("DL-working test"))),
 				new GreedyMST(),
 				//new GreedyMST(new PaperEval()),
-				new GreedyMST(new NeuralNetworkEval(loadNetwork("DL-working test"))),
+				//new GreedyMST(new NeuralNetworkEval(loadNetwork("DL-working test"))),
 				new NaivePlayer(),
 				new NaivePlayer(new PaperEval()),
 				new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))),
@@ -53,8 +53,7 @@ public class BotTester {
     private static final Object threadWait = new Object();
     private int tests_completed;
     private int number_of_tests;
-    private static final int LOGICAL_THREADS = 3;
-//			Runtime.getRuntime().availableProcessors();
+    private static final int LOGICAL_THREADS = Runtime.getRuntime().availableProcessors();
     private int current_threads = 0;
 
     private List<Integer> occupied;
@@ -83,7 +82,7 @@ public class BotTester {
         		}
             TestThread gameThread = new TestThread(id, games_players[game], max_turn_count, store_data);
             occupied.add(id);
-            System.out.println("running threads: "+occupied);
+            System.out.println("running threads: "+occupied+" (added "+gameThread+")");
             gameThread.start();
             current_threads++;
             if(current_threads==LOGICAL_THREADS) {
@@ -131,7 +130,7 @@ public class BotTester {
     	boolean match_made = true;
     	while (match_made) {
     		match_made = false;
-    		for (int pc = 1; pc <= 3; pc ++) {
+    		for (int pc = 3; pc >= 1; pc --) {
     			if (!_1v1 && pc == 1) continue;
     			if (!_2v2 && pc == 2) continue;
     			if (!_3v3 && pc == 3) continue;
@@ -198,6 +197,13 @@ public class BotTester {
     	
     	public int state_id;
 
+    	public String toString() {
+        	String xvx = "1v1";
+        	if (players.length == 4) xvx = "2v2";
+        	if (players.length == 6) xvx = "3v3";
+        	return xvx + " " + players[0].getTypeName()+" vs "+players[1].getTypeName();
+        }
+    	
         @Override
         public void run() {
             try {

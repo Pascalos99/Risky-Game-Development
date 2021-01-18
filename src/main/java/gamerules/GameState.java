@@ -22,7 +22,42 @@ public class GameState {
 	public static final byte PLAYER_PAWNS = 10;
 
 	private Board original_board;
-
+	
+	public static void testEndCounts() {
+		File end_file = new File(AssetFinder.assetsPath+"\\training_data\\complete_testing.end_data");
+		try {
+			int count = 0;
+			int count_no_win = 0;
+			String end_data = Files.readString(end_file.toPath());
+			String[] end_lines = end_data.split("\n");
+			for (int i=0; i < end_lines.length; i++) {
+				double[] d_res = Utils.extractVector(Utils.parseMatrix(end_lines[i]));
+				byte[] res = new byte[d_res.length-2];
+				for (int j=0; j < d_res.length-2; j++) res[j] = (byte) d_res[j+2];
+				System.out.println(end_lines[i]);
+				System.out.println(Arrays.toString(res));
+				System.out.println("winner is "+getWinner(res));
+				count++;
+				if (getWinner(res) == -1) count_no_win++;
+			}
+			System.out.println("count: "+count+", no-win: "+count_no_win);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static int getWinner(byte[] integer_rep) {
+		for (int p=0; p < integer_rep.length / 10; p++) {
+			byte[] goal = Board.nodes_owned_per_player[Board.player_pairings[p]];
+			Arrays.sort(goal);
+			boolean yes = true;
+			for (int i=0; i < goal.length; i++)
+				if (goal[i] != integer_rep[p*10 + i]) yes = false;
+			if (yes) return p;
+		}
+		return -1;
+	}
+	
 	/**
 	 * Internal state of the GameState, is updated for most information requests from any GameState object. This object is
 	 *  shared among them and thus will not keep its state the same at most times.
@@ -520,11 +555,9 @@ public class GameState {
 		return unrolled;
 	}
 
-	public static Board empty = Board.empty_board;
-
 	public static double [][][] getMatrix3d(int playerID,byte[] integer_rep, BoardRep board_rep) {
 		List<Byte> blackList = new ArrayList<>();
-		List<BoardNode> nodes = empty.getAllnodes();
+		List<BoardNode> nodes = Board.getEmpty().getAllnodes();
 		List<BoardNode> allready = new ArrayList<>();
 		Queue<BoardNode> queue = new LinkedList<>();
 		for(int i = 0;i < 6; i++){

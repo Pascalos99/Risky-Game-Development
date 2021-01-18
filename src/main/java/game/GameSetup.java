@@ -13,6 +13,8 @@ import graphics.BoardGraphics;
 import players.*;
 import players.bots.*;
 import gamerules.evaluation_functions.NeuralNetworkEval;
+import gamerules.evaluation_functions.PaperEval;
+
 import static players.bots.utils.EveryoneShouldHaveMachineLearning.loadNetwork;
 
 /**
@@ -30,7 +32,11 @@ import static players.bots.utils.EveryoneShouldHaveMachineLearning.loadNetwork;
  */
 public class GameSetup {
 	
-	private static List<Player> player_types = List.of(new HumanPlayer(), new RandomPlayer(), new NaivePlayer(), new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-simple"))), new EvilPlayer(), new LBFSPlayer(),new ProtoMST(),new GreedyMST(),new AlphaBeta(),new AStar()/*, new AstarTest()*/);
+	private static List<Player> player_types = List.of(new HumanPlayer(), new RandomPlayer(), new NaivePlayer(), 
+			new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), new NaivePlayer(new PaperEval()), 
+			new EvilPlayer(), new LBFSPlayer(),new ProtoMST(),new GreedyMST(), new GreedyMST(new NeuralNetworkEval(loadNetwork("DL-working test"))), 
+			new GreedyMST(new PaperEval()),new AlphaBeta(), new AlphaBeta(new NeuralNetworkEval(loadNetwork("DL-working test"))), 
+			new AlphaBeta(new PaperEval()),new AStar());
 	private static List<GameRules> gamerule_types = List.of(new DefaultGameRules());
 	
 	/** This list can be used for selection buttons: */

@@ -528,9 +528,13 @@ public class Board {
 	public Player getWinner() {
 		return winner;
 	}
-
-
-	public static final Board empty_board;
+	
+	public static Board getEmpty() {
+		if (empty_board == null) empty_board = new Board(SELECTED_GAMERULES, null);
+		return empty_board;
+	}
+	
+	private static Board empty_board;
 	static {
 		empty_board = new Board(SELECTED_GAMERULES, null);
 	}
