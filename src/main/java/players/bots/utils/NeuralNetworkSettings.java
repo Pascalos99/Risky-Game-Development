@@ -18,6 +18,7 @@ public class NeuralNetworkSettings {
 		this.structure = structure;
 		this.activations = activations;
 		this.bias = bias;
+		if (bias == null) this.bias = fill(structure.length, true);
 		this.boardRep = boardRep;
 	}
 	private static boolean[] fill(int size, boolean value) {

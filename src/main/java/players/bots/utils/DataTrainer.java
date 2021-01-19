@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import players.bots.utils.DataLoader.Data;
 import players.bots.utils.DataLoader.DataPoint;
 import players.bots.utils.DeepLearning.DLThread;
+import players.bots.utils.NeuralNetwork.Activation;
 
 import static players.bots.utils.EveryoneShouldHaveMachineLearning.*;
 import static players.bots.utils.NeuralNetwork.*;
@@ -36,6 +37,7 @@ public class DataTrainer {
 				ann = ANNsettings.getRandomWeights(-1, 1);
 		}
 		
+		if (GDsettings == null) GDsettings = new GradientDescentSettings();
 		GradientDescent GD = GDsettings.get(ann);
 		System.out.println("preparing data...");
 		List<Supplier<double[][]>> problems = List.of(getAllDataOrdered(BoardRep.Original));
@@ -43,12 +45,36 @@ public class DataTrainer {
 		return DeepLearning.runDeepLearning(GD, problems, stop_time_ms, save_time_ms, info_time_ms, network_name);
     }
     
+    public static void multiCoreTraining() {
+    	String[] network_names = {"DL-datatrained", "DL-datatrained2", "DL-datatrained3", "DL-datatrained4", "DL-datatrained5", "DL-datatrained6"};
+    	NeuralNetworkSettings[] ann_settings = {
+    			null,
+    			new NeuralNetworkSettings(new int[] {162, 81, 20, 20, 1}, new Activation[] {dSILU, dSILU, dSILU, SIGMOID}),
+    			new NeuralNetworkSettings(new int[] {162, 40, 40, 1}, new Activation[] {dSILU, dSILU, SILU}),
+    			new NeuralNetworkSettings(new int[] {162, 20, 20, 1}, new Activation[] {SILU, SILU, SIGMOID}, null, BoardRep.TwoNoNegatives),
+    			new NeuralNetworkSettings(new int[] {162, 81, 1}, new Activation[] {SILU, SIGMOID}, null, BoardRep.TwoNoNegatives),
+    			new NeuralNetworkSettings(new int[] {162, 40, 40, 1}, new Activation[] {dSILU, dSILU, SILU}, null, BoardRep.TwoNoNegatives)
+    	};
+    	GradientDescentSettings[] gd_settings = {
+    			new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 25).setExploration(true, 0.5, 5, 0.5), 
+    			new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 5).setExploration(true, 1d, 5, 0.1),
+    			new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 10).setExploration(true, 1d, 5, 0.1),
+    			new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 10).setExploration(true, 1d, 5, 0.1),
+    			new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 10).setExploration(true, 1d, 5, 0.1),
+    			new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 10).setExploration(true, 1d, 5, 0.1)
+    	};
+    	String[] data_names = { "complete_testing" };
+    	DataTrainer DT = new DataTrainer(
+    			7200000l, // 2 hours
+    			900000l, // 15 minutes
+    			300000l, // 5 minutes
+    		data_names);
+    	DLThread[] threads = new DLThread[network_names.length];
+    	for (int i=0; i < threads.length; i++) threads[i] = DT.runDeepLearning(network_names[i], ann_settings[i], gd_settings[i]);
+    }
+    
 	public static void main(String[] args) {
-		String network_name = "DL-datatrained";
-		String[] data_names = { "complete_testing" };
-		System.out.println("loading data...");
-		DataTrainer DT = new DataTrainer(30000l, 5000l, 1000l, data_names);
-		DT.runDeepLearning(network_name, null, new GradientDescentSettings(0.35).setDynamicLR(true, 1.25, 25).setExploration(true, 0.5, 5, 0.01));
+		multiCoreTraining();
 	}
 	
 	public DataTrainer() {

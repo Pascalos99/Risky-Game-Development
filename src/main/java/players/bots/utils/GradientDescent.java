@@ -29,15 +29,15 @@ public class GradientDescent {
 	
 	private boolean dynamic_lr = false;
 	private double growth_rate = 1.25;
-	private int acceleration_interval = 25;
+	private int acceleration_interval = 5;
 	private double minimum_lr = 0.01;
 	private double maximum_lr = 0.6;
 	
 	private boolean exploration = false;
 	private double exploration_magnitude = 0.5;
-	private int exploration_interval = 25;
-	/** (1 + min_loss_advantage) * current_loss becomes the threshold to beat */
-	private double min_loss_advantage = 0.01;
+	private int exploration_interval = 5;
+	/** (1 - min_loss_advantage) * current_loss becomes the threshold to beat (lower loss is better) */
+	private double min_loss_advantage = 0.1;
 	private Random explorator = new Random();
 	private Tunable exploration_model;
 	
@@ -124,10 +124,26 @@ public class GradientDescent {
 	 */
 	public boolean start(Supplier<double[][]> data) {
 		if (is_busy || data == null) return false;
+		reuse_data = false;
 		thread = new DescentThread(data);
 		thread.start();
 		return true;
 	}
+	
+	public boolean startReuseData() {
+		if (is_busy || stored_data_exp.size() == 0) return false;
+		reuse_data = true;
+		thread = new DescentThread(new Supplier<double[][]>() {
+			private int index = 0;
+			@Override
+			public double[][] get() {
+				return stored_data_exp.get(index++);
+			}
+		});
+		thread.start();
+		return true;
+	}
+	private boolean reuse_data = false;
 	
 	private void trainingStep(double[] input, double[] target) {
 		double[] output = model.computeOutput(input);
@@ -139,7 +155,7 @@ public class GradientDescent {
 		if (exploration) {
 			if (!current_net_added_to_exp)
 				addNetToExp(weights, true);
-			stored_data_exp.add(new double[][] {input, target});
+			if (!reuse_data) stored_data_exp.add(new double[][] {input, target});
 			if (iteration_count % exploration_interval == 0)
 				runExplorationTests(weights);
 		}
@@ -284,6 +300,8 @@ public class GradientDescent {
 		return exploration_replacements;
 	}
 	
+	private boolean ran_out_of_data = false;
+	
 	private class DescentThread extends Thread {
 		
 		private Supplier<double[][]> data;
@@ -304,8 +322,10 @@ public class GradientDescent {
 				try {
 					data_entry = data.get();
 				} catch (NoMoreDataException e) {
+					ran_out_of_data = true;
 					break;
 				}
+				ran_out_of_data = false;
 				trainingStep(data_entry[0], data_entry[1]);
 				iteration_count++;
 			}

@@ -13,6 +13,7 @@ import players.bots.*;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -87,10 +88,11 @@ public class DeepLearning {
     }
     
     public static class DLThread extends Thread {
+    	public boolean ran_out_of_data = false;
     	public boolean silence = false;
 		public boolean stop = false;
 		public final GradientDescent GD;
-		public final List<Supplier<double[][]>> problems;
+		public List<Supplier<double[][]>> problems;
 		public final long stop_time_ms, save_time_ms, info_time_ms;
 		public final String network_name;
 		public DLThread (GradientDescent GD, List<Supplier<double[][]>>problems, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
@@ -117,35 +119,49 @@ public class DeepLearning {
 	        for (Supplier<double[][]> problem : problems) {
 	        	if (stop) break;
 		        GD.start(problem);
-		        try {
-		        	Thread.sleep(15);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-		        while (GD.isBusy()) {
-		        	if (System.currentTimeMillis() - time >= save_time_ms) {
-		        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
-		        		time = System.currentTimeMillis();
-		        		System.gc();
-		        		if (!silence) System.out.println("Saved Network \""+network_name+"\" to version "+getLatestVersion(network_name));
-		        	}
-		        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
-		        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
-		        		GD.stop();
-		        		stop = true;
-		        		System.out.println("Stopped gradient descent on \""+network_name+"\" after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
-		        	}
-		            try {
-		                Thread.sleep(info_time_ms);
-		            } catch (InterruptedException e) {}
-		            if (GD.hasNewData())
-		            	if (!silence) System.out.format("calculated %d iterations for \"%s\"\n"
-		            			+ "  Loss = % .3e (+/- %.3e)\n"
-		            			+ "  executed %d replacements\n"
-		            			+ "  learning-rate = %.3f\n",
-		            			GD.getIterations(), network_name, GD.getCurrentLoss(), GD.getCurrentLossSD(),
-		            			GD.getExplorationReplacements(), GD.getLearningRate());
-		        }
+		        printStuff();
+	        }
+	        if (!stop) System.out.println("completed 1 epoch for \""+network_name+"\"");
+	        int epoch = 1;
+	        while (System.currentTimeMillis() - start_time < stop_time_ms) {
+	        	if (stop) break;
+		        GD.startReuseData();
+		        printStuff();
+		        System.out.println("completed "+(++epoch)+" epochs for \""+network_name+"\"");
+	        }
+		}
+		
+		private void printStuff() {
+			long time = System.currentTimeMillis();
+			long start_time = time;
+			try {
+	        	Thread.sleep(15);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+	        while (GD.isBusy()) {
+	        	if (System.currentTimeMillis() - time >= save_time_ms) {
+	        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
+	        		time = System.currentTimeMillis();
+	        		System.gc();
+	        		if (!silence) System.out.println("Saved Network \""+network_name+"\" to version "+getLatestVersion(network_name));
+	        	}
+	        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
+	        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
+	        		GD.stop();
+	        		stop = true;
+	        		System.out.println("Stopped gradient descent on \""+network_name+"\" after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
+	        	}
+	            try {
+	                Thread.sleep(info_time_ms);
+	            } catch (InterruptedException e) {}
+	            if (GD.hasNewData())
+	            	if (!silence) System.out.format("calculated %d iterations for \"%s\"\n"
+	            			+ "  Loss = % .3e (+/- %.3e)\n"
+	            			+ "  executed %d replacements\n"
+	            			+ "  learning-rate = %.3f\n",
+	            			GD.getIterations(), network_name, GD.getCurrentLoss(), GD.getCurrentLossSD(),
+	            			GD.getExplorationReplacements(), GD.getLearningRate());
 	        }
 		}
 	}
