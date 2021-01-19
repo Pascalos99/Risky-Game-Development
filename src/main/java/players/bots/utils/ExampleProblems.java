@@ -12,7 +12,7 @@ public class ExampleProblems {
 	
 	@SuppressWarnings("unused")
 	public static void xor() {
-		Long seed = 1611063788045l;
+		Long seed = null;
 		GDseed = null;
 		if (GDseed == null) {
 			GDseed = System.currentTimeMillis();
