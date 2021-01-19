@@ -33,7 +33,7 @@ import static players.bots.utils.EveryoneShouldHaveMachineLearning.loadNetwork;
 public class GameSetup {
 	
 	private static List<Player> player_types = List.of(new HumanPlayer(), new RandomPlayer(), new NaivePlayer(), 
-			new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-working test"))), new NaivePlayer(new PaperEval()), 
+			new NaivePlayer(new NeuralNetworkEval(loadNetwork("DL-datatrained"))), new NaivePlayer(new PaperEval()), 
 			new EvilPlayer(), new LBFSPlayer(),new ProtoMST(),new GreedyMST(), new GreedyMST(new NeuralNetworkEval(loadNetwork("DL-working test"))), 
 			new GreedyMST(new PaperEval()),new AlphaBeta(), new AlphaBeta(new NeuralNetworkEval(loadNetwork("DL-working test"))), 
 			new AlphaBeta(new PaperEval()),new AStar());

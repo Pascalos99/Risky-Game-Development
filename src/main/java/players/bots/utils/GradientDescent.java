@@ -12,15 +12,16 @@ import players.bots.utils.NeuralNetwork.LossFunction;
 public class GradientDescent {
 	
 	private Tunable model;
+	
 	private double learning_rate;
-	private LossFunction loss;
+	private LossFunction loss_function;
 	private int max_iterations;
 	
 	private List<Double> loss_values;
 	private int last_loss_index;
 	private boolean is_busy = false;
 	private boolean stop = false;
-	private int iteration_count;
+	private int iteration_count = 0;
 	
 	public static int min_data_interval = 250;
 	
@@ -28,17 +29,26 @@ public class GradientDescent {
 	
 	private boolean dynamic_lr = false;
 	private double growth_rate = 1.25;
-	private int acceleration_interval = 50;
-	private double minimum_lr = 0.0001;
-	private double maximum_lr = 1;
+	private int acceleration_interval = 25;
+	private double minimum_lr = 0.01;
+	private double maximum_lr = 0.6;
 	
 	private boolean exploration = false;
 	private double exploration_magnitude = 0.5;
 	private int exploration_interval = 25;
-	private double min_explorer_loss_advantage = 0;
+	/** (1 + min_loss_advantage) * current_loss becomes the threshold to beat */
+	private double min_loss_advantage = 0.01;
 	private Random explorator = new Random();
 	private Tunable exploration_model;
-	private List<double[][]> stored_data_for_exploration = new ArrayList<>();
+	
+	private List<double[][][]> stored_weights_exp = new ArrayList<>();
+	private List<Double> avg_loss_exp = new ArrayList<>();
+	private List<Integer> next_index_tested_exp = new ArrayList<>();
+	
+	private List<double[][]> stored_data_exp = new ArrayList<>();
+	private boolean current_net_added_to_exp = false;
+	private int current_net_index_exp = -1;
+	private int exploration_replacements = 0;
 	
 	/**
 	 * @param model the model to be optimized 
@@ -49,13 +59,20 @@ public class GradientDescent {
 	public GradientDescent(Tunable model, LossFunction loss, double learning_rate, int max_iterations) {
 		this.model = model;
 		this.learning_rate = learning_rate;
-		this.loss = loss;
+		this.loss_function = loss;
 		this.max_iterations = max_iterations;
 		loss_values = new ArrayList<>();
 		last_loss_index = 0;
 	}
 	public GradientDescent(Tunable ann, LossFunction loss, double learning_rate) {
 		this(ann, loss, learning_rate, -1);
+	}
+	public GradientDescent(Tunable ann, double learning_rate) {
+		this(ann);
+		this.learning_rate = learning_rate;
+	}
+	public GradientDescent(Tunable ann) {
+		this(ann, NeuralNetwork.HALF_SQUARE_ERROR, 0.1, -1);
 	}
 	
 	/**
@@ -74,17 +91,28 @@ public class GradientDescent {
 		maximum_lr = (max_lr != null)? max_lr : maximum_lr;
 	}
 	
+	public void setLossLrMax(LossFunction loss_function, Double learning_rate, Integer max_iterations) {
+		this.loss_function = (loss_function != null)? loss_function : this.loss_function;
+		this.learning_rate = (learning_rate != null)? learning_rate : this.learning_rate;
+		this.max_iterations = (max_iterations != null)? max_iterations : this.max_iterations;
+	}
+	
 	/**
 	 * @param set
+	 * @param exploration_magnitude may be {@code null}: sets to default
 	 * @param exploration_interval may be {@code null}: sets to default
-	 * @param exploration_interval may be {@code null}: sets to default
+	 * @param exploration_threshold may be {@code null}: sets to default
 	 * @param seed may be {@code null}: sets to random
 	 */
-	public void setExploration(boolean set, Double exploration_magnitude, Integer exploration_interval, Long seed) {
+	public void setExploration(boolean set, Double exploration_magnitude, Integer exploration_interval, Double exploration_threshold, Long seed) {
 		exploration = set;
 		this.exploration_interval = (exploration_interval != null)? exploration_interval : this.exploration_interval;
 		this.exploration_magnitude = (exploration_magnitude != null)? exploration_magnitude : this.exploration_magnitude;
-		this.explorator = (seed != null)? new Random(seed) : this.explorator;
+		min_loss_advantage = (exploration_threshold != null)? exploration_threshold : min_loss_advantage;
+		explorator = (seed != null)? new Random(seed) : explorator;
+	}
+	public void setExploration(boolean set, Double exploration_magnitude, Integer exploration_interval, Double exploration_threshold) {
+		setExploration(set, exploration_magnitude, exploration_interval, exploration_threshold, null);
 	}
 	
 	/**
@@ -103,62 +131,106 @@ public class GradientDescent {
 	
 	private void trainingStep(double[] input, double[] target) {
 		double[] output = model.computeOutput(input);
-		double loss_value = loss.calculate(output, target);
+		double loss_value = loss_function.calculate(output, target);
 		loss_values.add(loss_value);
-		double[][][] gradients = model.calculateLossGradients(loss, target);
+		double[][][] gradients = model.calculateLossGradients(loss_function, target);
 		double[][][] weights = model.getAllWeights();
 		
 		if (exploration) {
-			stored_data_for_exploration.add(new double[][] {input, target});
-			if (iteration_count % exploration_interval == 0) {
-				setupExplorationModel();
-				int size = stored_data_for_exploration.size();
-				double sum_diff = 0;
-				for (int i=0; i < size; i++) {
-					double[][] datapoint = stored_data_for_exploration.get(i);
-					double explorer_loss = loss.calculate(exploration_model.computeOutput(datapoint[0]), datapoint[1]);
-					double normal_loss = loss_values.get(loss_values.size() + i - size);
-					sum_diff += normal_loss - explorer_loss; // if normal_loss < explorer_loss on average, the sum will be < 0
-				}
-				if (sum_diff > min_explorer_loss_advantage) {
-					// replace network by exploration network
-					//System.out.format("summed loss advantage of exploration is %.3e; thus replacing current model with exploration\n", sum_diff);
-					model.setAllWeights(exploration_model.getAllWeights());
-					exploration_replacements++;
-				}
-			}
+			if (!current_net_added_to_exp)
+				addNetToExp(weights, true);
+			stored_data_exp.add(new double[][] {input, target});
+			if (iteration_count % exploration_interval == 0)
+				runExplorationTests(weights);
 		}
 		
-		double[][][] clone_weights = null; // clone the weights when dynamic LR step is activated: (just in case we revert)
-		if (dynamic_lr && (iteration_count % acceleration_interval == 0)) {
-			clone_weights = new double[weights.length][][];
-			for (int i=0; i < weights.length; i++) {
-				clone_weights[i] = new double[weights[i].length][weights[i][0].length];
-				for (int j=0; j < weights[i].length; j++)
-					for (int k=0; k < weights[i][j].length; k++)
-						clone_weights[i][j][k] = weights[i][j][k]; }}
+		// clone the weights when dynamic LR step is activated: (just in case we revert)
+		if (dynamic_lr && (iteration_count % acceleration_interval == 0) && clone_weights == null)
+			clone_weights = cloneWeights(weights);
 		
 		adjustWeights(weights, gradients, learning_rate);
 		
 		// dynamic learning_rate test:
 		if (dynamic_lr && (iteration_count % acceleration_interval == 0)) {
 			double expected = estimateNextLoss(gradients, loss_value);
-			double actual_loss = loss.calculate(model.computeOutput(input), target);
+			double actual_loss = loss_function.calculate(model.computeOutput(input), target);
 			if (learning_rate > minimum_lr * growth_rate*growth_rate && actual_loss > loss_value) {
 				model.setAllWeights(clone_weights); // go back to previous weights
 				learning_rate /= growth_rate*growth_rate;
-				//System.out.format("loss changed from %.3e to %.3e; learning rate thus lowered to %.3f\n", loss_value, actual_loss, learning_rate);
 			} else if (learning_rate < maximum_lr / growth_rate && expected > actual_loss) {
 				learning_rate *= growth_rate;
-				//System.out.format("expected loss was %.3e, which is greater than the actual loss: %.3e; learning rate thus increased to %.3f\n",
-				//		expected, actual_loss, learning_rate);
-			} else {
-				//System.out.print(".");
 			}
+		}
+		clone_weights = null;
+	}
+	
+	private double[][][] clone_weights = null;
+	
+	private void addNetToExp(double[][][] weights, boolean currentNet) {
+		if (currentNet && !current_net_added_to_exp) {
+			stored_weights_exp.add(weights);
+			avg_loss_exp.add(0d);
+			next_index_tested_exp.add(0);
+			current_net_added_to_exp = true;
+			current_net_index_exp = stored_weights_exp.size()-1;
+		} else if (!currentNet) {
+			stored_weights_exp.add(weights);
+			avg_loss_exp.add(0d);
+			next_index_tested_exp.add(0);
 		}
 	}
 	
-	private int exploration_replacements = 0;
+	private void setCurrentNet(int exp_index, double[][][] currentWeights) {
+		stored_weights_exp.set(current_net_index_exp, currentWeights);
+		current_net_index_exp = exp_index;
+		clone_weights = cloneWeights(stored_weights_exp.get(exp_index));
+		model.setAllWeights(clone_weights);
+		exploration_replacements++;
+	}
+	
+	private void runExplorationTests(double[][][] currentWeights) {
+		setupExplorationModel();
+		double min_loss = Double.POSITIVE_INFINITY;
+		int min_index = -1;
+		int new_index = stored_weights_exp.size() - 1;
+		for (int i=new_index; i >= 0; i--) {
+			
+			double total_loss = avg_loss_exp.get(i) * next_index_tested_exp.get(i);
+			Tunable model = (current_net_index_exp == i)? this.model : exploration_model;
+			if (model == exploration_model && i == new_index) exploration_model.setAllWeights(stored_weights_exp.get(i));
+			
+			for (int j=next_index_tested_exp.get(i); j < stored_data_exp.size(); j++) {
+				double[][] datapoint = stored_data_exp.get(j);
+				total_loss += loss_function.calculate(model.computeOutput(datapoint[0]), datapoint[1]);
+			}
+			avg_loss_exp.set(i, total_loss / stored_data_exp.size());
+			next_index_tested_exp.set(i, stored_data_exp.size());
+			if (avg_loss_exp.get(i) < min_loss) {
+				min_loss = avg_loss_exp.get(i);
+				min_index = i;
+			}
+		}
+		boolean can_stay = min_index == new_index;
+		double current_loss = avg_loss_exp.get(current_net_index_exp);
+		if (min_loss < current_loss - min_loss_advantage * current_loss) {
+			//System.out.println(((min_index == new_index)? "new " : "")+"network "+min_index+" has "+min_loss+" << "+current_loss);
+			setCurrentNet(min_index, currentWeights);
+			exploration_replacements++;
+		}
+		else can_stay = false;
+		if (!can_stay)
+			stored_weights_exp.remove(new_index);
+	}
+	
+	private double[][][] cloneWeights(double[][][] weights) {
+		double[][][] clone_weights = new double[weights.length][][];
+		for (int i=0; i < weights.length; i++) {
+			clone_weights[i] = new double[weights[i].length][weights[i][0].length];
+			for (int j=0; j < weights[i].length; j++)
+				for (int k=0; k < weights[i][j].length; k++)
+					clone_weights[i][j][k] = weights[i][j][k]; }
+		return clone_weights;
+	}
 	
 	private void setupExplorationModel() {
 		exploration_model = model.clone();
@@ -167,6 +239,7 @@ public class GradientDescent {
 			for (int j=0; j < weights[i].length; j++)
 				for (int k=0; k < weights[i][j].length; k++)
 					weights[i][j][k] += (2 * explorator.nextDouble() - 1) * exploration_magnitude;
+		addNetToExp(weights, false);
 	}
 	
 	private double estimateNextLoss(double[][][] gradients, double loss) {
@@ -225,13 +298,11 @@ public class GradientDescent {
 		
 		@Override
 		public void run() {
-			iteration_count = 0;
 			is_busy = true;
 			while (!stop && (iteration_count <= max_iterations || max_iterations < 0)) {
 				double[][] data_entry;
 				try {
 					data_entry = data.get();
-					System.out.println("received data");
 				} catch (NoMoreDataException e) {
 					break;
 				}
