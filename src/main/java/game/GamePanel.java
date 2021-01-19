@@ -86,11 +86,12 @@ public class GamePanel extends JPanel {
 		
 		// substitute for a gameLoop
 		gameLoop = new Thread(() -> {
-				while (game.noWinners()) synchronized(this)
+				while (game.noWinners() && !stop) synchronized(this)
 				{ gameTick(); }
 			});
 		gameLoop.start();
-		main_panel = this;
+		if (main_panel == null || (main_panel.graphics == null && graphics != null))
+			main_panel = this;
 	}
 	
 	private Image selectedNodes = null;
@@ -212,6 +213,14 @@ public class GamePanel extends JPanel {
 		if (game.getPlayerCount() <= 0) {
 			g.drawImage(graphics.createDebugImage(), 0, 0, null);
 		}
+	}
+
+	private boolean stop = false;
+	
+	public void stop() {
+		stop = true;
+		game.stop();
+		super.setVisible(false);
 	}
 
 }

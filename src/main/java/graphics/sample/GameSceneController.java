@@ -30,6 +30,7 @@ public class GameSceneController implements Initializable{
     }
     @FXML
     private void PlayAgain(ActionEvent event) throws IOException {
+    	gamePanel.stop();
         Controller.gameStage.close();
         Main.mainStage.show();
     }
