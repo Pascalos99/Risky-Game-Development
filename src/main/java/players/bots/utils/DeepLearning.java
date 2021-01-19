@@ -119,19 +119,21 @@ public class DeepLearning {
 	        for (Supplier<double[][]> problem : problems) {
 	        	if (stop) break;
 		        GD.start(problem);
-		        printStuff();
+		        continueUntilOutOfData();
+		        saveNetwork((NeuralNetwork)GD.getModel(), network_name);
 	        }
 	        if (!stop) System.out.println("completed 1 epoch for \""+network_name+"\"");
 	        int epoch = 1;
 	        while (System.currentTimeMillis() - start_time < stop_time_ms) {
 	        	if (stop) break;
 		        GD.startReuseData();
-		        printStuff();
+		        continueUntilOutOfData();
+		        saveNetwork((NeuralNetwork)GD.getModel(), network_name);
 		        System.out.println("completed "+(++epoch)+" epochs for \""+network_name+"\"");
 	        }
 		}
 		
-		private void printStuff() {
+		private void continueUntilOutOfData() {
 			long time = System.currentTimeMillis();
 			long start_time = time;
 			try {

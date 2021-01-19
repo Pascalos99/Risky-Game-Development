@@ -137,6 +137,7 @@ public class GradientDescent {
 			private int index = 0;
 			@Override
 			public double[][] get() {
+				if (index >= stored_data_exp.size()) index = 0;
 				return stored_data_exp.get(index++);
 			}
 		});
@@ -300,8 +301,6 @@ public class GradientDescent {
 		return exploration_replacements;
 	}
 	
-	private boolean ran_out_of_data = false;
-	
 	private class DescentThread extends Thread {
 		
 		private Supplier<double[][]> data;
@@ -322,10 +321,8 @@ public class GradientDescent {
 				try {
 					data_entry = data.get();
 				} catch (NoMoreDataException e) {
-					ran_out_of_data = true;
 					break;
 				}
-				ran_out_of_data = false;
 				trainingStep(data_entry[0], data_entry[1]);
 				iteration_count++;
 			}
