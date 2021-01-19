@@ -2,9 +2,6 @@ package players.bots.utils;
 
 import gamerules.EvaluationFunction;
 import gamerules.GameState;
-import gamerules.Move;
-import gamerules.evaluation_functions.PaperEval;
-import gamerules.evaluation_functions.SimpleGoalDistance;
 import players.bots.AlphaBeta;
 
 import java.util.ArrayList;
@@ -13,15 +10,14 @@ import java.util.List;
 public class AlphaBetaTree {
 
     private final AlphaBetaTreeNode root;
-    public EvaluationFunction evaluationFunction;
+    private final EvaluationFunction evaluationFunction;
     private final int maxDepth;
     private final AlphaBeta maximizingPlayer;
     private final List<List<AlphaBetaTreeNode>> layers;
 
-    public AlphaBetaTree(AlphaBetaTreeNode root, int maxDepth, AlphaBeta maximizingPlayer) {
+    public AlphaBetaTree(AlphaBetaTreeNode root, EvaluationFunction evaluationFunction, int maxDepth, AlphaBeta maximizingPlayer) {
         this.root = root;
-        this.evaluationFunction = new SimpleGoalDistance();
-//        this.evaluationFunction = new PaperEval();
+        this.evaluationFunction = evaluationFunction;
         this.maxDepth = maxDepth;
         this.maximizingPlayer = maximizingPlayer;
         this.layers = new ArrayList<>();
@@ -43,19 +39,10 @@ public class AlphaBetaTree {
         return evaluationFunction.eval(gameState, maximizingPlayer);
     }
 
-    public void expandTree(AlphaBetaTreeNode parentNode, int depth) {
-        if (depth != maxDepth) {
-            for (Move move : parentNode.getAllPossibleMoves()) {
-                GameState childState = parentNode.getGameState().getStateAfterMove(move);
-                AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(parentNode, childState, computeEvaluationScore(childState));
-                parentNode.addChild(childNode);
-                expandTree(childNode, depth + 1);
-            }
-        }
-    }
-
     public AlphaBetaTree createSubtree(AlphaBetaTreeNode newRoot, GameState newState) {
         AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(newState, newRoot.getChildren());
+
+        // Compute new layers
         List<List<AlphaBetaTreeNode>> newLayers = new ArrayList<>();
         for (int i = 0; i <= maxDepth; i++) {
             newLayers.add(new ArrayList<>());
@@ -65,6 +52,7 @@ public class AlphaBetaTree {
             childNode.getGameState().setParent(newState);
             buildLayers(childNode, newLayers, 1, newState);
         }
+
         return new AlphaBetaTree(rootNode, evaluationFunction, maxDepth, maximizingPlayer, newLayers);
     }
 
@@ -77,10 +65,10 @@ public class AlphaBetaTree {
         }
     }
 
-    public void removeNode(AlphaBetaTreeNode node) {
-        node.getParent().removeChild(node);
-        node.setParent(null);
-        layers.get(node.getGameState().getDepth()).remove(node);
+    public AlphaBetaTreeNode createAndAddNode(AlphaBetaTreeNode parent, GameState gameState) {
+        AlphaBetaTreeNode newNode = new AlphaBetaTreeNode(parent, gameState, computeEvaluationScore(gameState));
+        layers.get(gameState.getDepth()).add(newNode);
+        return newNode;
     }
 
     public AlphaBetaTreeNode getRoot() {
@@ -89,10 +77,6 @@ public class AlphaBetaTree {
 
     public int getMaxDepth() {
         return maxDepth;
-    }
-
-    public void addNodeToLayer(AlphaBetaTreeNode node, int depth) {
-        layers.get(depth).add(node);
     }
 
     public List<List<AlphaBetaTreeNode>> getLayers() {

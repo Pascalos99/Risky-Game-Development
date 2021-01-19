@@ -10,30 +10,29 @@ public class AlphaBetaTreeNode {
 
     private AlphaBetaTreeNode parent;
     private final List<AlphaBetaTreeNode> children;
-
     private final GameState gameState;
     private final double evaluationScore;
 
     public AlphaBetaTreeNode(GameState gameState, double evaluationScore) {
         this.parent = null;
-        this.evaluationScore = evaluationScore;
-        this.gameState = gameState;
         this.children = new ArrayList<>();
+        this.gameState = gameState;
+        this.evaluationScore = evaluationScore;
     }
 
     public AlphaBetaTreeNode(GameState gameState, List<AlphaBetaTreeNode> children) {
         this.parent = null;
-        this.evaluationScore = Double.NEGATIVE_INFINITY;
-        this.gameState = gameState;
         this.children = children;
+        this.gameState = gameState;
+        this.evaluationScore = Double.NEGATIVE_INFINITY;
     }
 
     public AlphaBetaTreeNode(AlphaBetaTreeNode parent, GameState gameState, double evaluationScore) {
         this.parent = parent;
         parent.addChild(this);
+        this.children = new ArrayList<>();
         this.gameState = gameState;
         this.evaluationScore = evaluationScore;
-        this.children = new ArrayList<>();
     }
 
     public List<Move> getAllPossibleMoves() {
@@ -64,10 +63,6 @@ public class AlphaBetaTreeNode {
         children.add(childNode);
     }
 
-    public void removeChild(AlphaBetaTreeNode childNode) {
-        children.remove(childNode);
-    }
-
     public AlphaBetaTreeNode max(AlphaBetaTreeNode nodeToCompareWith) {
         if (this.evaluationScore >= nodeToCompareWith.evaluationScore) {
             return this;
@@ -84,15 +79,6 @@ public class AlphaBetaTreeNode {
         else {
             return nodeToCompareWith;
         }
-    }
-
-    public boolean isChildOf(AlphaBetaTreeNode node) {
-        for (AlphaBetaTreeNode childNode : children) {
-            if (childNode == node) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public AlphaBetaTreeNode fetchChildWithState(GameState state) {

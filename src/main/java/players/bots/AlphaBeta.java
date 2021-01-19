@@ -15,149 +15,103 @@ public class AlphaBeta extends Player implements DeterministicReturn {
     private GameState winning;
     private int numberOfPlayers;
     private AlphaBetaTree tree;
+    private final EvaluationFunction evaluationFunction;
 
-    private EvaluationFunction evaluationFunction;
+    public AlphaBeta() {
+        // If no evaluation function is specified, default to SimpleGoalDistance
+        this(new SimpleGoalDistance());
+    }
+
     public AlphaBeta(EvaluationFunction evaluationFunction) {
     	this.evaluationFunction = evaluationFunction;
-    }
-    public AlphaBeta() {
-    	this(new SimpleGoalDistance());
     }
     
     // Bare bones
     // + duplicate child prevention
-    // + optimal ordering (mergesort)
     // + subtrees
+    // + optimal ordering (mergesort)
     private AlphaBetaTreeNode alphaBeta(AlphaBetaTreeNode node, double alpha, double beta, int player, int depth) {
         // Depth-1 winning node
         if (node.getGameState().hasWon(this) && node.getGameState().getDepth() == 1) {
             winning = node.getGameState();
         }
+
         // Leaf node
         if (depth == 0) {
             return node;
         }
+
+        // Initialize bestValue
         AlphaBetaTreeNode bestValue;
-        // Maximizing
         if (player == 1) {
             bestValue = new AlphaBetaTreeNode(null, Double.NEGATIVE_INFINITY);
-
-            if (node.getChildren().isEmpty()) {
-                // Not expanded
-                List<Move> moves = node.getAllPossibleMoves();
-                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
-                childStates = mergesort(childStates);
-                Collections.reverse(childStates);
-
-                for (GameState childState : childStates) {
-                    double childScore = tree.computeEvaluationScore(childState);
-                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                    tree.addNodeToLayer(childNode, childState.getDepth());
-
-                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
-                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
-                    if (alpha >= beta) {
-                        break;
-                    }
-                }
-            }
-            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
-                // Partially expanded
-                List<Move> moves = node.getAllPossibleMoves();
-                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
-                childStates = mergesort(childStates);
-                Collections.reverse(childStates);
-
-                for (GameState childState : childStates) {
-                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
-                    if (childNode == null) {
-                        double childScore = tree.computeEvaluationScore(childState);
-                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                        tree.addNodeToLayer(childNode, childState.getDepth());
-                    }
-
-                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
-                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
-                    if (alpha >= beta) {
-                        break;
-                    }
-                }
-            }
-            else {
-                // Fully expanded
-                for (AlphaBetaTreeNode childNode : node.getChildren()) {
-                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
-                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
-                    if (alpha >= beta) {
-                        break;
-                    }
-                }
-            }
         }
-        // Minimizing
         else {
             bestValue = new AlphaBetaTreeNode(null, Double.POSITIVE_INFINITY);
+        }
 
-            if (node.getChildren().isEmpty()) {
-                // Not expanded
-                List<Move> moves = node.getAllPossibleMoves();
-                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
-                childStates = mergesort(childStates);
+        // Determine state of the current node
+        if (node.getChildren().isEmpty()) {
+            // Not expanded
+            List<GameState> childStates = fetchChildStatesInOptimalOrder(node, player);
 
-                for (GameState childState : childStates) {
-                    double childScore = tree.computeEvaluationScore(childState);
-                    AlphaBetaTreeNode childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                    tree.addNodeToLayer(childNode, childState.getDepth());
+            for (GameState childState : childStates) {
+                AlphaBetaTreeNode childNode = tree.createAndAddNode(node, childState);
 
-                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
-                    beta = Math.min(beta, bestValue.getEvaluationScore());
-                    if (beta <= alpha) {
-                        break;
-                    }
+                if (player == 1) {
+                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
                 }
-            }
-            else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
-                // Partially expanded
-                List<Move> moves = node.getAllPossibleMoves();
-                List<GameState> childStates = enumerateChildStates(moves, node.getGameState());
-                childStates = mergesort(childStates);
-
-                for (GameState childState : childStates) {
-                    AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
-                    if (childNode == null) {
-                        double childScore = tree.computeEvaluationScore(childState);
-                        childNode = new AlphaBetaTreeNode(node, childState, childScore);
-                        tree.addNodeToLayer(childNode, childState.getDepth());
-                    }
-
+                else {
                     bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
                     beta = Math.min(beta, bestValue.getEvaluationScore());
-                    if (beta <= alpha) {
-                        break;
-                    }
                 }
-            }
-            else {
-                // Fully expanded
-                for (AlphaBetaTreeNode childNode : node.getChildren()) {
-                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
-                    beta = Math.min(beta, bestValue.getEvaluationScore());
-                    if (beta <= alpha) {
-                        break;
-                    }
+                if (alpha >= beta) {
+                    break;
                 }
             }
         }
-        return bestValue;
-    }
+        else if (node.getChildren().size() < node.getAllPossibleMoves().size()) {
+            // Partially expanded
+            List<GameState> childStates = fetchChildStatesInOptimalOrder(node, player);
 
-    private int fetchNextPlayer(int currentPlayer) {
-        if (currentPlayer < numberOfPlayers) {
-            return currentPlayer + 1;
+            for (GameState childState : childStates) {
+                AlphaBetaTreeNode childNode = node.fetchChildWithState(childState);
+                if (childNode == null) {
+                    childNode = tree.createAndAddNode(node, childState);
+                }
+
+                if (player == 1) {
+                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                }
+                else {
+                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                }
+                if (alpha >= beta) {
+                    break;
+                }
+            }
         }
         else {
-            return 1;
+            // Fully expanded
+            for (AlphaBetaTreeNode childNode : node.getChildren()) {
+                if (player == 1) {
+                    bestValue = bestValue.max(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    alpha = Math.max(alpha, bestValue.getEvaluationScore());
+                }
+                else {
+                    bestValue = bestValue.min(alphaBeta(childNode, alpha, beta, fetchNextPlayer(player), depth - 1));
+                    beta = Math.min(beta, bestValue.getEvaluationScore());
+                }
+                if (alpha >= beta) {
+                    break;
+                }
+            }
         }
+
+        return bestValue;
     }
 
     private AlphaBetaTreeNode findNewRoot(GameState newState) {
@@ -174,17 +128,34 @@ public class AlphaBeta extends Player implements DeterministicReturn {
         return newRoot;
     }
 
-    private List<GameState> enumerateChildStates(List<Move> moves, GameState currentState) {
+    private List<GameState> fetchChildStatesInOptimalOrder(AlphaBetaTreeNode node, int player) {
+        List<Move> moves = node.getAllPossibleMoves();
+
+        GameState currentState = node.getGameState();
         List<GameState> childStates = new ArrayList<>();
         for (Move move : moves) {
             GameState childState = currentState.getStateAfterMove(move);
             childStates.add(childState);
         }
+
+        childStates = mergesort(childStates);
+        if (player == 1) {
+            Collections.reverse(childStates);
+        }
+
         return childStates;
     }
 
+    private int fetchNextPlayer(int currentPlayer) {
+        if (currentPlayer < numberOfPlayers) {
+            return currentPlayer + 1;
+        }
+        else {
+            return 1;
+        }
+    }
+
     private List<GameState> mergesort(List<GameState> list) {
-        long startT = System.currentTimeMillis();
         if(list.size() > 1) {
             List<GameState>[] lists = partition(list);
             List<GameState> list1 = lists[0];
@@ -252,14 +223,14 @@ public class AlphaBeta extends Player implements DeterministicReturn {
 
     @Override
     public Move returnMove(Board gameBoard) {
-        // Initialize
         if (tree == null) {
+            // Initialize instance fields
             this.numberOfPlayers = gameBoard.getPlayerCount();
             AlphaBetaTreeNode rootNode = new AlphaBetaTreeNode(new GameState(gameBoard), Double.NEGATIVE_INFINITY);
-            this.tree = new AlphaBetaTree(rootNode, 4, this);
-            this.tree.evaluationFunction = evaluationFunction;
+            this.tree = new AlphaBetaTree(rootNode, evaluationFunction, 4, this);
         }
         else {
+            // Create subtree
             AlphaBetaTreeNode rootNode = findNewRoot(new GameState(gameBoard));
             tree = tree.createSubtree(rootNode, new GameState(gameBoard));
         }
@@ -274,9 +245,11 @@ public class AlphaBeta extends Player implements DeterministicReturn {
         // Extract move
         Move move;
         if (winning != null) {
+            // Winning move
             move = winning.getMoveSequence().get(0);
         }
         else {
+            // Non-winning, best move
             move = bestValue.getGameState().getMoveSequence().get(0);
         }
 
@@ -285,12 +258,12 @@ public class AlphaBeta extends Player implements DeterministicReturn {
 
     @Override
     public String getTypeName() {
-        return "Alpha-beta ["+evaluationFunction+"]";
+        return "AlphaBeta [" + evaluationFunction + "]";
     }
 
     @Override
     public String getDescription() {
-        return "";
+        return "AlphaBeta-pruning";
     }
 
     @Override
