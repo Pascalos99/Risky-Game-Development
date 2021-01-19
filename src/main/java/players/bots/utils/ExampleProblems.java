@@ -10,21 +10,32 @@ public class ExampleProblems {
 		xor();
 	}
 	
+	@SuppressWarnings("unused")
 	public static void xor() {
-		xor(1610682005305l);
-		//long seed = System.currentTimeMillis();
-		//System.out.println(seed);
-		//xor(seed); 
+		Long seed = 1611063788045l;
+		GDseed = null;
+		if (GDseed == null) {
+			GDseed = System.currentTimeMillis();
+			System.out.println("GDseed = "+GDseed+"l");
+		}
+		if (seed != null) {
+			xor(seed);
+		} else {
+			seed = System.currentTimeMillis();
+			System.out.println("seed = "+seed+"l");
+			xor(seed); 
+		}
 	}
+	private static Long GDseed;
 	public static void xor(long seed) {
 		Random random = new Random(seed);
 		int[] structure = {2, 4, 1};
 		Activation[] act = {SILU, SILU};
 		NeuralNetwork net = new NeuralNetwork(structure, act);
 		net.initializeRandomWeights(-1, 1, seed);
-		GradientDescent GD = new GradientDescent(net, HALF_SQUARE_ERROR, 0.4, 2000);
+		GradientDescent GD = new GradientDescent(net, HALF_SQUARE_ERROR, 0.4, 1000);
 		GD.setDynamicLR(true, 1.25, 5);
-		GD.setExploration(true, 0.5, 5, null);
+		GD.setExploration(true, 0.5, 5, 0.1, GDseed);
 		GD.start(() -> {
 			boolean x1 = random.nextBoolean();
 			boolean x2 = random.nextBoolean();

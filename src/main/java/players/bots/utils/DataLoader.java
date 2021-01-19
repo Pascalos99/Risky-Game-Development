@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,14 +18,6 @@ import graphics.sample.AssetFinder;
 public class DataLoader {
 	
 	public static final String datapath = AssetFinder.assetsPath+"training_data"+File.separator;
-	
-	public static void main(String[] args) {
-		Data[] load = loadData("new_testing");
-		System.out.println(load.length);
-		int[] lengths = new int[load.length];
-		for (int i=0; i < lengths.length; i++) lengths[i] = load[i].getData().size();
-		System.out.println(Arrays.toString(lengths));
-	}
 	
 	public static void saveData(String name, GameState...all_states_of_game) {
 		Data data = new Data();
@@ -72,8 +65,14 @@ public class DataLoader {
 			String data = Files.readString(data_file.toPath()).strip().replaceAll("//.*\n", "\n").replaceAll("//.*", "");
 			String[] data_parts = data.split(";");
 			Data[] result = new Data[data_parts.length];
-			for (int i=0; i < result.length; i++)
+			for (int i=0; i < result.length; i++) {
 				result[i] = Data.parseData(data_parts[i]);
+				int turn_count = result[i].size();
+				for (int x=0; x < turn_count; x++) {
+					result[i].get(x).turn_count = turn_count;
+					result[i].get(x).turn_index = x;
+				}
+			}
 			return result;
 		} catch (IOException e) {
 			System.out.println("something went wrong when reading data");
@@ -82,17 +81,19 @@ public class DataLoader {
 		return new Data[0];
 	}
 	
-	public static class Data {
+	public static class Data implements Iterable<DataPoint> {
 		private List<DataPoint> data;
 		private List<DataPoint> random_access_data;
-		private boolean data_modified;
 		
 		public Data(int initialCapacity) {
 			data = new ArrayList<>(initialCapacity);
-			data_modified = true;
 		}
 		public Data() {
 			this(10);
+		}
+		
+		public int size() {
+			return data.size();
 		}
 		
 		public static Data compress(Data...data) {
@@ -102,16 +103,19 @@ public class DataLoader {
 		}
 		
 		public List<DataPoint> getData() {
-			if (data_modified) {
-				random_access_data = Collections.unmodifiableList(data);
-				data_modified = false;
-			} return random_access_data;
+			if (random_access_data == null) random_access_data = Collections.unmodifiableList(data);
+			return random_access_data;
+		}
+		public DataPoint get(int index) {
+			return data.get(index);
+		}
+		public Iterator<DataPoint> iterator() {
+			return getData().iterator();
 		}
 		
 		public void addData(DataPoint dataPoint) {
 			synchronized(this) {
 				data.add(dataPoint);
-				data_modified = true;
 			}
 		}
 		public void addData(DataPoint...dataPoints) {
@@ -168,12 +172,11 @@ public class DataLoader {
 				result.addData(DataPoint.parseDataPoint(points[i]));
 			return result;
 		}
-		
 	}
 	
 	public static class DataPoint {
+		/** A value to indicate that some information about a datapoint is unknown */
 		public static final int UNKNOWN = -1;
-		
 		/**
 		 * The gamestate of the game at this moment in the game (before the move of currentplayer is executed)
 		 */
@@ -183,9 +186,17 @@ public class DataLoader {
 		 */
 		public final int current_player;
 		/**
-		 * The player who ended up winning this game
+		 * The player who ended up winning this game; or {@link #UNKNOWN} if unknown
 		 */
 		public int winning_player;
+		/**
+		 * The index of turns at which this datapoint is in its game (starts at 0, ends at {@link #turn_count} {@code -1}); or {@link #UNKNOWN} if unknown
+		 */
+		public int turn_index = UNKNOWN;
+		/**
+		 * The number of turns in this datapoint's game; or {@link #UNKNOWN} if unknown
+		 */
+		public int turn_count = UNKNOWN;
 		
 		private Map<BoardRep, double[][][]> matrixReps = null;
 		
@@ -230,7 +241,8 @@ public class DataLoader {
 		public double[][][] getMatrix(BoardRep boardRep) {
 			if (matrixReps == null) matrixReps = new HashMap<>();
 			double[][][] result = matrixReps.get(boardRep);
-			if (result == null) result = matrixReps.put(boardRep, GameState.getFastMatrix3d(current_player, gamestate, boardRep));
+			if (result == null) result = GameState.getFastMatrix3d(current_player, gamestate, boardRep);
+			matrixReps.put(boardRep, result);
 			return result;
 		}
 		public double[] getMatrixUnrolled(BoardRep boardRep) {

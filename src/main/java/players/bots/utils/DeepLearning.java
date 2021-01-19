@@ -86,41 +86,77 @@ public class DeepLearning {
         runDeepLearning(GD, List.of(problem), stop_time_ms, save_time_ms, info_time_ms, network_name);
     }
     
-    public static void runDeepLearning(GradientDescent GD, List<Supplier<double[][]>> problems, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
-    	long time = System.currentTimeMillis();
-        long start_time = time;
-        boolean stop = false;
-        for (Supplier<double[][]> problem : problems) {
-        	if (stop) break;
-	        GD.start(problem);
-	        try {
-	        	Thread.sleep(15);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-	        while (GD.isBusy()) {
-	        	if (System.currentTimeMillis() - time >= save_time_ms) {
-	        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
-	        		time = System.currentTimeMillis();
-	        		System.gc();
-	        		System.out.println("Saved Network to version "+getLatestVersion(network_name));
-	        	}
-	        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
-	        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
-	        		GD.stop();
-	        		stop = true;
-	        		System.out.println("Stopped gradient descent after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
-	        	}
-	            try {
-	                Thread.sleep(info_time_ms);
-	            } catch (InterruptedException e) {}
-	            if (GD.hasNewData()) {
-	            	System.out.format("calculated %d iterations\n", GD.getIterations());
-	            	System.out.format("  Loss = % .3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
-	            	System.out.format("  executed %d replacements; learning-rate = %.3f\n", GD.getExplorationReplacements(), GD.getLearningRate());
-	            }
+    public static class DLThread extends Thread {
+    	public boolean silence = false;
+		public boolean stop = false;
+		public final GradientDescent GD;
+		public final List<Supplier<double[][]>> problems;
+		public final long stop_time_ms, save_time_ms, info_time_ms;
+		public final String network_name;
+		public DLThread (GradientDescent GD, List<Supplier<double[][]>>problems, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
+			this.GD = GD; this.problems = problems;
+			this.stop_time_ms = stop_time_ms;
+			this.save_time_ms = save_time_ms;
+			this.info_time_ms = info_time_ms;
+			this.network_name = network_name;
+		}
+		public DLThread (GradientDescent GD, Supplier<double[][]>problem, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
+			this(GD, List.of(problem), stop_time_ms, save_time_ms, info_time_ms, network_name);
+		}
+		public void stopDL() {
+			stop = true;
+		}
+		public void setSilent(boolean silent) {
+			silence = silent;
+		}
+		@Override
+		public void run() {
+			System.out.format("set times to: (%.2f s; %.2f min; %.2f min)\n",info_time_ms/1000d, save_time_ms/1000d/60d, stop_time_ms/1000d/60d);
+			long time = System.currentTimeMillis();
+	        long start_time = time;
+	        for (Supplier<double[][]> problem : problems) {
+	        	if (stop) break;
+		        GD.start(problem);
+		        try {
+		        	Thread.sleep(15);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+		        while (GD.isBusy()) {
+		        	if (System.currentTimeMillis() - time >= save_time_ms) {
+		        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
+		        		time = System.currentTimeMillis();
+		        		System.gc();
+		        		if (!silence) System.out.println("Saved Network \""+network_name+"\" to version "+getLatestVersion(network_name));
+		        	}
+		        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
+		        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
+		        		GD.stop();
+		        		stop = true;
+		        		System.out.println("Stopped gradient descent on \""+network_name+"\" after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
+		        	}
+		            try {
+		                Thread.sleep(info_time_ms);
+		            } catch (InterruptedException e) {}
+		            if (GD.hasNewData())
+		            	if (!silence) System.out.format("calculated %d iterations for \"%s\"\n"
+		            			+ "  Loss = % .3e (+/- %.3e)\n"
+		            			+ "  executed %d replacements\n"
+		            			+ "  learning-rate = %.3f\n",
+		            			GD.getIterations(), network_name, GD.getCurrentLoss(), GD.getCurrentLossSD(),
+		            			GD.getExplorationReplacements(), GD.getLearningRate());
+		        }
 	        }
-        }
+		}
+	}
+    
+    public static DLThread runDeepLearning(GradientDescent GD, List<Supplier<double[][]>> problems, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
+    	DLThread dl = new DLThread(GD, problems, stop_time_ms, save_time_ms, info_time_ms, network_name);
+    	dl.start();
+    	return dl;
+    }
+    public static DLThread runDeepLearning(GradientDescent GD, Supplier<double[][]> problem, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
+    	return runDeepLearning(GD, List.of(problem), stop_time_ms, save_time_ms, info_time_ms, network_name);
     }
 
     private static void test(){
