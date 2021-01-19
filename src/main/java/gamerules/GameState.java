@@ -497,19 +497,22 @@ public class GameState {
 	}
 
 	public double[] getMatrixUnrolled(Player perspective, BoardRep boardRep) {
+		return getMatrixUnrolled(original_board.getPlayerID(perspective), getIntegerRepresentation(), boardRep);
+	}
+	
+	public static double[] getMatrixUnrolled(int playerID,byte[] rep, BoardRep board_rep) {
 		double[] result = new double[162];
-		int playerID = original_board.getPlayerID(perspective);
-		int enemy = Board.player_pairings[playerID];
-		byte[] rep = getIntegerRepresentation();
 		double[] my_matrix = fastMatrix1d(playerID, rep);
-		double[] enemy_matrix = fastMatrix1d(enemy, rep);
-		switch (boardRep) {
+		double[] enemy_matrix = fastEnemyMatrix1d(playerID, rep);
+		switch (board_rep) {
 		case TwoNoNegatives:
 			for (int i=0; i < my_matrix.length; i++)
 				result[i] = my_matrix[i];
-			for (int i=0; i < enemy_matrix.length; i++)
-				result[my_matrix.length+i] = enemy_matrix[i];
-			break;
+			for (int i=0; i < enemy_matrix.length; i++) {
+				int enemy_index = enemy_matrix.length - 1 - 9*i;
+				while (enemy_index < 0) enemy_index += enemy_matrix.length - 1;
+				result[my_matrix.length+i] = enemy_matrix[enemy_index];
+			} break;
 		default:
 			for (int i=0; i < my_matrix.length; i++)
 				result[i] = my_matrix[i] - enemy_matrix[i];
@@ -517,7 +520,6 @@ public class GameState {
 				result[my_matrix.length + i] = (my_matrix[i] == 1 || enemy_matrix[i] == 1)? 1 : 0;
 		}
 		return result;
-		//return Utils.unrollMatrix(getMatrix(perspective, boardRep));
 	}
 
 	public double[][][] getMatrix(Player perspective) {
@@ -525,11 +527,12 @@ public class GameState {
 	}
 
 	public double[][][] getMatrix(Player perspective, BoardRep board_rep) {
-		return getMatrix3d(original_board.getPlayerID(perspective),getIntegerRepresentation(),board_rep);
+		return getFastMatrix3d(original_board.getPlayerID(perspective),getIntegerRepresentation(),board_rep);
 	}
 
 	public static Map<Integer, Map<Byte, Integer>> pid_to_nid_to_mid;
 	static {
+		// setup of fastMatrix3d mapping:
 		pid_to_nid_to_mid = new HashMap<>();
 		for (byte node = 0; node < 121; node++) {
 			byte[] integer_rep = new byte[60];
@@ -554,7 +557,27 @@ public class GameState {
 		}
 		return unrolled;
 	}
+	
+	public static double[] fastEnemyMatrix1d(int playerID, byte[] integer_rep) {
+		double[] unrolled = new double[81];
+		for (int i=0; i < integer_rep.length; i++) {
+			if (i / 10 == playerID) continue;
+			int index = pid_to_nid_to_mid.get(playerID).get(integer_rep[i]);
+			if (index >= 0) unrolled[index] = 1;
+		}
+		return unrolled;
+	}
 
+	public static double [][][] getFastMatrix3d(int playerID, byte[] integer_rep, BoardRep board_rep) {
+		double[] unrolled = getMatrixUnrolled(playerID, integer_rep, board_rep);
+		double[][][] result = new double[2][9][9];
+		for (int i=0; i < result.length; i++)
+			for (int j=0; j < result[i].length; j++)
+				for (int k=0; k < result[i][j].length; k++)
+					result[i][j][k] = unrolled[i*81 + j*9 + k];
+		return result;
+	}
+	
 	public static double [][][] getMatrix3d(int playerID,byte[] integer_rep, BoardRep board_rep) {
 		List<Byte> blackList = new ArrayList<>();
 		List<BoardNode> nodes = Board.getEmpty().getAllnodes();

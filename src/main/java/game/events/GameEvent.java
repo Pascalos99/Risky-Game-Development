@@ -52,17 +52,21 @@ public abstract class GameEvent implements Comparable<GameEvent> {
 	
 	private long time_of_creation;
 	
+	public static boolean isEnabled = false;
+	
 	private GameEvent(boolean isNormal) {
-		if (isNormal) {
-			synchronized(this) {
-				this.nextEvent = root;
-				this.prevEvent = root.prevEvent;
-				root.prevEvent.nextEvent = this;
-				root.prevEvent = this;
+		if (isEnabled) {
+			if (isNormal) {
+				synchronized(this) {
+					this.nextEvent = root;
+					this.prevEvent = root.prevEvent;
+					root.prevEvent.nextEvent = this;
+					root.prevEvent = this;
+				}
+			} else {
+				urgency = Urgency.Error;
+				message = "this is a service node of GameEvent, if you got this from nextEvent(), something went terribly wrong";
 			}
-		} else {
-			urgency = Urgency.Error;
-			message = "this is a service node of GameEvent, if you got this from nextEvent(), something went terribly wrong";
 		}
 	}
 	

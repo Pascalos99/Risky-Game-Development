@@ -39,10 +39,9 @@ public class DeepLearning {
     public static long save_time_ms = 900000l / 3; // 15 minutes
     public static long stop_time_ms = 21600000l / 6; // 6 hours
     public static BoardRep board_rep = BoardRep.TwoNoNegatives;
-    public static boolean save_on_stop = false;
     
     private static String network_name = "DL-working test";
-
+    
     public static void main(String[] args) throws IOException {
     	try {
     		ann = loadNetwork(network_name);
@@ -74,7 +73,6 @@ public class DeepLearning {
         */
     }
 
-    private static boolean stopped_by_time = false;
     public static void associatedWithEuristic(){
         Supplier<double[][]> problem = () -> {
             test();
@@ -85,37 +83,43 @@ public class DeepLearning {
 //        GD.setDynamicLR(true, 1.25, 25);
 //        GD.setExploration(true, 0.5, 25, null);
 //        GD.setMinMaxLR(0.05, 0.5);
-        long time = System.currentTimeMillis();
+        runDeepLearning(GD, List.of(problem), stop_time_ms, save_time_ms, info_time_ms, network_name);
+    }
+    
+    public static void runDeepLearning(GradientDescent GD, List<Supplier<double[][]>> problems, long stop_time_ms, long save_time_ms, long info_time_ms, String network_name) {
+    	long time = System.currentTimeMillis();
         long start_time = time;
-        GD.start(problem);
-        try {
-            Thread.sleep(15);
-        } catch (InterruptedException e1) {}
-        while (GD.isBusy()) {
-        	if (System.currentTimeMillis() - time >= save_time_ms) {
-        		saveNetwork(ann, network_name);
-        		time = System.currentTimeMillis();
-        		System.gc();
-        		System.out.println("Saved Network to version "+getLatestVersion(network_name));
-        	}
-        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
-        		if (save_on_stop) saveNetwork(ann, network_name);
-        		GD.stop();
-        		stopped_by_time = true;
-        		System.out.println("Stopped gradient descent after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
-        	}
-            try {
-                Thread.sleep(info_time_ms);
-            } catch (InterruptedException e) {}
-            if (GD.hasNewData()) {
-            	System.out.format("calculated %d iterations\n", GD.getIterations());
-            	System.out.format("  Loss = % .3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
-            	System.out.format("  executed %d replacements; learning-rate = %.3f\n", GD.getExplorationReplacements(), GD.getLearningRate());
-//				GameSetup gs = new GameSetup();
-//				gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(ann)), "Melissa", Color.cyan);
-//				gs.addPlayer(new NaivePlayer(new NeuralNetworkEval(ann)), "Henry", Color.red);
-//				GamePanel.startGame(gs);
-            }
+        boolean stop = false;
+        for (Supplier<double[][]> problem : problems) {
+        	if (stop) break;
+	        GD.start(problem);
+	        try {
+	        	Thread.sleep(15);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+	        while (GD.isBusy()) {
+	        	if (System.currentTimeMillis() - time >= save_time_ms) {
+	        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
+	        		time = System.currentTimeMillis();
+	        		System.gc();
+	        		System.out.println("Saved Network to version "+getLatestVersion(network_name));
+	        	}
+	        	if (System.currentTimeMillis() - start_time >= stop_time_ms) {
+	        		saveNetwork((NeuralNetwork)GD.getModel(), network_name);
+	        		GD.stop();
+	        		stop = true;
+	        		System.out.println("Stopped gradient descent after "+((System.currentTimeMillis() - start_time)/1000d)+" seconds");
+	        	}
+	            try {
+	                Thread.sleep(info_time_ms);
+	            } catch (InterruptedException e) {}
+	            if (GD.hasNewData()) {
+	            	System.out.format("calculated %d iterations\n", GD.getIterations());
+	            	System.out.format("  Loss = % .3e (+/- %.3e)\n",GD.getCurrentLoss(), GD.getCurrentLossSD());
+	            	System.out.format("  executed %d replacements; learning-rate = %.3f\n", GD.getExplorationReplacements(), GD.getLearningRate());
+	            }
+	        }
         }
     }
 
@@ -169,7 +173,6 @@ public class DeepLearning {
     private static Random random;
     
     private static Player[] pick_random_players(int amount) {
-    	System.out.println("Niew player");
     	if (random == null) random = new Random();
     	Player[] result = new Player[amount];
     	int[] temp = new int[amount];

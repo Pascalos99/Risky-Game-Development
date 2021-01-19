@@ -23,8 +23,8 @@ public class ExampleProblems {
 		NeuralNetwork net = new NeuralNetwork(structure, act);
 		net.initializeRandomWeights(-1, 1, seed);
 		GradientDescent GD = new GradientDescent(net, HALF_SQUARE_ERROR, 0.4, 2000);
-		GD.setDynamicLR(true, 1.25, 25);
-		GD.setExploration(true, 0.5, 25, null);
+		GD.setDynamicLR(true, 1.25, 5);
+		GD.setExploration(true, 0.5, 5, null);
 		GD.start(() -> {
 			boolean x1 = random.nextBoolean();
 			boolean x2 = random.nextBoolean();

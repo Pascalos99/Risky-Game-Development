@@ -14,7 +14,6 @@ public class HumanPlayer extends Player implements DeterministicReturn {
 
 	@Override
     public Move returnMove(Board gameBoard){
-		new GameState(gameBoard).getMatrix(this);
 		Pawn calculated_moves_for = null;
 		List<Move> available_moves = null;
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import players.bots.utils.DataTrainer.NoMoreDataException;
 import players.bots.utils.NeuralNetwork.LossFunction;
 
 public class GradientDescent {
@@ -76,6 +77,8 @@ public class GradientDescent {
 	/**
 	 * @param set
 	 * @param exploration_interval may be {@code null}: sets to default
+	 * @param exploration_interval may be {@code null}: sets to default
+	 * @param seed may be {@code null}: sets to random
 	 */
 	public void setExploration(boolean set, Double exploration_magnitude, Integer exploration_interval, Long seed) {
 		exploration = set;
@@ -225,7 +228,13 @@ public class GradientDescent {
 			iteration_count = 0;
 			is_busy = true;
 			while (!stop && (iteration_count <= max_iterations || max_iterations < 0)) {
-				double[][] data_entry = data.get();
+				double[][] data_entry;
+				try {
+					data_entry = data.get();
+					System.out.println("received data");
+				} catch (NoMoreDataException e) {
+					break;
+				}
 				trainingStep(data_entry[0], data_entry[1]);
 				iteration_count++;
 			}
@@ -279,6 +288,9 @@ public class GradientDescent {
 	
 	public void stop() {
 		if (is_busy && !stop) stop = true;
+	}
+	public Tunable getModel() {
+		return model;
 	}
 	
 }

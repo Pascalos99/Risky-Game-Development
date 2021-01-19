@@ -58,6 +58,11 @@ public class DataLoader {
 		}
 	}
 	
+	public static boolean exists(String data_name) {
+		File data_file = new File(datapath + data_name + ".training_data");
+		return data_file.exists();
+	}
+	
 	public static Data[] loadData(String name) {
 		File folder = new File(datapath);
 		folder.mkdirs();
@@ -225,7 +230,7 @@ public class DataLoader {
 		public double[][][] getMatrix(BoardRep boardRep) {
 			if (matrixReps == null) matrixReps = new HashMap<>();
 			double[][][] result = matrixReps.get(boardRep);
-			if (result == null) result = matrixReps.put(boardRep, GameState.getMatrix3d(current_player, gamestate, boardRep));
+			if (result == null) result = matrixReps.put(boardRep, GameState.getFastMatrix3d(current_player, gamestate, boardRep));
 			return result;
 		}
 		public double[] getMatrixUnrolled(BoardRep boardRep) {
